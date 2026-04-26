@@ -55,7 +55,7 @@ export type SacramentType =
   | 'Primera Comunión'
   | 'Confirmación'
   | 'Matrimonio'
-  | 'Unción de los Enfermos';
+
 
 // ─── Address ─────────────────────────────────────────────────────────────────
 
