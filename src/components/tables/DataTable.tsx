@@ -32,7 +32,7 @@ export function DataTable<TData>({
   data,
   loading = false,
   pagination,
-  onPageChange,
+  //onPageChange,
   emptyTitle,
   emptyDescription,
   toolbar,
