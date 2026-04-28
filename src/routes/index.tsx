@@ -15,8 +15,8 @@ const PlaceholderPage = lazy(() =>
   })),
 );
 
-const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage'));
-const RegisterPage = lazy(() => import('@/features/auth/pages/RegisterPage'));
+const LoginPage = lazy(() => import('@/features/user/pages/LoginPage'));
+const RegisterPage = lazy(() => import('@/features/user/pages/RegisterPage'));
 
 function SuspenseFallback() {
   return <PageLoader />;
