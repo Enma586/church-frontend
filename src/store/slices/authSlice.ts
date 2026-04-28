@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import api from '@/lib/axios';
+import api, {getErrorMessage} from '@/lib/axios';
 import type { User, LoginPayload, ApiResponse } from '@/types';
 
 interface AuthState {
@@ -27,10 +27,8 @@ export const loginUser = createAsyncThunk<User, LoginPayload, { rejectValue: str
         return rejectWithValue(data.message || 'Error al iniciar sesión');
       }
       return data.data;
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Error de conexión al iniciar sesión';
-      return rejectWithValue(message);
+        } catch (err: unknown) {
+      return rejectWithValue(getErrorMessage(err, 'Error de conexión al iniciar sesión'));
     }
   },
 );
@@ -40,10 +38,8 @@ export const logoutUser = createAsyncThunk<void, void, { rejectValue: string }>(
   async (_, { rejectWithValue }) => {
     try {
       await api.post('/users/logout');
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Error al cerrar sesión';
-      return rejectWithValue(message);
+       } catch (err: unknown) {
+      return rejectWithValue(getErrorMessage(err, 'Error de conexión al iniciar sesión'));
     }
   },
 );
@@ -58,9 +54,7 @@ export const fetchCurrentUser = createAsyncThunk<User, void, { rejectValue: stri
       }
       return data.data;
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Error al verificar sesión';
-      return rejectWithValue(message);
+      return rejectWithValue(getErrorMessage(err, 'Error de conexión al iniciar sesión'));
     }
   },
 );

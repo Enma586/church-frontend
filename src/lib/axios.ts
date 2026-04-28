@@ -40,5 +40,16 @@ api.interceptors.response.use(
   },
 );
 
+export function getErrorMessage(error: unknown, fallback = 'Error de conexión'): string {
+  if (error && typeof error === 'object' && 'response' in error) {
+    const res = (error as { response?: { data?: { message?: string; errors?: string[] } } }).response;
+    if (res?.data?.message) return res.data.message;
+    if (res?.data?.errors?.length) return res.data.errors.join(', ');
+  }
+  if (error instanceof Error) return error.message;
+  return fallback;
+}
+
 export default api;
 export type { ApiResponse };
+
