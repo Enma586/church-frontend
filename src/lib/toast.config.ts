@@ -14,7 +14,7 @@ export const toastConfig = {
   position: 'top-right' as const,
   
   // Time in milliseconds before the toast disappears
-  duration: 4000,
+  duration: 1000,
   
   // Maximum number of toasts visible on screen simultaneously
   visibleToasts: 5,
