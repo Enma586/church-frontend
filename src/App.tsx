@@ -4,10 +4,11 @@ import { RouterProvider } from 'react-router-dom';
 import { store } from './store';
 import { queryClient } from './lib/query-client';
 import { router } from './routes';
-import { Toaster } from 'sonner';
+
 
 // 1. Importamos el proveedor de tooltips de tu carpeta UI
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { ToastProvider } from './components/feedback/ToastProvider';
 
 function App() {
   return (
@@ -16,7 +17,7 @@ function App() {
         {/* 2. Envolvemos el Router y el Toaster con el TooltipProvider */}
         <TooltipProvider>
           <RouterProvider router={router} />
-          <Toaster position="top-right" richColors closeButton />
+          <ToastProvider/>
         </TooltipProvider>
       </QueryClientProvider>
     </Provider>
