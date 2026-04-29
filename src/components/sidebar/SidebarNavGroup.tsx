@@ -17,17 +17,11 @@ interface SidebarNavGroupProps {
 }
 
 export function SidebarNavGroup({ group, collapsed }: SidebarNavGroupProps) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   if (collapsed) {
-    return (
-      <div className="space-y-1">
-      {group.items.map((item) => (
-        <SidebarNavItem key={item.path} item={item} collapsed />
-      ))}
-      </div>
-      );
-    }
+    return null;
+  }
 
   return (
     <div className="space-y-1">

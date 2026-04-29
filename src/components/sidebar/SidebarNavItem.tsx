@@ -27,7 +27,7 @@ export function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
           isActive
             ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
             : 'text-sidebar-foreground',
-          collapsed && 'justify-center px-2',
+          collapsed && 'justify-center px-2 py-2.5',
         )
       }
     >

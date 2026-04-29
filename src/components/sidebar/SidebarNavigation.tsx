@@ -6,11 +6,9 @@ import {
   ScrollText,
   Settings,
   Shield,
-  //type //LucideIcon,
 } from 'lucide-react';
 import { SidebarNavGroup, type NavGroupData } from './SidebarNavGroup';
-import { //SidebarNavItem, 
-    type NavItemData } from './SidebarNavItem';
+import { SidebarNavItem, type NavItemData } from './SidebarNavItem';
 import { useAppSelector } from '@/store/hooks';
 
 const navigationGroups: NavGroupData[] = [
@@ -59,6 +57,12 @@ interface SidebarNavigationProps {
   collapsed: boolean;
 }
 
+/**
+ * Renders the sidebar navigation.
+ *
+ * When expanded: displays groups with expandable subcategories (start collapsed).
+ * When collapsed: flattens ALL items into a single evenly-spaced icon-only list.
+ */
 export function SidebarNavigation({ collapsed }: SidebarNavigationProps) {
   const user = useAppSelector((s) => s.auth.user);
   const role = user?.role;
@@ -71,10 +75,26 @@ export function SidebarNavigation({ collapsed }: SidebarNavigationProps) {
     (item) => !item.roles || (role && item.roles.includes(role)),
   );
 
+  // When collapsed, flatten every item into one list with uniform spacing
+  if (collapsed) {
+    const allItems: NavItemData[] = [
+      ...filteredGroups.flatMap((g) => g.items),
+      ...filteredAdmin,
+    ];
+
+    return (
+      <nav className="flex flex-col gap-0.5 p-2">
+        {allItems.map((item) => (
+          <SidebarNavItem key={item.path} item={item} collapsed />
+        ))}
+      </nav>
+    );
+  }
+
   return (
     <nav className="flex flex-col gap-4 p-3">
       {filteredGroups.map((group) => (
-        <SidebarNavGroup key={group.label} group={group} collapsed={collapsed} />
+        <SidebarNavGroup key={group.label} group={group} collapsed={false} />
       ))}
 
       {filteredAdmin.length > 0 && (
@@ -85,7 +105,7 @@ export function SidebarNavigation({ collapsed }: SidebarNavigationProps) {
             items: filteredAdmin,
             roles: ['Coordinador'],
           }}
-          collapsed={collapsed}
+          collapsed={false}
         />
       )}
     </nav>
