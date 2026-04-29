@@ -23,6 +23,11 @@ const sizeMap = {
   xl: 'max-w-xl',
 };
 
+/**
+ * Wrapper dialog for forms.
+ * Always renders a DialogDescription (non‑breaking space when empty)
+ * to satisfy the shadcn accessibility requirement.
+ */
 export function FormModal({
   open,
   onOpenChange,
@@ -33,10 +38,13 @@ export function FormModal({
 }: FormModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn(sizeMap[size], 'max-h-[90vh] overflow-y-auto')}>
+      <DialogContent
+        className={cn(sizeMap[size], 'max-h-[90vh] overflow-y-auto')}
+        aria-describedby={undefined}
+      >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          {description && <DialogDescription>{description}</DialogDescription>}
+          <DialogDescription>{description ?? '\u00A0'}</DialogDescription>
         </DialogHeader>
         {children}
       </DialogContent>

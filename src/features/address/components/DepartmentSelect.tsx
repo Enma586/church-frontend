@@ -9,20 +9,25 @@ interface DepartmentSelectProps<T extends FieldValues> {
 }
 
 /**
- * Ready‑to‑use department dropdown backed by the API.
- * Intended to be dropped inside a react‑hook‑form.
+ * Department dropdown backed by the API.
+ * Shows contextual placeholders: loading > error (with message) > empty > ready.
  */
 export function DepartmentSelect<T extends FieldValues>({
   name,
   control,
   label = 'Departamento',
 }: DepartmentSelectProps<T>) {
-  const { data: departments = [], isLoading } = useDepartments();
+  const { data: departments = [], isLoading, isError, error } = useDepartments();
 
-  const options = departments.map((d) => ({
-    value: d._id,
-    label: d.name,
-  }));
+  const options = departments.map((d) => ({ value: d._id, label: d.name }));
+
+  const placeholder = isLoading
+    ? 'Cargando departamentos...'
+    : isError
+      ? (error instanceof Error ? error.message : 'Error al cargar')
+      : departments.length === 0
+        ? 'Sin departamentos — ejecuta seed-honduras.js'
+        : 'Seleccionar departamento';
 
   return (
     <FormSelect
@@ -30,7 +35,7 @@ export function DepartmentSelect<T extends FieldValues>({
       control={control}
       label={label}
       options={options}
-      placeholder={isLoading ? 'Cargando...' : 'Seleccionar departamento'}
+      placeholder={placeholder}
     />
   );
 }

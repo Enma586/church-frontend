@@ -1,4 +1,3 @@
-//import { useForm } from 'react-hook-form';
 import { useCallback, useState } from 'react';
 import { Search, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -26,8 +25,7 @@ const GENDER_OPTIONS = [
 
 /**
  * Filter bar for the members list page.
- * Uses local state + a single "Search" button instead of debounced auto‑apply
- * because the filter combination (status + gender + department + text) is expensive.
+ * Uses local state + an explicit "Search" button.
  */
 export function MemberFilters({ onApply, initialValues }: MemberFiltersProps) {
   const [search, setSearch] = useState(initialValues.search ?? '');
@@ -58,7 +56,7 @@ export function MemberFilters({ onApply, initialValues }: MemberFiltersProps) {
       <FilterSearch value={search} onChange={setSearch} placeholder="Buscar miembro..." />
 
       <Select value={status} onValueChange={setStatus}>
-        <SelectTrigger className="h-9 w-150px">
+        <SelectTrigger className="h-9 w-37.5">
           <SelectValue placeholder="Estado" />
         </SelectTrigger>
         <SelectContent>
@@ -71,7 +69,7 @@ export function MemberFilters({ onApply, initialValues }: MemberFiltersProps) {
       </Select>
 
       <Select value={gender} onValueChange={setGender}>
-        <SelectTrigger className="h-9 w-150px">
+        <SelectTrigger className="h-9 w-37.5">
           <SelectValue placeholder="Género" />
         </SelectTrigger>
         <SelectContent>
@@ -84,7 +82,7 @@ export function MemberFilters({ onApply, initialValues }: MemberFiltersProps) {
       </Select>
 
       <Select value={departmentId} onValueChange={setDepartmentId}>
-        <SelectTrigger className="h-9 w-200px">
+        <SelectTrigger className="h-9 w-50">
           <SelectValue placeholder="Departamento" />
         </SelectTrigger>
         <SelectContent>

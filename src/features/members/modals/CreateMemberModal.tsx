@@ -8,7 +8,7 @@ import { FormInput } from '@/components/forms/FormInput';
 import { FormDatePicker } from '@/components/forms/FormDatePicker';
 import { FormSubmitButton } from '@/components/forms/FormSubmitButton';
 // 1. Importamos tu FormSelect personalizado
-import { FormSelect } from '@/components/forms/FormSelect'; 
+//import { FormSelect } from '@/components/forms/FormSelect'; 
 import { DepartmentSelect } from '@/features/address/components/DepartmentSelect';
 import { MunicipalitySelect } from '@/features/address/components/MunicipalitySelect';
 import { useCreateMember } from '../hooks/useCreateMember';
@@ -75,38 +75,30 @@ export function CreateMemberModal({ open, onOpenChange }: CreateMemberModalProps
   };
 
   // Convertimos tu arreglo de GENDERS en el formato { label, value } que espera el select
-  const genderOptions = GENDERS.map((gender) => ({
-    label: gender,
-    value: gender,
-  }));
 
-  return (
+
+    return (
     <FormModal
       open={open}
       onOpenChange={onOpenChange}
       title="Nuevo miembro"
       description="Completa los datos para registrar un nuevo miembro."
-      size="xl"
+      size="lg"
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormInput name="fullName" control={form.control} label="Nombre completo" />
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormDatePicker name="dateOfBirth" control={form.control} label="Fecha de nacimiento" />
             <FormInput name="phone" control={form.control} label="Teléfono" />
           </div>
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormInput name="email" control={form.control} label="Correo electrónico" type="email" />
-            
-            {/* 2. Usamos el FormSelect con las opciones de género */}
-            <FormSelect 
-              name="gender" 
-              control={form.control} 
-              label="Género" 
-              options={genderOptions}
-            />
-
+            <FormInput name="gender" control={form.control} label="Género" />
           </div>
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <DepartmentSelect name="departmentId" control={form.control} />
             <MunicipalitySelect
@@ -115,6 +107,7 @@ export function CreateMemberModal({ open, onOpenChange }: CreateMemberModalProps
               departmentId={departmentId}
             />
           </div>
+
           <FormInput name="addressDetails" control={form.control} label="Dirección detallada" />
 
           <FormSubmitButton

@@ -10,8 +10,9 @@ interface MunicipalitySelectProps<T extends FieldValues> {
 }
 
 /**
- * Municipality dropdown that reacts to the selected department.
- * When departmentId is empty the select shows a placeholder and is disabled.
+ * Municipality dropdown filtered by department.
+ * Disabled until a department is selected.
+ * Shows the actual error message when the API call fails.
  */
 export function MunicipalitySelect<T extends FieldValues>({
   name,
@@ -19,12 +20,22 @@ export function MunicipalitySelect<T extends FieldValues>({
   departmentId,
   label = 'Municipio',
 }: MunicipalitySelectProps<T>) {
-  const { data: municipalities = [], isLoading } = useMunicipalities(departmentId);
+  const { data: municipalities = [], isLoading, isError, error } = useMunicipalities(departmentId);
 
-  const options = municipalities.map((m) => ({
-    value: m._id,
-    label: m.name,
-  }));
+  const options = municipalities.map((m) => ({ value: m._id, label: m.name }));
+
+  let placeholder: string;
+  if (!departmentId) {
+    placeholder = 'Primero selecciona un departamento';
+  } else if (isLoading) {
+    placeholder = 'Cargando municipios...';
+  } else if (isError) {
+    placeholder = error instanceof Error ? error.message : 'Error al cargar';
+  } else if (municipalities.length === 0) {
+    placeholder = 'Sin municipios — ejecuta seed-honduras.js';
+  } else {
+    placeholder = 'Seleccionar municipio';
+  }
 
   return (
     <FormSelect
@@ -32,13 +43,7 @@ export function MunicipalitySelect<T extends FieldValues>({
       control={control}
       label={label}
       options={options}
-      placeholder={
-        !departmentId
-          ? 'Primero selecciona un departamento'
-          : isLoading
-            ? 'Cargando...'
-            : 'Seleccionar municipio'
-      }
+      placeholder={placeholder}
     />
   );
 }
