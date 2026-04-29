@@ -24,7 +24,7 @@ import { FAMILY_RELATIONSHIPS } from '@/constants/family-relationship';
 import type { CreateMemberPayload } from '@/types';
 
 const genderOptions = GENDERS.map((g) => ({ value: g, label: g }));
-const statusOptions = MEMBER_STATUSES.map((s) => ({ value: s, label: s }));
+//const statusOptions = MEMBER_STATUSES.map((s) => ({ value: s, label: s }));
 const relationshipOptions = FAMILY_RELATIONSHIPS.map((r) => ({ value: r, label: r }));
 
 const familyMemberSchema = z.object({
@@ -163,7 +163,7 @@ export function CreateMemberModal({ open, onOpenChange }: CreateMemberModalProps
             </div>
 
             {/* COLUMNA DERECHA: Familiares */}
-            <div className="bg-muted/30 p-4 rounded-lg border flex flex-col h-full max-h-[500px]">
+            <div className="bg-muted/30 p-4 rounded-lg border flex flex-col h-full max-h-125">
               <div className="flex items-center justify-between mb-4">
                 <SectionHeader icon={Users} title="Núcleo Familiar" />
                 <Button type="button" variant="outline" size="sm" onClick={addFamilyMember}>

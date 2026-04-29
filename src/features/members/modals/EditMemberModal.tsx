@@ -1,3 +1,4 @@
+//import { useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -56,37 +57,35 @@ interface EditMemberModalProps {
 
 function SectionHeader({ icon: Icon, title }: { icon: React.ComponentType<{ className?: string }>; title: string }) {
   return (
-    <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-      <Icon className="h-4 w-4" />
-      {title}
+    <div className="flex items-center gap-2 text-sm font-bold text-primary mb-2">
+      <Icon className="h-5 w-5" />
+      <h3 className="uppercase tracking-wider">{title}</h3>
     </div>
   );
 }
 
-/**
- * Modal to edit an existing member's information including family.
- */
 export function EditMemberModal({ open, onOpenChange, member }: EditMemberModalProps) {
   const updateMutation = useUpdateMember();
   const { notifyUpdated } = useNotificationActions();
 
- const form = useForm({
-  resolver: zodResolver(editSchema),
-  defaultValues: {
-    fullName: member.fullName,
-    dateOfBirth: member.dateOfBirth.slice(0, 10),
-    gender: member.gender as typeof GENDERS[number],
-    phone: member.phone ?? '',
-    email: member.email ?? '',
-    departmentId:
-      (typeof member.departmentId === 'object' ? member.departmentId._id : member.departmentId) as string,
-    municipalityId:
-      (typeof member.municipalityId === 'object' ? member.municipalityId._id : member.municipalityId) as string,
-    addressDetails: member.addressDetails ?? '',
-    family: member.family ?? [],
-    status: member.status as typeof MEMBER_STATUSES[number],
-  },
-});
+  const form = useForm({
+    resolver: zodResolver(editSchema),
+    defaultValues: {
+      fullName: member.fullName,
+      dateOfBirth: member.dateOfBirth.slice(0, 10),
+      gender: member.gender as typeof GENDERS[number],
+      phone: member.phone ?? '',
+      email: member.email ?? '',
+      departmentId:
+        (typeof member.departmentId === 'object' ? member.departmentId._id : member.departmentId) as string,
+      municipalityId:
+        (typeof member.municipalityId === 'object' ? member.municipalityId._id : member.municipalityId) as string,
+      addressDetails: member.addressDetails ?? '',
+      family: member.family ?? [],
+      status: member.status as typeof MEMBER_STATUSES[number],
+    },
+  });
+  
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'family',
@@ -132,130 +131,131 @@ export function EditMemberModal({ open, onOpenChange, member }: EditMemberModalP
   };
 
   return (
-    <FormModal open={open} onOpenChange={onOpenChange} title="Editar miembro" size="xl">
+    <FormModal 
+      open={open} 
+      onOpenChange={onOpenChange} 
+      title="Editar Miembro" 
+      description="Modifica los datos personales, ubicación y núcleo familiar."
+      size="5xl"
+    >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
 
-          {/* ═══════ SECCIÓN 1 — Información personal ═══════ */}
-          <div className="space-y-4">
-            <SectionHeader icon={User} title="Información personal" />
+          {/* ═══════ CONTENEDOR EN 2 COLUMNAS ═══════ */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-            <FormInput name="fullName" control={form.control} label="Nombre completo" />
+            {/* COLUMNA IZQUIERDA: Datos Personales y Ubicación */}
+            <div className="space-y-6">
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <FormDatePicker name="dateOfBirth" control={form.control} label="Fecha de nacimiento" />
-              <FormSelect name="gender" control={form.control} label="Género" options={genderOptions} />
-              <FormInput name="phone" control={form.control} label="Teléfono" />
+              {/* Información Personal */}
+              <div className="bg-muted/30 p-4 rounded-lg border space-y-4">
+                <SectionHeader icon={User} title="Información personal" />
+                
+                <FormInput name="fullName" control={form.control} label="Nombre completo" />
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormDatePicker name="dateOfBirth" control={form.control} label="Nacimiento" />
+                  <FormSelect name="gender" control={form.control} label="Género" options={genderOptions} />
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormInput name="phone" control={form.control} label="Teléfono" />
+                  <FormInput name="email" control={form.control} label="Correo" type="email" />
+                </div>
+
+                <FormSelect name="status" control={form.control} label="Estado actual" options={statusOptions} />
+              </div>
+
+              {/* Ubicación */}
+              <div className="bg-muted/30 p-4 rounded-lg border space-y-4">
+                <SectionHeader icon={MapPin} title="Ubicación" />
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <DepartmentSelect name="departmentId" control={form.control} />
+                  <MunicipalitySelect
+                    name="municipalityId"
+                    control={form.control}
+                    departmentId={departmentId}
+                  />
+                </div>
+                
+                <FormInput name="addressDetails" control={form.control} label="Dirección detallada" />
+              </div>
+
             </div>
 
-            <FormInput name="email" control={form.control} label="Correo electrónico" type="email" />
+            {/* COLUMNA DERECHA: Familiares */}
+            <div className="bg-muted/30 p-4 rounded-lg border flex flex-col h-full max-h-125">
+              <div className="flex items-center justify-between mb-4">
+                <SectionHeader icon={Users} title="Núcleo Familiar" />
+                <Button type="button" variant="outline" size="sm" onClick={addFamilyMember}>
+                  <Plus className="mr-1.5 h-4 w-4" />
+                  Agregar
+                </Button>
+              </div>
 
-            <FormSelect name="status" control={form.control} label="Estado" options={statusOptions} />
-          </div>
+              {fields.length === 0 && (
+                <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground border-2 border-dashed rounded-md p-6">
+                  <Users className="h-8 w-8 mb-2 opacity-50" />
+                  <p className="text-sm text-center">No hay familiares registrados.</p>
+                </div>
+              )}
 
-          <Separator />
-
-          {/* ═══════ SECCIÓN 2 — Ubicación ═══════ */}
-          <div className="space-y-4">
-            <SectionHeader icon={MapPin} title="Ubicación" />
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <DepartmentSelect name="departmentId" control={form.control} />
-              <MunicipalitySelect
-                name="municipalityId"
-                control={form.control}
-                departmentId={departmentId}
-              />
-            </div>
-
-            <FormInput name="addressDetails" control={form.control} label="Dirección detallada" />
-          </div>
-
-          <Separator />
-
-          {/* ═══════ SECCIÓN 3 — Familiares ═══════ */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <SectionHeader icon={Users} title="Familiares" />
-              <Button type="button" variant="outline" size="sm" onClick={addFamilyMember}>
-                <Plus className="mr-1.5 h-4 w-4" />
-                Agregar familiar
-              </Button>
-            </div>
-
-            {fields.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                Sin familiares registrados.
-              </p>
-            )}
-
-            <div className="space-y-3">
-              {fields.map((field, index) => (
-                <Card key={field.id}>
-                  <CardContent className="pt-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <span className="text-sm font-medium">Familiar #{index + 1}</span>
+              <div className="overflow-y-auto pr-2 space-y-3 flex-1">
+                {fields.map((field, index) => (
+                  <Card key={field.id} className="relative shadow-sm">
+                    <CardContent className="pt-4 pb-3 px-4">
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 text-destructive"
+                        className="absolute top-2 right-2 h-6 w-6 text-destructive hover:bg-destructive/10"
                         onClick={() => remove(index)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
-                    </div>
 
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                      <FormInput
-                        name={`family.${index}.name`}
-                        control={form.control}
-                        label="Nombre"
-                      />
-                      <FormSelect
-                        name={`family.${index}.relationship`}
-                        control={form.control}
-                        label="Parentesco"
-                        options={relationshipOptions}
-                      />
-                    </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pr-6">
+                        <FormInput name={`family.${index}.name`} control={form.control} label="Nombre" />
+                        <FormSelect name={`family.${index}.relationship`} control={form.control} label="Parentesco" options={relationshipOptions} />
+                      </div>
 
-                    <div className="mt-3 flex items-end gap-4">
-                      <div className="flex-1">
-                        <FormInput
-                          name={`family.${index}.contactNumber`}
-                          control={form.control}
-                          label="Teléfono"
-                        />
+                      <div className="mt-3 flex flex-col sm:flex-row items-end gap-4">
+                        <div className="flex-1 w-full">
+                          <FormInput name={`family.${index}.contactNumber`} control={form.control} label="Teléfono" />
+                        </div>
+                        <div className="flex items-center gap-2 pb-2">
+                          <Checkbox
+                            id={`edit-family-${index}-isMember`}
+                            checked={form.watch(`family.${index}.isMember`)}
+                            onCheckedChange={(checked) =>
+                              form.setValue(`family.${index}.isMember`, checked === true)
+                            }
+                          />
+                          <Label htmlFor={`edit-family-${index}-isMember`} className="text-sm cursor-pointer whitespace-nowrap">
+                            Es miembro
+                          </Label>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 pb-2">
-                        <Checkbox
-                          id={`edit-family-${index}-isMember`}
-                          checked={form.watch(`family.${index}.isMember`)}
-                          onCheckedChange={(checked) =>
-                            form.setValue(`family.${index}.isMember`, checked === true)
-                          }
-                        />
-                        <Label htmlFor={`edit-family-${index}-isMember`} className="text-sm cursor-pointer">
-                          Es miembro
-                        </Label>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
+
           </div>
 
           <Separator />
 
           {/* ═══════ SUBMIT ═══════ */}
-          <FormSubmitButton
-            isSubmitting={updateMutation.isPending}
-            label="Guardar cambios"
-            loadingLabel="Guardando..."
-            className="w-full"
-          />
+          <div className="flex justify-end">
+            <FormSubmitButton
+              isSubmitting={updateMutation.isPending}
+              label="Guardar Cambios"
+              loadingLabel="Actualizando en la base de datos..."
+              className="w-full sm:w-auto px-8"
+            />
+          </div>
         </form>
       </Form>
     </FormModal>
