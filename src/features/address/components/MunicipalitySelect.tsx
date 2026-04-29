@@ -26,7 +26,7 @@ export function MunicipalitySelect<T extends FieldValues>({
 
   let placeholder: string;
   if (!departmentId) {
-    placeholder = 'Primero selecciona un departamento';
+    placeholder = '';
   } else if (isLoading) {
     placeholder = 'Cargando municipios...';
   } else if (isError) {

@@ -13,14 +13,20 @@ interface FormModalProps {
   title: string;
   description?: string;
   children: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  // 1. Ampliamos las opciones de tamaño disponibles
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl';
 }
 
+// 2. Agregamos las clases reales de Tailwind para pantallas anchas
 const sizeMap = {
-  sm: 'max-w-sm',
-  md: 'max-w-md',
-  lg: 'max-w-lg',
-  xl: 'max-w-xl',
+  sm: 'sm:max-w-sm',       // 384px
+  md: 'sm:max-w-md',       // 448px
+  lg: 'sm:max-w-lg',       // 512px
+  xl: 'sm:max-w-xl',       // 576px
+  '2xl': 'sm:max-w-2xl',   // 672px
+  '3xl': 'sm:max-w-3xl',   // 768px
+  '4xl': 'sm:max-w-4xl',   // 896px (Perfecto para 2 columnas)
+  '5xl': 'sm:max-w-5xl',   // 1024px
 };
 
 /**
@@ -38,8 +44,9 @@ export function FormModal({
 }: FormModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
+      {/* Añadimos w-[95vw] para que en celulares no toque los bordes de la pantalla */}
       <DialogContent
-        className={cn(sizeMap[size], 'max-h-[90vh] overflow-y-auto')}
+        className={cn('w-[95vw] max-h-[90vh] overflow-y-auto', sizeMap[size])}
         aria-describedby={undefined}
       >
         <DialogHeader>
