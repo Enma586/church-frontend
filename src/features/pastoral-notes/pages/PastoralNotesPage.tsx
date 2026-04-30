@@ -16,6 +16,8 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useAppSelector } from '@/store/hooks';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
 import type { PastoralNote, PastoralNoteQueryParams } from '@/types';
 import type { ColumnDef } from '@tanstack/react-table';
 
@@ -48,7 +50,7 @@ export default function PastoralNotesPage() {
       accessorKey: 'content',
       cell: ({ getValue }) => {
         const text = getValue() as string;
-        return <span className="line-clamp-1 max-w-7 block">{text}</span>;
+        return <span className="block max-w-75 truncate">{text}</span>;
       },
     },
     {
@@ -111,14 +113,31 @@ export default function PastoralNotesPage() {
 
       {pagination && <TablePagination pagination={pagination} onPageChange={goToPage} onLimitChange={setPerPage} />}
 
-      {/* Preview modal */}
-      {preview && (
-        <EditPastoralNoteModal
-          open={!!preview}
-          onOpenChange={(o) => { if (!o) setPreview(null); }}
-          note={preview}
-        />
-      )}
+      {/* Preview (read-only) */}
+      <Dialog open={!!preview} onOpenChange={(o) => { if (!o) setPreview(null); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Nota pastoral</DialogTitle>
+            <DialogDescription>{'\u00A0'}</DialogDescription>
+          </DialogHeader>
+          {preview && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">
+                  {typeof preview.memberId === 'object' ? preview.memberId.fullName : '—'}
+                </span>
+                <SensitiveBadge isSensitive={preview.isSensitive} />
+              </div>
+              <Separator />
+              <p className="text-sm whitespace-pre-wrap">{preview.content}</p>
+              <p className="text-xs text-muted-foreground">
+                Por @{typeof preview.authorId === 'object' ? preview.authorId.username : '—'}
+                {' — '}{format(new Date(preview.createdAt), 'PPP p', { locale: es })}
+              </p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <CreatePastoralNoteModal open={createOpen} onOpenChange={setCreateOpen} />
       {editItem && <EditPastoralNoteModal open={!!editItem} onOpenChange={(o) => { if (!o) setEditItem(null); }} note={editItem} />}

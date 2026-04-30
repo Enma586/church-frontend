@@ -19,7 +19,9 @@ export function PastoralNoteCard({ note, onClick }: Props) {
           <ScrollText className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
         )}
         <div className="flex-1 min-w-0">
-          <p className="text-sm line-clamp-2">{note.content}</p>
+          <p className="text-sm" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            {note.content}
+          </p>
           <p className="text-xs text-muted-foreground mt-1">
             {memberName} — @{authorName}
             {' · '}{format(new Date(note.createdAt), 'dd/MM/yy', { locale: es })}
