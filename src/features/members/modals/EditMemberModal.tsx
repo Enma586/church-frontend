@@ -72,7 +72,7 @@ export function EditMemberModal({ open, onOpenChange, member }: EditMemberModalP
     resolver: zodResolver(editSchema),
     defaultValues: {
       fullName: member.fullName,
-      dateOfBirth: member.dateOfBirth.slice(0, 10),
+      dateOfBirth: member.dateOfBirth,
       gender: member.gender as typeof GENDERS[number],
       phone: member.phone ?? '',
       email: member.email ?? '',

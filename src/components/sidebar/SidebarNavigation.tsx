@@ -42,7 +42,7 @@ const navigationGroups: NavGroupData[] = [
     roles: ['Coordinador', 'Subcoordinador'],
     items: [
       { label: 'Sacramentos', path: '/sacraments', icon: BookOpen },
-      { label: 'Notas Pastorales', path: '/pastoral-notes', icon: ScrollText },
+      { label: 'Notas', path: '/pastoral-notes', icon: ScrollText },
     ],
   },
 ];
