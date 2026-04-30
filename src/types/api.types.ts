@@ -235,6 +235,8 @@ export interface SacramentQueryParams extends PaginationParams {
   type?: SacramentType;
   memberId?: string;
   search?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }
 
 // ─── Pastoral Note ───────────────────────────────────────────────────────────
