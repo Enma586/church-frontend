@@ -8,8 +8,10 @@ import { FormSelect } from '@/components/forms/FormSelect';
 import { FormSubmitButton } from '@/components/forms/FormSubmitButton';
 import { useCreateUser } from '../hooks/useCreateUser';
 import { useMembers } from '@/features/members/hooks/useMembers';
+import { useUsers } from '../hooks/useUsers';
 import { useNotificationActions } from '@/hooks/useNotificationActions';
 import { USER_ROLES } from '@/constants/roles';
+import { useMemo } from 'react';
 import type { CreateUserPayload } from '@/types';
 
 const roleOptions = USER_ROLES.map((r) => ({ value: r, label: r }));
@@ -29,10 +31,25 @@ interface CreateUserModalProps {
 export function CreateUserModal({ open, onOpenChange }: CreateUserModalProps) {
   const createMutation = useCreateUser();
   const { notifyCreated } = useNotificationActions();
-  const { data: membersData } = useMembers({ limit: 200 });
+  const { data: membersData, isLoading: membersLoading } = useMembers({ limit: 100 });
+  const { data: usersData } = useUsers({ limit: 100 });
+
   const members = membersData?.data ?? [];
 
-  const memberOptions = members.map((m) => ({
+  // Filtrar miembros que YA tienen usuario asignado
+  const existingUserMemberIds = useMemo(() => {
+    const ids = (usersData?.data ?? [])
+      .filter((u) => u.memberId) // memberId puede ser null si no tiene miembro
+      .map((u) => (typeof u.memberId === 'object' ? u.memberId._id : u.memberId));
+    return new Set(ids);
+  }, [usersData]);
+
+  const availableMembers = useMemo(
+    () => members.filter((m) => !existingUserMemberIds.has(m._id)),
+    [members, existingUserMemberIds],
+  );
+
+  const memberOptions = availableMembers.map((m) => ({
     value: m._id,
     label: `${m.fullName}${m.email ? ` (${m.email})` : ''}`,
   }));
@@ -59,11 +76,17 @@ export function CreateUserModal({ open, onOpenChange }: CreateUserModalProps) {
   };
 
   return (
-    <FormModal open={open} onOpenChange={onOpenChange} title="Nuevo usuario" description="Asigna credenciales a un miembro existente." size="md">
+    <FormModal open={open} onOpenChange={onOpenChange} title="Nuevo usuario" description="Asigna credenciales a un miembro sin usuario." size="md">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
           <div className="bg-muted/30 p-4 rounded-lg border space-y-4">
-            <FormSelect name="memberId" control={form.control} label="Miembro" options={memberOptions} placeholder="Seleccionar miembro..." />
+            <FormSelect
+              name="memberId"
+              control={form.control}
+              label="Miembro"
+              options={memberOptions}
+              placeholder={membersLoading ? 'Cargando miembros...' : availableMembers.length === 0 ? 'Todos los miembros tienen usuario' : 'Seleccionar miembro...'}
+            />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormInput name="username" control={form.control} label="Nombre de usuario" placeholder="admin" />
               <FormInput name="password" control={form.control} label="Contraseña" type="password" placeholder="••••••" />

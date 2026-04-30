@@ -21,6 +21,7 @@ const PlaceholderPage = lazy(() =>
 const LoginPage = lazy(() => import("@/features/user/pages/LoginPage"));
 const RegisterPage = lazy(() => import("@/features/user/pages/RegisterPage"));
 const MembersList = lazy(() => import("@/features/members/pages/MembersPage"));
+const UsersList = lazy(() => import('@/features/users/pages/UsersPage'));
 const MemberProfile = lazy(
   () => import("@/features/members/pages/MemberProfilePage"),
 );
@@ -119,7 +120,7 @@ export const router = createBrowserRouter([
             path: "users",
             element: (
               <Suspense fallback={<SuspenseFallback />}>
-                <PlaceholderPage />
+                <UsersList />
               </Suspense>
             ),
           },
