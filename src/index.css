@@ -49,6 +49,7 @@
 }
 
 :root {
+      color-scheme: light;
     --background: oklch(0.99 0.01 250); /* Gris azulado muy claro */
     --foreground: oklch(0.25 0.04 250); /* Texto oscuro (azul grisáceo) */
     
@@ -101,6 +102,7 @@
 }
 
 .dark {
+      color-scheme: dark;
     /* 🌑 Fondo muy oscuro, casi azul medianoche */
     --background: oklch(0.18 0.04 250);
     --foreground: oklch(0.95 0.02 250);

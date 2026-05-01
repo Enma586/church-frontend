@@ -5,7 +5,7 @@ import { CalendarDays, FileText } from 'lucide-react';
 import { Form } from '@/components/ui/form';
 import { FormModal } from '@/components/modals/FormModal';
 import { FormInput } from '@/components/forms/FormInput';
-import { FormDatePicker } from '@/components/forms/FormDatePicker';
+import { FormDateTimePicker } from '@/components/forms/FormDateTimePicker'; // 👈 IMPORTACIÓN NUEVA
 import { FormSelect } from '@/components/forms/FormSelect';
 import { FormTextArea } from '@/components/forms/FormTextArea';
 import { FormSubmitButton } from '@/components/forms/FormSubmitButton';
@@ -14,9 +14,6 @@ import { useCreateAppointment } from '../hooks/useCreateAppointment';
 import { useMembers } from '@/features/members/hooks/useMembers';
 import { useNotificationActions } from '@/hooks/useNotificationActions';
 import type { CreateAppointmentPayload } from '../types/appointment.types';
-//import { APPOINTMENT_STATUSES } from '@/constants/appointment-status';
-
-//const statusOptions = APPOINTMENT_STATUSES.map((s) => ({ value: s, label: s }));
 
 const createSchema = z.object({
   memberId: z
@@ -52,7 +49,7 @@ function SectionHeader({
 export function CreateAppointmentModal({ open, onOpenChange }: Props) {
   const createMutation = useCreateAppointment();
   const { notifyCreated } = useNotificationActions();
-  const { data: membersData } = useMembers({ limit: 100 });
+  const { data: membersData } = useMembers({ limit: 1000 }); // Ajuste el límite por si la iglesia crece
   const members = membersData?.data ?? [];
 
   const memberOptions = members.map((m) => ({ value: m._id, label: m.fullName }));
@@ -116,12 +113,13 @@ export function CreateAppointmentModal({ open, onOpenChange }: Props) {
               <div className="bg-muted/30 p-4 rounded-lg border space-y-4">
                 <SectionHeader icon={CalendarDays} title="Horario" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormDatePicker
+                  {/* 👇 AQUÍ USAMOS EL NUEVO COMPONENTE 👇 */}
+                  <FormDateTimePicker
                     name="startDateTime"
                     control={form.control}
                     label="Inicio"
                   />
-                  <FormDatePicker
+                  <FormDateTimePicker
                     name="endDateTime"
                     control={form.control}
                     label="Fin"

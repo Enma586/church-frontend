@@ -158,19 +158,24 @@ export default function AppointmentsPage() {
       {viewMode === 'table' && (
         <>
           <TableToolbar>
-            <div className="flex flex-wrap items-end gap-3">
-              <FilterSearch
-                value={search}
-                onChange={setSearch}
-                placeholder="Buscar cita..."
-              />
-              <FilterDateRange
-                label="Fechas"
-                dateFrom={dateFrom}
-                dateTo={dateTo}
-                onDateFromChange={setDateFrom}
-                onDateToChange={setDateTo}
-              />
+            {/* Eliminamos 'flex-wrap' y agregamos 'overflow-x-auto' para evitar que se rompa en móviles */}
+            <div className="flex items-end gap-3 overflow-x-auto pb-2">
+              <div className="min-w-50">
+                <FilterSearch
+                  value={search}
+                  onChange={setSearch}
+                  placeholder="Buscar cita..."
+                />
+              </div>
+              <div className="shrink-0">
+                <FilterDateRange
+                  label="Fechas"
+                  dateFrom={dateFrom}
+                  dateTo={dateTo}
+                  onDateFromChange={setDateFrom}
+                  onDateToChange={setDateTo}
+                />
+              </div>
             </div>
           </TableToolbar>
 
