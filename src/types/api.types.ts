@@ -183,6 +183,10 @@ export interface Appointment {
   createdBy: string | Pick<User, '_id' | 'username' | 'role'>;
   createdAt: string;
   updatedAt: string;
+
+  member?: Pick<Member, '_id' | 'fullName' | 'phone' | 'email'>;
+  participantsList?: Pick<Member, '_id' | 'fullName' | 'phone' | 'email'>[];
+  creator?: Pick<User, '_id' | 'username' | 'role'>;
 }
 
 export interface CreateAppointmentPayload {
