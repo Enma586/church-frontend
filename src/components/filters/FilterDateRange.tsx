@@ -1,11 +1,15 @@
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-import { CalendarIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { CalendarIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 interface FilterDateRangeProps {
   label: string;
@@ -58,20 +62,23 @@ function DatePopover({
           variant="outline"
           size="sm"
           className={cn(
-            'h-9 w-35 justify-start text-left font-normal',
-            !date && 'text-muted-foreground',
+            "h-9 w-35 justify-start text-left font-normal",
+            !date && "text-muted-foreground",
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(new Date(date), 'PP', { locale: es }) : placeholder}
+          {date ? format(new Date(date), "PP", { locale: es }) : placeholder}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
         <Calendar
           mode="single"
           selected={date ? new Date(date) : undefined}
-          onSelect={(d) => onChange(d?.toISOString() ?? '')}
+          onSelect={(d) => onChange(d?.toISOString() ?? "")}
           initialFocus
+          captionLayout="dropdown"
+          fromYear={1900}
+          toYear={new Date().getFullYear() + 5}
         />
       </PopoverContent>
     </Popover>
