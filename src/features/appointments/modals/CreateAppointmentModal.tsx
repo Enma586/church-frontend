@@ -23,7 +23,6 @@ const createSchema = z.object({
   description: z.string().trim().optional(),
   extras: z.string().trim().optional(),
   startDateTime: z.string().min(1, 'Requerida'),
-  endDateTime: z.string().min(1, 'Requerida'),
 });
 
 interface Props {
@@ -62,7 +61,6 @@ export function CreateAppointmentModal({ open, onOpenChange }: Props) {
       description: '',
       extras: '',
       startDateTime: '',
-      endDateTime: '',
     },
   });
 
@@ -118,11 +116,6 @@ export function CreateAppointmentModal({ open, onOpenChange }: Props) {
                     name="startDateTime"
                     control={form.control}
                     label="Inicio"
-                  />
-                  <FormDateTimePicker
-                    name="endDateTime"
-                    control={form.control}
-                    label="Fin"
                   />
                 </div>
               </div>

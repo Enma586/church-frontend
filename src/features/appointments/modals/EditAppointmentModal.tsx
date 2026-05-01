@@ -23,7 +23,6 @@ const editSchema = z.object({
   description: z.string().trim().optional(),
   extras: z.string().trim().optional(),
   startDateTime: z.string().optional(),
-  endDateTime: z.string().optional(),
   status: z.enum(APPOINTMENT_STATUSES).optional(),
 });
 
@@ -63,7 +62,6 @@ export function EditAppointmentModal({
       description: appointment.description ?? '',
       extras: appointment.extras ?? '',
       startDateTime: appointment.startDateTime?.slice(0, 16) ?? '',
-      endDateTime: appointment.endDateTime?.slice(0, 16) ?? '',
       status: appointment.status as typeof APPOINTMENT_STATUSES[number],
     },
   });
@@ -74,7 +72,6 @@ export function EditAppointmentModal({
       description: appointment.description ?? '',
       extras: appointment.extras ?? '',
       startDateTime: appointment.startDateTime?.slice(0, 16) ?? '',
-      endDateTime: appointment.endDateTime?.slice(0, 16) ?? '',
       status: appointment.status as typeof APPOINTMENT_STATUSES[number],
     });
   }, [appointment._id, form]);
@@ -86,7 +83,6 @@ export function EditAppointmentModal({
       'description',
       'extras',
       'startDateTime',
-      'endDateTime',
       'status',
     ] as const;
     for (const k of keys)
@@ -148,11 +144,6 @@ export function EditAppointmentModal({
                   name="startDateTime"
                   control={form.control}
                   label="Inicio"
-                />
-                <FormDatePicker
-                  name="endDateTime"
-                  control={form.control}
-                  label="Fin"
                 />
               </div>
             </div>

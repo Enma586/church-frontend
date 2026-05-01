@@ -175,7 +175,6 @@ export interface Appointment {
   description?: string;
   allDayDate?: string; // NUEVO: Para eventos de todo el día
   startDateTime?: string; // MODIFICADO: Opcional
-  endDateTime?: string; // MODIFICADO: Opcional
   extras?: string; // NUEVO: Reemplaza suggestions y observations
   googleEventId?: string;
   syncStatus: SyncStatus;
@@ -197,7 +196,6 @@ export interface CreateAppointmentPayload {
   description?: string;
   allDayDate?: string; // NUEVO
   startDateTime?: string; // MODIFICADO: Opcional
-  endDateTime?: string; // MODIFICADO: Opcional
   extras?: string; // NUEVO
   status?: AppointmentStatus;
   // ELIMINADO: suggestions y observations

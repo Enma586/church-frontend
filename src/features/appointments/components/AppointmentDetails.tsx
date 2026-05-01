@@ -49,15 +49,6 @@ export function AppointmentDetails({
             })}
           />
         )}
-        {appointment.endDateTime && (
-          <Detail
-            icon={Clock}
-            label="Fin"
-            value={format(new Date(appointment.endDateTime), 'PPP p', {
-              locale: es,
-            })}
-          />
-        )}
         <Detail icon={User} label="Creada por" value={creatorName} />
       </div>
 
