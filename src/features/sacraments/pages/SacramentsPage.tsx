@@ -50,7 +50,10 @@ export default function SacramentsPage() {
     { header: 'Tipo', accessorKey: 'type' },
     {
       header: 'Fecha',
-      accessorFn: (row) => format(new Date(row.date), 'PPP', { locale: es }),
+      accessorFn: (row) => {
+        if (!row.date) return '—';
+        return format(new Date(row.date.toString().slice(0, 10) + 'T12:00:00'), 'PPP', { locale: es });
+      },
     },
     { header: 'Lugar', accessorKey: 'place' },
     {

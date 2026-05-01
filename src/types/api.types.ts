@@ -54,7 +54,7 @@ export type SacramentType =
   | 'Bautismo'
   | 'Primera Comunión'
   | 'Confirmación'
-  | 'Matrimonio'
+  | 'Ninguno'
 
 
 // ─── Address ─────────────────────────────────────────────────────────────────

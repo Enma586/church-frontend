@@ -21,7 +21,15 @@ export function SacramentDetails({ sacrament }: SacramentDetailsProps) {
 
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <Detail icon={User} label="Miembro" value={memberName} />
-        <Detail icon={Calendar} label="Fecha" value={format(new Date(sacrament.date), 'PPP', { locale: es })} />
+       <Detail 
+  icon={Calendar} 
+  label="Fecha" 
+  value={
+    sacrament.date 
+      ? format(new Date(sacrament.date.toString().slice(0, 10) + 'T12:00:00'), 'PPP', { locale: es }) 
+      : '—'
+  } 
+/>
         {sacrament.place && <Detail icon={MapPin} label="Lugar" value={sacrament.place} />}
         <Detail icon={User} label="Celebrante" value={sacrament.celebrant || '—'} />
       </div>
