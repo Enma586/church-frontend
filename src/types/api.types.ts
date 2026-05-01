@@ -48,6 +48,9 @@ export type UserRole = 'Coordinador' | 'Subcoordinador';
 
 export type AppointmentStatus = 'Programada' | 'Completada' | 'Cancelada';
 
+// NUEVO: El tipo de evento para diferenciar citas de cronogramas
+export type EventType = 'cita_pastoral' | 'evento_cronograma' | 'bloqueo_agenda';
+
 export type SyncStatus = 'synced' | 'pending_sync' | 'failed' | 'orphan';
 
 export type SacramentType =
@@ -161,17 +164,19 @@ export interface UserQueryParams extends PaginationParams {
   search?: string;
 }
 
-// ─── Appointment ─────────────────────────────────────────────────────────────
+// ─── Appointment (Ahora Eventos Unificados) ──────────────────────────────────
 
 export interface Appointment {
   _id: string;
-  memberId: string | Pick<Member, '_id' | 'fullName' | 'phone' | 'email'>;
+  type: EventType; // NUEVO
+  memberId?: string | Pick<Member, '_id' | 'fullName' | 'phone' | 'email'>; // MODIFICADO: Opcional
+  participants?: (string | Pick<Member, '_id' | 'fullName' | 'phone' | 'email'>)[]; // NUEVO: Para cronogramas
   title: string;
   description?: string;
-  startDateTime: string;
-  endDateTime: string;
-  suggestions?: string;
-  observations?: string;
+  allDayDate?: string; // NUEVO: Para eventos de todo el día
+  startDateTime?: string; // MODIFICADO: Opcional
+  endDateTime?: string; // MODIFICADO: Opcional
+  extras?: string; // NUEVO: Reemplaza suggestions y observations
   googleEventId?: string;
   syncStatus: SyncStatus;
   status: AppointmentStatus;
@@ -181,19 +186,23 @@ export interface Appointment {
 }
 
 export interface CreateAppointmentPayload {
-  memberId: string;
+  type?: EventType; // NUEVO
+  memberId?: string; // MODIFICADO: Opcional
+  participants?: string[]; // NUEVO
   title: string;
   description?: string;
-  startDateTime: string;
-  endDateTime: string;
-  suggestions?: string;
-  observations?: string;
+  allDayDate?: string; // NUEVO
+  startDateTime?: string; // MODIFICADO: Opcional
+  endDateTime?: string; // MODIFICADO: Opcional
+  extras?: string; // NUEVO
   status?: AppointmentStatus;
+  // ELIMINADO: suggestions y observations
 }
 
 export type UpdateAppointmentPayload = Partial<CreateAppointmentPayload>;
 
 export interface AppointmentQueryParams extends PaginationParams {
+  type?: EventType; // NUEVO: Permite filtrar por cita o cronograma
   status?: AppointmentStatus;
   memberId?: string;
   search?: string;
