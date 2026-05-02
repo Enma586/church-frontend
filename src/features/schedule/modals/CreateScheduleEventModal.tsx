@@ -44,19 +44,21 @@ export function CreateScheduleEventModal({ open, onOpenChange }: Props) {
 
   const participants = form.watch('participants') ?? [];
 
-  const onSubmit = async (values: z.infer<typeof schema>) => {
+const onSubmit = async (values: z.infer<typeof schema>) => {
     try {
       await createMutation.mutateAsync({
         type: 'evento_cronograma',
         ...values,
+        // Aplicamos el truco del mediodía para evitar el desfase de zona horaria
+        allDayDate: `${values.allDayDate}T12:00:00`,
         participants: values.participants ?? [],
       } as CreateScheduleEventPayload);
+      
       notifyCreated('Evento de cronograma', values.title);
       form.reset();
       onOpenChange(false);
     } catch {}
   };
-
   return (
     <FormModal
       open={open}

@@ -85,11 +85,21 @@ export default function AppointmentsPage() {
     [],
   );
 
-  const columns: ColumnDef<Appointment, unknown>[] = [
+const columns: ColumnDef<Appointment, unknown>[] = [
     { header: 'Título', accessorKey: 'title' },
     {
       header: 'Miembro',
-      accessorFn: (row) => row.member?.fullName ?? '—',
+      accessorFn: (row) => {
+        // Verificamos si el backend lo mandó en 'member' o si pobló 'memberId'
+        const memberData = row.member || row.memberId;
+        
+        // Verificamos que sea un objeto y tenga fullName
+        if (memberData && typeof memberData === 'object' && 'fullName' in memberData) {
+          return memberData.fullName;
+        }
+        
+        return '—';
+      },
     },
     {
       header: 'Inicio',

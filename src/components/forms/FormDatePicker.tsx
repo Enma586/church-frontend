@@ -28,6 +28,17 @@ interface FormDatePickerProps<T extends FieldValues> {
   disabledDays?: (date: Date) => boolean;
 }
 
+/**
+ * Parses a YYYY-MM-DD string into a local Date (no timezone shift).
+ *
+ * @example parseLocal('2026-05-05') → Date representing May 5 at midnight LOCAL time
+ */
+function parseLocal(value: string): Date {
+  const datePart = value.split('T')[0];   // ← toma solo YYYY-MM-DD, ignora hora
+  const [y, m, d] = datePart.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
 export function FormDatePicker<T extends FieldValues>({
   name,
   control,
@@ -53,12 +64,12 @@ export function FormDatePicker<T extends FieldValues>({
                   className={cn(
                     'w-full pl-3 text-left font-normal',
                     !field.value && 'text-muted-foreground',
-                    disabled && 'opacity-50 cursor-not-allowed'
+                    disabled && 'opacity-50 cursor-not-allowed',
                   )}
                   disabled={disabled}
                 >
                   {field.value ? (
-                    format(new Date(field.value), 'PPP', { locale: es })
+                    format(parseLocal(field.value), 'PPP', { locale: es })
                   ) : (
                     <span>{placeholder}</span>
                   )}
@@ -69,10 +80,10 @@ export function FormDatePicker<T extends FieldValues>({
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
-                selected={field.value ? new Date(field.value) : undefined}
-                onSelect={(date) => {
-                  field.onChange(date ? date.toISOString() : '');
-                }}
+                selected={field.value ? parseLocal(field.value) : undefined}
+                onSelect={(date) =>
+                  field.onChange(date ? format(date, 'yyyy-MM-dd') : '')
+                }
                 disabled={disabledDays}
                 initialFocus
                 locale={es}

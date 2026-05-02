@@ -33,13 +33,22 @@ export function CalendarGrid({ onDayClick }: CalendarGridProps) {
   const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
   const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
 
-  const { data } = useAppointments({ type: 'cita_pastoral', limit: 200 });
+  const { data } = useAppointments({limit: 200 });
   const allAppointments = data?.data ?? [];
 
   const appointmentsByDay = useMemo(() => {
     const map: Record<string, Appointment[]> = {};
     for (const a of allAppointments) {
-      const key = a.startDateTime ? format(new Date(a.startDateTime), 'yyyy-MM-dd') : null;
+      // Cita pastoral: usa startDateTime
+      const key1 = a.startDateTime
+        ? format(new Date(a.startDateTime), 'yyyy-MM-dd')
+        : null;
+      // Evento cronograma: usa allDayDate
+      const key2 = a.allDayDate
+        ? format(new Date(a.allDayDate), 'yyyy-MM-dd')
+        : null;
+
+      const key = key1 || key2;
       if (key) {
         if (!map[key]) map[key] = [];
         map[key].push(a);

@@ -18,6 +18,7 @@ import { usePagination } from '@/hooks/usePagination';
 import { useAppSelector } from '@/store/hooks';
 import type { ScheduleEvent } from '../types/schedule.types';
 import type { ColumnDef } from '@tanstack/react-table';
+import { SyncStatusBadge } from '@/features/appointments/components/SyncStatusBadge';
 
 export default function SchedulePage() {
   const { page, limit, goToPage, setPerPage } = usePagination();
@@ -58,6 +59,10 @@ export default function SchedulePage() {
       },
     },
     {
+  header: 'Sync',
+  cell: ({ row }) => <SyncStatusBadge status={row.original.syncStatus} />,
+},
+    {
       header: 'Encargados',
       cell: ({ row }) => {
         const list = row.original.participantsList || row.original.participants;
@@ -73,6 +78,8 @@ export default function SchedulePage() {
           </div>
         );
       },
+
+      
     },
     {
       id: 'actions',
