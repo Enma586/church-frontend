@@ -65,7 +65,7 @@ export function ScheduleEventDetails({ event }: { event: ScheduleEvent }) {
           <Section icon={FileText} title="Descripción" content={event.description} />
         )}
         {event.extras && (
-          <Section icon={MessageSquare} title="Observaciones / Presupuesto" content={event.extras} />
+          <Section icon={MessageSquare} title="Notas" content={event.extras} />
         )}
       </div>
     </div>
