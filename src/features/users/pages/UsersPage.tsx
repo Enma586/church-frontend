@@ -9,7 +9,7 @@ import { UserCard } from '../components/UserCard';
 import { RoleBadge } from '../components/RoleBadge';
 import { CreateUserModal } from '../modals/CreateUserModal';
 import { EditUserModal } from '../modals/EditUserModal';
-import { UserDetailsModal } from '@/components/modals/UserDetailsModal';
+import { UserDetailsModal } from '../modals/UserDetailsModal';
 import { useUsers } from '../hooks/useUsers';
 import { usePagination } from '@/hooks/usePagination';
 import { useMediaQuery } from '@/hooks/useMediaQuery';

@@ -6,6 +6,7 @@ import {
   ScrollText,
   Settings,
   Shield,
+  Calendar1
 } from 'lucide-react';
 import { SidebarNavGroup, type NavGroupData } from './SidebarNavGroup';
 import { SidebarNavItem, type NavItemData } from './SidebarNavItem';
@@ -34,6 +35,7 @@ const navigationGroups: NavGroupData[] = [
     roles: ['Coordinador', 'Subcoordinador'],
     items: [
       { label: 'Citas', path: '/appointments', icon: CalendarDays },
+      { label: 'Cronograma', path: '/schedule', icon: Calendar1 },
     ],
   },
   {

@@ -228,6 +228,9 @@ export interface ScheduleEvent {
   creator?: Pick<User, '_id' | 'username' | 'role'>;
   createdAt: string;
   updatedAt: string;
+
+  member?: Pick<Member, '_id' | 'fullName' | 'phone' | 'email'>;
+  creatorId?: Pick<User, '_id' | 'username' | 'role'>;
 }
 
 export interface CreateScheduleEventPayload {
