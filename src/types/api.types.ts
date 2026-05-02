@@ -211,7 +211,41 @@ export interface AppointmentQueryParams extends PaginationParams {
   dateFrom?: string;
   dateTo?: string;
 }
+// ─── Schedule (Cronograma Anual / Annual Schedule) ───────────────────────────
 
+export interface ScheduleEvent {
+  _id: string;
+  title: string;
+  description?: string;
+  extras?: string;
+  allDayDate: string;
+  participants?: string[];
+  participantsList?: Pick<Member, '_id' | 'fullName' | 'phone' | 'email'>[];
+  googleEventId?: string;
+  syncStatus: SyncStatus;
+  status: AppointmentStatus;
+  createdBy: string;
+  creator?: Pick<User, '_id' | 'username' | 'role'>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateScheduleEventPayload {
+  type: 'evento_cronograma';
+  title: string;
+  description?: string;
+  extras?: string;
+  allDayDate: string;
+  participants: string[];
+}
+
+export type UpdateScheduleEventPayload = Partial<Omit<CreateScheduleEventPayload, 'type'>>;
+
+export interface ScheduleEventQueryParams extends PaginationParams {
+  search?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}
 // ─── Sacrament ───────────────────────────────────────────────────────────────
 
 export interface Godparent {
