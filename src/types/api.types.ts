@@ -185,7 +185,7 @@ export interface Appointment {
 
   member?: Pick<Member, '_id' | 'fullName' | 'phone' | 'email'>;
   participantsList?: Pick<Member, '_id' | 'fullName' | 'phone' | 'email'>[];
-  creator?: Pick<User, '_id' | 'username' | 'role'>;
+  creatorId?: Pick<User, '_id' | 'username' | 'role'>;
 }
 
 export interface CreateAppointmentPayload {

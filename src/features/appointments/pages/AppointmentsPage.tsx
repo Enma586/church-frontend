@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   Plus,
   Eye,
@@ -6,8 +6,18 @@ import {
   Trash2,
   LayoutList,
   CalendarDays,
+  Clock
 } from 'lucide-react';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { DataTable } from '@/components/tables/DataTable';
 import { TableToolbar } from '@/components/tables/TableToolbar';
 import { TablePagination } from '@/components/tables/TablePagination';
@@ -24,9 +34,7 @@ import { useAppointments } from '../hooks/useAppointments';
 import { usePagination } from '@/hooks/usePagination';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useAppSelector } from '@/store/hooks';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-import type { Appointment,  } from '../types/appointment.types';
+import type { Appointment } from '../types/appointment.types';
 import type { ColumnDef } from '@tanstack/react-table';
 
 export default function AppointmentsPage() {
@@ -46,6 +54,12 @@ export default function AppointmentsPage() {
   const [detailsItem, setDetailsItem] = useState<Appointment | null>(null);
   const [viewMode, setViewMode] = useState<'table' | 'calendar'>('table');
 
+  // Day clicked in calendar view
+  const [dayList, setDayList] = useState<{
+    date: Date;
+    appointments: Appointment[];
+  } | null>(null);
+
   const { data, isLoading } = useAppointments({
     page,
     limit,
@@ -57,6 +71,19 @@ export default function AppointmentsPage() {
 
   const items = data?.data ?? [];
   const pagination = data?.pagination;
+
+  /**
+   * Called when a day cell is clicked in the calendar.
+   * Opens a dialog listing all appointments for that day.
+   */
+  const handleDayClick = useCallback(
+    (date: Date, appointments: Appointment[]) => {
+      if (appointments.length > 0) {
+        setDayList({ date, appointments });
+      }
+    },
+    [],
+  );
 
   const columns: ColumnDef<Appointment, unknown>[] = [
     { header: 'Título', accessorKey: 'title' },
@@ -77,7 +104,13 @@ export default function AppointmentsPage() {
         const s = row.original.status;
         return (
           <span
-            className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${s === 'Programada' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : s === 'Completada' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}
+            className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+              s === 'Programada'
+                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                : s === 'Completada'
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                  : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+            }`}
           >
             {s}
           </span>
@@ -158,7 +191,6 @@ export default function AppointmentsPage() {
       {viewMode === 'table' && (
         <>
           <TableToolbar>
-            {/* Eliminamos 'flex-wrap' y agregamos 'overflow-x-auto' para evitar que se rompa en móviles */}
             <div className="flex items-end gap-3 overflow-x-auto pb-2">
               <div className="min-w-50">
                 <FilterSearch
@@ -185,7 +217,7 @@ export default function AppointmentsPage() {
               data={items}
               loading={isLoading}
               emptyTitle="Sin eventos"
-              emptyDescription="Aún no hay eventos registradas."
+              emptyDescription="Aún no hay eventos registrados."
             />
           ) : (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -209,7 +241,54 @@ export default function AppointmentsPage() {
         </>
       )}
 
-      {viewMode === 'calendar' && <CalendarGrid />}
+      {viewMode === 'calendar' && (
+        <CalendarGrid onDayClick={handleDayClick} />
+      )}
+
+      {/* ─── Day appointments list dialog ──────────────────────────── */}
+      <Dialog
+        open={!!dayList}
+        onOpenChange={(o) => {
+          if (!o) setDayList(null);
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {dayList
+                ? format(dayList.date, "EEEE d 'de' MMMM yyyy", { locale: es })
+                : ''}
+            </DialogTitle>
+            <DialogDescription>{'\u00A0'}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1">
+            {dayList?.appointments.map((a) => (
+              <button
+                key={a._id}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-accent transition-colors text-left"
+                onClick={() => {
+                  setDetailsItem(a);
+                  setDayList(null);
+                }}
+              >
+                <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{a.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {a.startDateTime &&
+                      `${format(new Date(a.startDateTime), 'HH:mm', { locale: es })}`}
+                  </p>
+                </div>
+              </button>
+            ))}
+            {(!dayList || dayList.appointments.length === 0) && (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Sin citas este día
+              </p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <CreateAppointmentModal open={createOpen} onOpenChange={setCreateOpen} />
       {editItem && (

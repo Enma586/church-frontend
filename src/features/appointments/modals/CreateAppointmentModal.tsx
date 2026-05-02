@@ -110,12 +110,12 @@ export function CreateAppointmentModal({ open, onOpenChange }: Props) {
               </div>
               <div className="bg-muted/30 p-4 rounded-lg border space-y-4">
                 <SectionHeader icon={CalendarDays} title="Horario" />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* 👇 AQUÍ USAMOS EL NUEVO COMPONENTE 👇 */}
+                {/* Cambiamos el grid para que sea solo una columna, así el DatePicker ocupa todo el ancho */}
+                <div className="grid grid-cols-1 gap-4">
                   <FormDateTimePicker
                     name="startDateTime"
                     control={form.control}
-                    label="Inicio"
+                    label="Fecha y hora de inicio"
                   />
                 </div>
               </div>

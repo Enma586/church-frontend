@@ -6,7 +6,6 @@ import { CalendarDays, FileText } from 'lucide-react';
 import { Form } from '@/components/ui/form';
 import { FormModal } from '@/components/modals/FormModal';
 import { FormInput } from '@/components/forms/FormInput';
-import { FormDatePicker } from '@/components/forms/FormDatePicker';
 import { FormSelect } from '@/components/forms/FormSelect';
 import { FormTextArea } from '@/components/forms/FormTextArea';
 import { FormSubmitButton } from '@/components/forms/FormSubmitButton';
@@ -15,6 +14,7 @@ import { useUpdateAppointment } from '../hooks/useUpdateAppointment';
 import { useNotificationActions } from '@/hooks/useNotificationActions';
 import { APPOINTMENT_STATUSES } from '@/constants/appointment-status';
 import type { Appointment, UpdateAppointmentPayload } from '../types/appointment.types';
+import { FormDateTimePicker } from '@/components/forms/FormDateTimePicker';
 
 const statusOptions = APPOINTMENT_STATUSES.map((s) => ({ value: s, label: s }));
 
@@ -138,14 +138,13 @@ export function EditAppointmentModal({
                   options={statusOptions}
                 />
               </div>
-              <div className="bg-muted/30 p-4 rounded-lg border space-y-4">
-                <SectionHeader icon={CalendarDays} title="Horario" />
-                <FormDatePicker
-                  name="startDateTime"
-                  control={form.control}
-                  label="Inicio"
-                />
-              </div>
+           <div className="grid grid-cols-1 gap-4">
+                  <FormDateTimePicker
+                    name="startDateTime"
+                    control={form.control}
+                    label="Fecha y hora de inicio"
+                  />
+                </div>
             </div>
             <div className="space-y-6">
               <div className="bg-muted/30 p-4 rounded-lg border space-y-4">

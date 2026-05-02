@@ -1,40 +1,34 @@
-import { format } from "date-fns";
+import { format, setHours, setMinutes } from "date-fns";
 import { es } from "date-fns/locale";
-import { CalendarIcon, Clock } from "lucide-react";
-import type { Control, FieldPath, FieldValues } from "react-hook-form";
-
+import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
+  FormControl,
 } from "@/components/ui/form";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-interface FormDateTimePickerProps<T extends FieldValues> {
-  name: FieldPath<T>;
-  control: Control<T>;
-  label: string;
-  placeholder?: string;
-  disabled?: boolean;
-}
-
-export function FormDateTimePicker<T extends FieldValues>({
-  name,
-  control,
-  label,
-  placeholder = "Seleccionar fecha y hora",
-  disabled = false,
-}: FormDateTimePickerProps<T>) {
+export function FormDateTimePicker({ name, control, label }: any) {
+  const hours = Array.from({ length: 24 }, (_, i) =>
+    i.toString().padStart(2, "0"),
+  );
+  const minutes = ["00", "15", "30", "45"];
   const currentYear = new Date().getFullYear();
 
   return (
@@ -42,33 +36,9 @@ export function FormDateTimePicker<T extends FieldValues>({
       control={control}
       name={name}
       render={({ field }) => {
-        // Extraemos la fecha y hora actuales del field.value
-        const dateValue = field.value ? new Date(field.value) : undefined;
-        const timeValue = dateValue ? format(dateValue, "HH:mm") : "";
-
-        const handleDateSelect = (selectedDate: Date | undefined) => {
-          if (!selectedDate) {
-            field.onChange("");
-            return;
-          }
-          // Si ya había una hora seleccionada, la mantenemos. Si no, ponemos las 12:00 por defecto
-          if (dateValue) {
-            selectedDate.setHours(dateValue.getHours(), dateValue.getMinutes());
-          } else {
-            selectedDate.setHours(12, 0);
-          }
-          field.onChange(selectedDate.toISOString());
-        };
-
-        const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-          const time = e.target.value; // Formato "HH:mm"
-          if (!dateValue || !time) return;
-
-          const [hours, minutes] = time.split(":").map(Number);
-          const newDate = new Date(dateValue);
-          newDate.setHours(hours, minutes);
+        const date = field.value ? new Date(field.value) : new Date();
+        const updateDate = (newDate: Date) =>
           field.onChange(newDate.toISOString());
-        };
 
         return (
           <FormItem className="flex flex-col">
@@ -79,47 +49,77 @@ export function FormDateTimePicker<T extends FieldValues>({
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full pl-3 text-left font-normal",
+                      "w-full justify-start text-left font-normal",
                       !field.value && "text-muted-foreground",
-                      disabled && "opacity-50 cursor-not-allowed",
                     )}
-                    disabled={disabled}
                   >
-                    {field.value ? (
-                      format(dateValue!, "PPP - HH:mm", { locale: es })
-                    ) : (
-                      <span>{placeholder}</span>
-                    )}
-                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {field.value
+                      ? format(date, "PPP - HH:mm", { locale: es })
+                      : "Seleccionar fecha y hora..."}
                   </Button>
                 </FormControl>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              {/* Se agrega la clase 'dark' condicionalmente para forzar el tema oscuro si es necesario */}
+              <PopoverContent className="w-auto p-3 dark:bg-card">
                 <Calendar
                   mode="single"
-                  selected={dateValue}
-                  onSelect={handleDateSelect}
-                  disabled={(date) => {
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    return date < today;
-                  }}
-                  initialFocus
+                  selected={date}
+                  onSelect={(d) => d && updateDate(d)}
                   locale={es}
+                  disabled={(date) =>
+                    date < new Date(new Date().setHours(0, 0, 0, 0))
+                  }
                   captionLayout="dropdown"
-                  fromYear={currentYear} // Desde este año
-                  toYear={currentYear + 5} // Hasta 5 años en el futuro
+                  fromYear={currentYear}
+                  toYear={currentYear + 5}
                 />
+                <div className="mt-3 pt-3 border-t">
+                  <div className="flex gap-4 mb-1 px-1">
+                    <span className="text-xs font-semibold text-muted-foreground w-1/2">
+                      Hora
+                    </span>
+                    <span className="text-xs font-semibold text-muted-foreground w-1/2">
+                      Minutos
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Select
+                      value={format(date, "HH")}
+                      onValueChange={(h) =>
+                        updateDate(setHours(date, parseInt(h)))
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="HH" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-50">
+                        {hours.map((h) => (
+                          <SelectItem key={h} value={h}>
+                            {h}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-               <div className="p-3 border-t border-border flex items-center gap-3 bg-muted/30">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="time"
-                    value={timeValue}
-                    onChange={handleTimeChange}
-                    disabled={!dateValue} 
-                    className="w-full" /* 👈 Ya no necesitas la clase dark:[color-scheme...] */
-                  />
+                    <Select
+                      value={format(date, "mm")}
+                      onValueChange={(m) =>
+                        updateDate(setMinutes(date, parseInt(m)))
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="MM" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {minutes.map((m) => (
+                          <SelectItem key={m} value={m}>
+                            {m}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </PopoverContent>
             </Popover>

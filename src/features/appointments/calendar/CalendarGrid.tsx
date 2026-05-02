@@ -18,18 +18,19 @@ import type { Appointment } from '../types/appointment.types';
 
 const WEEKDAYS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
-/**
- * Monthly calendar grid showing pastoral appointments.
- * Fetches up to 200 appointments and distributes them by date.
- */
-export function CalendarGrid() {
+// 1. Definimos la interfaz con la prop necesaria
+interface CalendarGridProps {
+  onDayClick: (date: Date, appointments: Appointment[]) => void;
+}
+
+export function CalendarGrid({ onDayClick }: CalendarGridProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
 
+  // ... (tu lógica de fechas sigue igual)
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
   const calendarStart = startOfWeek(monthStart, { weekStartsOn: 0 });
   const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
-
   const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
 
   const { data } = useAppointments({ type: 'cita_pastoral', limit: 200 });
@@ -38,9 +39,7 @@ export function CalendarGrid() {
   const appointmentsByDay = useMemo(() => {
     const map: Record<string, Appointment[]> = {};
     for (const a of allAppointments) {
-      const key = a.startDateTime
-        ? format(new Date(a.startDateTime), 'yyyy-MM-dd')
-        : null;
+      const key = a.startDateTime ? format(new Date(a.startDateTime), 'yyyy-MM-dd') : null;
       if (key) {
         if (!map[key]) map[key] = [];
         map[key].push(a);
@@ -57,6 +56,7 @@ export function CalendarGrid() {
 
   return (
     <div>
+      {/* ... header igual ... */}
       <CalendarHeader
         date={currentDate}
         onPrev={() => setCurrentDate((d) => subMonths(d, 1))}
@@ -66,12 +66,7 @@ export function CalendarGrid() {
 
       <div className="grid grid-cols-7 border-b">
         {WEEKDAYS.map((d) => (
-          <div
-            key={d}
-            className="text-center text-xs font-semibold py-1 text-muted-foreground"
-          >
-            {d}
-          </div>
+          <div key={d} className="text-center text-xs font-semibold py-1 text-muted-foreground">{d}</div>
         ))}
       </div>
 
@@ -79,13 +74,17 @@ export function CalendarGrid() {
         <div key={wi} className="grid grid-cols-7">
           {week.map((day) => {
             const key = format(day, 'yyyy-MM-dd');
+            const appointments = appointmentsByDay[key] ?? [];
+            
             return (
               <CalendarDayCell
                 key={key}
                 day={day.getDate()}
                 isToday={isToday(day)}
                 isCurrentMonth={isSameMonth(day, currentDate)}
-                appointments={appointmentsByDay[key] ?? []}
+                appointments={appointments}
+                // 2. Pasamos la función al componente celda
+                onClick={() => onDayClick(day, appointments)}
               />
             );
           })}
