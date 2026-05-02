@@ -7,7 +7,7 @@ export function useDeleteScheduleEvent() {
   return useMutation({
     mutationFn: (id: string) => scheduleService.remove(id),
     onSuccess: () => {
-      showToast.success('Event deleted');
+      showToast.success('Evento eliminado');
       qc.invalidateQueries({ queryKey: ['schedule'] });
     },
     onError: (e: Error) => showToast.error(e.message),

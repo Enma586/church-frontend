@@ -15,7 +15,6 @@ import { useUpdateScheduleEvent } from '../hooks/useUpdateScheduleEvent';
 import { useNotificationActions } from '@/hooks/useNotificationActions';
 import type { ScheduleEvent } from '../types/schedule.types';
 
-// El nombre aquí es "schema"
 const schema = z.object({
   title: z.string().trim().optional(),
   allDayDate: z.string().optional(),
@@ -34,10 +33,11 @@ export function EditScheduleEventModal({ open, onOpenChange, event }: Props) {
   const updateMutation = useUpdateScheduleEvent();
   const { notifyUpdated } = useNotificationActions();
 
-  // Función auxiliar para extraer solo los IDs por si vienen poblados
+  // Ajuste: verificamos tanto participantsList como participants
   const getParticipantIds = () => {
-    if (!event.participants) return [];
-    return event.participants.map((p: any) => (typeof p === 'string' ? p : p._id));
+    const list = event.participantsList || event.participants;
+    if (!list) return [];
+    return list.map((p: any) => (typeof p === 'string' ? p : p._id));
   };
 
   const form = useForm({
@@ -64,29 +64,18 @@ export function EditScheduleEventModal({ open, onOpenChange, event }: Props) {
 
   const participants = form.watch('participants') ?? [];
 
-  // CORRECCIÓN: Usamos typeof schema en lugar de editSchema
-  const onSubmit = (values: z.infer<typeof schema>) => {
-    const dirty: Record<string, unknown> = {};
-    const keys = ['title', 'allDayDate', 'description', 'extras'] as const;
-    
-    for (const k of keys) {
-      if (form.formState.dirtyFields[k]) dirty[k] = values[k];
-    }
-      
-    if (form.formState.dirtyFields.participants) {
-      dirty.participants = values.participants;
-    }
-      
-    if (!Object.keys(dirty).length) {
-      onOpenChange(false);
-      return;
-    }
+const onSubmit = (values: z.infer<typeof schema>) => {
+  
+    const payload = {
+      ...values,
+      type: 'evento_cronograma', 
+    };
 
     updateMutation.mutate(
-      { id: event._id, data: dirty },
+      { id: event._id, data: payload },
       {
         onSuccess: () => {
-          notifyUpdated('Schedule event', values.title ?? event.title);
+          notifyUpdated('Evento de cronograma', values.title ?? event.title);
           onOpenChange(false);
         },
       },
@@ -98,7 +87,7 @@ export function EditScheduleEventModal({ open, onOpenChange, event }: Props) {
       key={event._id}
       open={open}
       onOpenChange={onOpenChange}
-      title="Edit schedule event"
+      title="Editar evento de cronograma"
       size="5xl"
     >
       <Form {...form}>
@@ -109,33 +98,33 @@ export function EditScheduleEventModal({ open, onOpenChange, event }: Props) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="space-y-6">
               <div className="bg-muted/30 p-4 rounded-lg border space-y-4">
-                <SectionHeader icon={CalendarDays} title="Event details" />
-                <FormInput name="title" control={form.control} label="Title" />
+                <SectionHeader icon={CalendarDays} title="Detalle del evento" />
+                <FormInput name="title" control={form.control} label="Título" />
                 <FormDatePicker
                   name="allDayDate"
                   control={form.control}
-                  label="Event date"
+                  label="Día del evento"
                 />
                 <FormTextArea
                   name="description"
                   control={form.control}
-                  label="Description"
+                  label="Descripción"
                   rows={3}
                 />
               </div>
             </div>
             <div className="space-y-6">
               <div className="bg-muted/30 p-4 rounded-lg border space-y-4">
-                <SectionHeader icon={FileText} title="Notes" />
+                <SectionHeader icon={FileText} title="Notas" />
                 <FormTextArea
                   name="extras"
                   control={form.control}
-                  label="Extras / Budget"
+                  label="Extras"
                   rows={3}
                 />
               </div>
               <div className="bg-muted/30 p-4 rounded-lg border space-y-4">
-                <SectionHeader icon={FileText} title="Assigned members" />
+                <SectionHeader icon={FileText} title="Miembros asignados" />
                 <MultiMemberSelect
                   value={participants}
                   onChange={(ids) =>
@@ -151,7 +140,7 @@ export function EditScheduleEventModal({ open, onOpenChange, event }: Props) {
           <div className="flex justify-end">
             <FormSubmitButton
               isSubmitting={updateMutation.isPending}
-              label="Save changes"
+              label="Guardar cambios"
               className="w-full sm:w-auto px-8"
             />
           </div>

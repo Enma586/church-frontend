@@ -15,8 +15,8 @@ import { useNotificationActions } from '@/hooks/useNotificationActions';
 import type { CreateScheduleEventPayload } from '../types/schedule.types';
 
 const schema = z.object({
-  title: z.string().trim().min(1, 'Required'),
-  allDayDate: z.string().min(1, 'Required'),
+  title: z.string().trim().min(1, 'Requerido'),
+  allDayDate: z.string().min(1, 'Requerido'),
   description: z.string().trim().optional(),
   extras: z.string().trim().optional(),
   participants: z.array(z.string()).optional(),
@@ -51,7 +51,7 @@ export function CreateScheduleEventModal({ open, onOpenChange }: Props) {
         ...values,
         participants: values.participants ?? [],
       } as CreateScheduleEventPayload);
-      notifyCreated('Schedule event', values.title);
+      notifyCreated('Evento de cronograma', values.title);
       form.reset();
       onOpenChange(false);
     } catch {}
@@ -61,8 +61,8 @@ export function CreateScheduleEventModal({ open, onOpenChange }: Props) {
     <FormModal
       open={open}
       onOpenChange={onOpenChange}
-      title="New schedule event"
-      description="Add an activity to the annual church calendar."
+      title="Nuevo evento de cronograma"
+      description="Añade una actividad o evento general al calendario anual."
       size="5xl"
     >
       <Form {...form}>
@@ -73,38 +73,38 @@ export function CreateScheduleEventModal({ open, onOpenChange }: Props) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="space-y-6">
               <div className="bg-muted/30 p-4 rounded-lg border space-y-4">
-                <SectionHeader icon={CalendarDays} title="Event details" />
+                <SectionHeader icon={CalendarDays} title="Detalle del evento" />
                 <FormInput
                   name="title"
                   control={form.control}
-                  label="Title"
-                  placeholder="Youth Retreat"
+                  label="Título"
+                  placeholder="Ej. Retiro de Jóvenes"
                 />
                 <FormDatePicker
                   name="allDayDate"
                   control={form.control}
-                  label="Event date"
+                  label="Día del evento"
                 />
                 <FormTextArea
                   name="description"
                   control={form.control}
-                  label="Description"
+                  label="Descripción"
                   rows={3}
                 />
               </div>
             </div>
             <div className="space-y-6">
               <div className="bg-muted/30 p-4 rounded-lg border space-y-4">
-                <SectionHeader icon={FileText} title="Notes" />
+                <SectionHeader icon={FileText} title="Notas" />
                 <FormTextArea
                   name="extras"
                   control={form.control}
-                  label="Extras / Budget"
+                  label="Extras / Presupuesto"
                   rows={3}
                 />
               </div>
               <div className="bg-muted/30 p-4 rounded-lg border space-y-4">
-                <SectionHeader icon={FileText} title="Assigned members" />
+                <SectionHeader icon={FileText} title="Miembros asignados" />
                 <MultiMemberSelect
                   value={participants}
                   onChange={(ids) =>
@@ -120,7 +120,7 @@ export function CreateScheduleEventModal({ open, onOpenChange }: Props) {
           <div className="flex justify-end">
             <FormSubmitButton
               isSubmitting={createMutation.isPending}
-              label="Create event"
+              label="Crear evento"
               className="w-full sm:w-auto px-8"
             />
           </div>

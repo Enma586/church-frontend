@@ -9,7 +9,7 @@ export function useCreateScheduleEvent() {
     mutationFn: (data: CreateScheduleEventPayload) =>
       scheduleService.create(data),
     onSuccess: () => {
-      showToast.success('Event created successfully');
+      showToast.success('Evento creado con exito');
       qc.invalidateQueries({ queryKey: ['schedule'] });
     },
     onError: (e: Error) => showToast.error(e.message),

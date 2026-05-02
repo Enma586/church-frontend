@@ -52,7 +52,7 @@ export function MultiMemberSelect({
           >
             {selectedMembers.length > 0 ? (
               <span className="text-sm text-muted-foreground">
-                {selectedMembers.length} selected
+                {selectedMembers.length} seleccionados
               </span>
             ) : (
               <span className="text-sm text-muted-foreground">
@@ -66,7 +66,7 @@ export function MultiMemberSelect({
           <div className="flex items-center border-b px-3 py-2">
             <Search className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
             <Input
-              placeholder="Search members..."
+              placeholder="Buscando miembros..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="h-8 border-0 bg-transparent p-0 shadow-none focus-visible:ring-0"

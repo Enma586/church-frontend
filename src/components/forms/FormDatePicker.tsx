@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale'; // Para que los meses salgan en español
+import { es } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 
@@ -25,6 +25,7 @@ interface FormDatePickerProps<T extends FieldValues> {
   label: string;
   placeholder?: string;
   disabled?: boolean;
+  disabledDays?: (date: Date) => boolean;
 }
 
 export function FormDatePicker<T extends FieldValues>({
@@ -33,8 +34,8 @@ export function FormDatePicker<T extends FieldValues>({
   label,
   placeholder = 'Seleccionar fecha',
   disabled = false,
+  disabledDays,
 }: FormDatePickerProps<T>) {
-  // Calculamos el año actual para no permitir fechas del futuro (ej. nacer en 2027)
   const currentYear = new Date().getFullYear();
 
   return (
@@ -70,19 +71,14 @@ export function FormDatePicker<T extends FieldValues>({
                 mode="single"
                 selected={field.value ? new Date(field.value) : undefined}
                 onSelect={(date) => {
-                  // Guardamos la fecha en formato ISO para la base de datos
                   field.onChange(date ? date.toISOString() : '');
                 }}
-                disabled={(date) =>
-                  date > new Date() || date < new Date('1900-01-01')
-                }
+                disabled={disabledDays}
                 initialFocus
-                locale={es} // Calendario en español
-                
-                // 🪄 AQUÍ ESTÁ LA MAGIA PARA LA NAVEGACIÓN RÁPIDA 🪄
+                locale={es}
                 captionLayout="dropdown"
                 fromYear={1920}
-                toYear={currentYear}
+                toYear={currentYear + 5}
               />
             </PopoverContent>
           </Popover>

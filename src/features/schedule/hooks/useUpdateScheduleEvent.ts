@@ -14,7 +14,7 @@ export function useUpdateScheduleEvent() {
       data: UpdateScheduleEventPayload;
     }) => scheduleService.update(id, data),
     onSuccess: () => {
-      showToast.success('Event updated');
+      showToast.success('Evento actualizado');
       qc.invalidateQueries({ queryKey: ['schedule'] });
     },
     onError: (e: Error) => showToast.error(e.message),

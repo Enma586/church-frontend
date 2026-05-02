@@ -25,6 +25,7 @@ const UsersList = lazy(() => import('@/features/users/pages/UsersPage'));
 const SacramentsList = lazy(() => import('@/features/sacraments/pages/SacramentsPage'));
 const PastoralNotesList = lazy(() => import('@/features/pastoral-notes/pages/PastoralNotesPage'));
 const SchedulePage = lazy(() => import('@/features/schedule/pages/AnnualSchedulePage'));
+const ProfilePage = lazy(() => import('@/features/user/pages/ProfilePage'));
 const AppointmentsList = lazy(() => import('@/features/appointments/pages/AppointmentsPage'));
 const MemberProfile = lazy(
   () => import("@/features/members/pages/MemberProfilePage"),
@@ -156,7 +157,7 @@ export const router = createBrowserRouter([
             path: "profile",
             element: (
               <Suspense fallback={<SuspenseFallback />}>
-                <PlaceholderPage />
+                <ProfilePage />
               </Suspense>
             ),
           },
