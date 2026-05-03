@@ -14,7 +14,7 @@ import { USER_ROLES } from '@/constants/roles';
 import {
   DEFAULT_ROLE_PERMISSIONS,
   type PermissionKey,
-} from '../constants/permissions';
+} from '../../../constants/permissions';
 import type { RoleData } from '../types/role.types';
 import { Loader2 } from 'lucide-react';
 

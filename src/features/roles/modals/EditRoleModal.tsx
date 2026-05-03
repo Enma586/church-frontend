@@ -11,7 +11,7 @@ import { useUpdateConfig } from '@/features/config/hooks/useConfig';
 import { useQueryClient } from '@tanstack/react-query';
 import { showToast } from '@/lib/toast';
 import type { RoleData } from '../types/role.types';
-import type { PermissionKey, PERMISSION_KEYS } from '../constants/permissions';
+import type { PermissionKey } from '../../../constants/permissions';
 import {
   DEFAULT_ROLE_PERMISSIONS,
 } from '../../../constants/permissions';

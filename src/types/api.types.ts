@@ -1,4 +1,5 @@
 // Response about api request, with optional data and pagination info
+import type { PermissionKey } from '@/constants/permissions';
 
 export interface ApiResponse<T = unknown> {
   success: boolean;
@@ -325,6 +326,7 @@ export interface Configuration {
   lastBackupDate?: string;
   createdAt: string;
   updatedAt: string;
+  rolePermissions?: Record<string, PermissionKey[]>;
 }
 
 export type UpdateConfigurationPayload = Partial<Omit<Configuration, '_id' | 'createdAt' | 'updatedAt'>>;
