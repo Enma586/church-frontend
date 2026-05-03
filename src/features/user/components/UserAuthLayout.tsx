@@ -26,9 +26,9 @@ export function UserAuthLayout({ title, subtitle, children }: UserAuthLayoutProp
               />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Iglesia Young</h1>
+          <h1 className="text-2xl font-bold tracking-tight">RCC</h1>
           <p className="mt-2 text-center text-sm text-muted-foreground max-w-sm">
-            Sistema de gestión pastoral para la comunidad
+            Sistema de gestión para el grupo RCC
           </p>
         </div>
       </div>

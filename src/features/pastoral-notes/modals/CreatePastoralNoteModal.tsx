@@ -37,19 +37,19 @@ export function CreatePastoralNoteModal({ open, onOpenChange }: Props) {
   const onSubmit = async (values: z.infer<typeof createSchema>) => {
     try {
       await createMutation.mutateAsync(values as CreatePastoralNotePayload);
-      notifyCreated('Nota pastoral');
+      notifyCreated('Nota');
       form.reset();
       onOpenChange(false);
     } catch {}
   };
 
   return (
-    <FormModal open={open} onOpenChange={onOpenChange} title="Nueva nota pastoral" size="lg">
+    <FormModal open={open} onOpenChange={onOpenChange} title="Nueva nota" size="lg">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
           <div className="bg-muted/30 p-4 rounded-lg border space-y-4">
             <FormSelect name="memberId" control={form.control} label="Miembro" options={memberOptions} placeholder="Seleccionar miembro..." />
-            <FormTextArea name="content" control={form.control} label="Contenido" placeholder="Escribe la nota pastoral..." rows={5} />
+            <FormTextArea name="content" control={form.control} label="Contenido" placeholder="Escribe la nota..." rows={5} />
             <div className="flex items-center gap-2">
               <Checkbox
                 id="note-sensitive"

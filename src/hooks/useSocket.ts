@@ -1,36 +1,45 @@
-/**
- * @fileoverview Socket.IO hook for real-time updates.
- * In development, connects directly to the backend to avoid Vite proxy conflicts.
- * In production, connects to the same origin via relative path.
- */
 import { useEffect, useRef, useCallback } from 'react';
 import { io, type Socket } from 'socket.io-client';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAppDispatch } from '@/store/hooks';
+import { addNotification } from '@/store/slices/notificationSlice';
 
-/** Build the Socket.IO URL depending on environment */
 function getSocketUrl(): string {
-  if (import.meta.env.DEV) {
-    // Development: bypass Vite proxy, connect directly to backend
-    return 'http://localhost:3000';
-  }
-  // Production: same origin, served by the backend itself
+  if (import.meta.env.DEV) return 'http://localhost:3000';
   return window.location.origin;
 }
 
+/** Cache keys to invalidate per domain */
 const EVENT_CACHE_MAP: Record<string, string[]> = {
-  appointment: ['appointments', 'schedule'],
-  sacrament: ['sacraments'],
-  'pastoral-note': ['pastoral-notes'],
-  user: ['users'],
-  member: ['members'],
+  appointment:    ['appointments', 'schedule', 'dashboard'],
+  sacrament:      ['sacraments', 'dashboard'],
+  'pastoral-note': ['pastoral-notes', 'dashboard'],
+  user:           ['users', 'dashboard'],
+  member:         ['members', 'dashboard'],
+};
+
+/** Human-readable entity names for notifications */
+const ENTITY_LABELS: Record<string, string> = {
+  appointment: 'Cita',
+  sacrament: 'Sacramento',
+  'pastoral-note': 'Nota pastoral',
+  user: 'Usuario',
+  member: 'Miembro',
+};
+
+/** Action labels in Spanish */
+const ACTION_LABELS: Record<string, string> = {
+  created: 'creado/a',
+  updated: 'actualizado/a',
+  deleted: 'eliminado/a',
 };
 
 export function useSocket() {
   const queryClient = useQueryClient();
+  const dispatch = useAppDispatch();
   const socketRef = useRef<Socket | null>(null);
   const mountedRef = useRef(false);
 
-  // Stable cache invalidation callback (doesn't change on re-renders)
   const invalidate = useCallback(
     (keys: string[]) => {
       for (const key of keys) {
@@ -68,16 +77,34 @@ export function useSocket() {
       }
     });
 
-    // Subscribe to all domain events
     const cleanups: (() => void)[] = [];
 
     for (const [prefix, keys] of Object.entries(EVENT_CACHE_MAP)) {
+      const entity = ENTITY_LABELS[prefix] ?? prefix;
+
       for (const action of ['created', 'updated', 'deleted']) {
         const event = `${prefix}:${action}`;
+        const actionLabel = ACTION_LABELS[action] ?? action;
+
         const handler = (data: unknown) => {
-          console.debug(`[Socket] ${event}`, data);
+          // Invalidate TanStack Query cache
           invalidate(keys);
+
+          // Dispatch Redux notification (bell icon)
+          const payload = data as Record<string, unknown> | undefined;
+          const name = payload?.title ?? payload?.name ?? payload?.fullName ?? '';
+          const message = name
+            ? `${entity} "${String(name).slice(0, 50)}" ${actionLabel}`
+            : `${entity} ${actionLabel}`;
+
+          dispatch(
+            addNotification({
+              type: event,
+              message,
+            }),
+          );
         };
+
         socket.on(event, handler);
         cleanups.push(() => socket.off(event, handler));
       }
@@ -85,14 +112,11 @@ export function useSocket() {
 
     return () => {
       mountedRef.current = false;
-      // Remove all listeners before closing to prevent EPIPE
-      for (const cleanup of cleanups) {
-        cleanup();
-      }
+      for (const cleanup of cleanups) cleanup();
       socket.close();
       socketRef.current = null;
     };
-  }, [invalidate]);
+  }, [invalidate, dispatch]);
 
   return socketRef;
 }

@@ -91,7 +91,7 @@ export default function PastoralNotesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Notas Pastorales</h1>
+        <h1 className="text-2xl font-bold">Notas</h1>
         {isEditor && (
           <Button onClick={() => setCreateOpen(true)}>
             <Plus className="mr-2 h-4 w-4" /> Nueva nota

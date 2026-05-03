@@ -21,7 +21,7 @@ export function Sidebar() {
     >
       <SidebarHeader collapsed={collapsed}>
         <SidebarCollapseToggle />
-        {!collapsed && <h1 className="text-lg font-bold text-sidebar-foreground">Iglesia Young</h1>}
+        {!collapsed && <h1 className="text-lg font-bold text-sidebar-foreground">RCC</h1>}
       </SidebarHeader>
 
       <ScrollArea className="flex-1">

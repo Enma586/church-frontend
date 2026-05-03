@@ -3,41 +3,36 @@
  * Shows quick stats: member count, pending appointments,
  * upcoming schedule events, and recent pastoral notes.
  */
-import { useQuery } from '@tanstack/react-query';
-import api from '@/lib/axios';
+import { useQuery } from "@tanstack/react-query";
+import api from "@/lib/axios";
 import type {
   ApiResponse,
   Member,
   Appointment,
   PastoralNote,
   PaginatedResponse,
-} from '@/types';
-import {
-  Users,
-  CalendarDays,
-  ScrollText,
-  CalendarClock,
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+} from "@/types";
+import { Users, CalendarDays, ScrollText, CalendarClock } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 /** Fetch total members count */
 function useStats() {
   return useQuery({
-    queryKey: ['dashboard', 'stats'],
+    queryKey: ["dashboard", "stats"],
     queryFn: async () => {
       const [membersRes, appointmentsRes, notesRes] = await Promise.all([
         api.get<ApiResponse<Member[]> & PaginatedResponse<Member>>(
-          '/members?limit=1',
+          "/members?limit=1",
         ),
-        api.get<
-          ApiResponse<Appointment[]> & PaginatedResponse<Appointment>
-        >('/appointments?status=Programada&limit=5'),
-        api.get<
-          ApiResponse<PastoralNote[]> & PaginatedResponse<PastoralNote>
-        >('/pastoral-notes?limit=5'),
+        api.get<ApiResponse<Appointment[]> & PaginatedResponse<Appointment>>(
+          "/appointments?status=Programada&limit=5",
+        ),
+        api.get<ApiResponse<PastoralNote[]> & PaginatedResponse<PastoralNote>>(
+          "/pastoral-notes?limit=5",
+        ),
       ]);
 
       return {
@@ -62,18 +57,14 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Miembros"
-          value={
-            isLoading ? undefined : data?.totalMembers?.toLocaleString()
-          }
+          value={isLoading ? undefined : data?.totalMembers?.toLocaleString()}
           icon={Users}
           color="text-blue-600 bg-blue-100 dark:bg-blue-900/30"
           href="/members"
         />
         <StatCard
           title="Citas pendientes"
-          value={
-            isLoading ? undefined : data?.pendingTotal?.toLocaleString()
-          }
+          value={isLoading ? undefined : data?.pendingTotal?.toLocaleString()}
           icon={CalendarDays}
           color="text-orange-600 bg-orange-100 dark:bg-orange-900/30"
           href="/appointments"
@@ -85,7 +76,7 @@ export default function DashboardPage() {
               ? undefined
               : data
                 ? `${data.pendingTotal ?? 0} pendientes`
-                : '0'
+                : "0"
           }
           icon={CalendarClock}
           color="text-purple-600 bg-purple-100 dark:bg-purple-900/30"
@@ -94,9 +85,7 @@ export default function DashboardPage() {
         <StatCard
           title="Notas recientes"
           value={
-            isLoading
-              ? undefined
-              : data?.recentNotes?.length?.toLocaleString()
+            isLoading ? undefined : data?.recentNotes?.length?.toLocaleString()
           }
           icon={ScrollText}
           color="text-green-600 bg-green-100 dark:bg-green-900/30"
@@ -108,9 +97,7 @@ export default function DashboardPage() {
         {/* ── Citas pendientes ── */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-base">
-              Eventos pendientes
-            </CardTitle>
+            <CardTitle className="text-base">Eventos pendientes</CardTitle>
             <Link to="/appointments">
               <Button variant="ghost" size="sm">
                 Ver todas
@@ -130,19 +117,13 @@ export default function DashboardPage() {
                     key={a._id}
                     className="flex items-center justify-between text-sm border-b pb-1.5 last:border-0"
                   >
-                    <span className="font-medium truncate">
-                      {a.title}
-                    </span>
+                    <span className="font-medium truncate">{a.title}</span>
                     <span className="text-muted-foreground text-xs ml-2 shrink-0">
                       {a.startDateTime
-                        ? new Date(a.startDateTime).toLocaleDateString(
-                            'es-HN',
-                          )
+                        ? new Date(a.startDateTime).toLocaleDateString("es-HN")
                         : a.allDayDate
-                          ? new Date(a.allDayDate).toLocaleDateString(
-                              'es-HN',
-                            )
-                          : '—'}
+                          ? new Date(a.allDayDate).toLocaleDateString("es-HN")
+                          : "—"}
                     </span>
                   </li>
                 ))}
@@ -158,9 +139,7 @@ export default function DashboardPage() {
         {/* ── Últimas notas pastorales ── */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-base">
-              Últimas notas
-            </CardTitle>
+            <CardTitle className="text-base">Últimas notas</CardTitle>
             <Link to="/pastoral-notes">
               <Button variant="ghost" size="sm">
                 Ver todas
@@ -184,13 +163,10 @@ export default function DashboardPage() {
                       {note.content}
                     </p>
                     <span className="text-xs text-muted-foreground">
-                      {new Date(note.createdAt).toLocaleDateString(
-                        'es-HN',
-                        {
-                          dateStyle: 'medium',
-                          timeStyle: 'short',
-                        },
-                      )}
+                      {new Date(note.createdAt).toLocaleString("es-HN", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}
                     </span>
                   </li>
                 ))}

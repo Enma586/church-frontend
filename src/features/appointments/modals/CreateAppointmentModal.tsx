@@ -80,7 +80,7 @@ export function CreateAppointmentModal({ open, onOpenChange }: Props) {
     <FormModal
       open={open}
       onOpenChange={onOpenChange}
-      title="Nueva cita pastoral"
+      title="Nueva cita"
       description="Agenda una reunión con un miembro."
       size="5xl"
     >

@@ -8,7 +8,7 @@ export function useCreatePastoralNote() {
   return useMutation({
     mutationFn: (data: CreatePastoralNotePayload) => pastoralNoteService.create(data),
     onSuccess: () => {
-      showToast.success('Nota pastoral creada');
+      showToast.success('Nota creada');
       queryClient.invalidateQueries({ queryKey: ['pastoral-notes'] });
     },
     onError: (error: Error) => showToast.error(error.message),
