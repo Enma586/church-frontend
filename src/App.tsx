@@ -5,18 +5,17 @@ import { store } from '@/store';
 import { queryClient } from '@/lib/query-client';
 import { router } from '@/routes';
 import { ToastProvider } from '@/components/feedback/ToastProvider';
-
-// 1. Importamos el proveedor de tooltips de shadcn
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { SocketProvider } from '@/components/feedback/SocketProvider';
 
 export default function App() {
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-        {/* 2. Envolvemos el Router y el Toast con el TooltipProvider */}
         <TooltipProvider>
+          <SocketProvider />
           <RouterProvider router={router} />
-          <ToastProvider /> 
+          <ToastProvider />
         </TooltipProvider>
       </QueryClientProvider>
     </Provider>
