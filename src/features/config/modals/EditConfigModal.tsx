@@ -2,10 +2,10 @@
  * @fileoverview Modal wrapper for the ConfigForm component.
  * Loads the current configuration and delegates editing to ConfigForm.
  */
-import { FormModal } from '@/components/modals/FormModal';
-import { ConfigForm } from '../components/ConfigForm';
-import { useConfig } from '../hooks/useConfig';
-import { Loader2 } from 'lucide-react';
+import { FormModal } from "@/components/modals/FormModal";
+import { ConfigForm } from "../components/ConfigForm";
+import { useConfig } from "../hooks/useConfig";
+import { Loader2 } from "lucide-react";
 
 interface EditConfigModalProps {
   open: boolean;
@@ -37,7 +37,9 @@ export function EditConfigModal({ open, onOpenChange }: EditConfigModalProps) {
         </p>
       )}
 
-      {config && <ConfigForm config={config} />}
+      {config && (
+        <ConfigForm config={config} onClose={() => onOpenChange(false)} />
+      )}
     </FormModal>
   );
 }

@@ -3,33 +3,38 @@
  * Provides inputs for church name, Google Calendar integration,
  * notification settings, and backup info.
  */
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Form } from '@/components/ui/form';
-import { FormInput } from '@/components/forms/FormInput';
-import { FormSubmitButton } from '@/components/forms/FormSubmitButton';
-import { useUpdateConfig } from '../hooks/useConfig';
-import type { Configuration } from '@/types';
-import { Separator } from '@/components/ui/separator';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form } from "@/components/ui/form";
+import { FormInput } from "@/components/forms/FormInput";
+import { FormSubmitButton } from "@/components/forms/FormSubmitButton";
+import { useUpdateConfig } from "../hooks/useConfig";
+import type { Configuration } from "@/types";
+import { Separator } from "@/components/ui/separator";
 
 const configSchema = z.object({
-  churchName: z.string().min(1, 'El nombre de la iglesia es requerido'),
-  googleCalendarId: z.string().min(1, 'El ID del calendario es requerido'),
-  googleServiceAccountEmail: z.string().email('Email inválido').optional().or(z.literal('')),
+  churchName: z.string().min(1, "El nombre de la iglesia es requerido"),
+  googleCalendarId: z.string().min(1, "El ID del calendario es requerido"),
+  googleServiceAccountEmail: z
+    .string()
+    .email("Email inválido")
+    .optional()
+    .or(z.literal("")),
   notificationRefreshInterval: z.coerce
     .number()
-    .min(10, 'Mínimo 10 segundos')
-    .max(3600, 'Máximo 3600 segundos'),
+    .min(10, "Mínimo 10 segundos")
+    .max(3600, "Máximo 3600 segundos"),
 });
 
 type ConfigFormValues = z.infer<typeof configSchema>;
 
 interface ConfigFormProps {
   config: Configuration;
+  onClose: () => void;
 }
 
-export function ConfigForm({ config }: ConfigFormProps) {
+export function ConfigForm({ config, onClose }: ConfigFormProps) {
   const updateConfig = useUpdateConfig();
 
   const form = useForm<ConfigFormValues>({
@@ -38,12 +43,13 @@ export function ConfigForm({ config }: ConfigFormProps) {
     defaultValues: {
       churchName: config.churchName,
       googleCalendarId: config.googleCalendarId,
-      googleServiceAccountEmail: config.googleServiceAccountEmail ?? '',
+      googleServiceAccountEmail: config.googleServiceAccountEmail ?? "",
       notificationRefreshInterval: config.notificationRefreshInterval,
     },
   });
 
   const onSubmit = (values: ConfigFormValues) => {
+    onClose();
     updateConfig.mutate({
       ...values,
       googleServiceAccountEmail: values.googleServiceAccountEmail || undefined,
@@ -114,10 +120,10 @@ export function ConfigForm({ config }: ConfigFormProps) {
               Respaldo
             </h3>
             <p className="text-sm">
-              Último backup:{' '}
+              Último backup:{" "}
               <span className="font-medium">
                 {/* Cambiado a es-SV para usar el formato de El Salvador */}
-                {new Date(config.lastBackupDate).toLocaleString('es-SV')}
+                {new Date(config.lastBackupDate).toLocaleString("es-SV")}
               </span>
             </p>
           </div>
