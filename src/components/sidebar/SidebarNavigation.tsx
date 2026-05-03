@@ -6,7 +6,7 @@ import {
   ScrollText,
   Settings,
   Shield,
-  Calendar1
+  Calendar1,
 } from 'lucide-react';
 import { SidebarNavGroup, type NavGroupData } from './SidebarNavGroup';
 import { SidebarNavItem, type NavItemData } from './SidebarNavItem';
@@ -17,9 +17,7 @@ const navigationGroups: NavGroupData[] = [
     label: 'Principal',
     icon: LayoutDashboard,
     roles: ['Coordinador', 'Subcoordinador'],
-    items: [
-      { label: 'Dashboard', path: '/', icon: LayoutDashboard },
-    ],
+    items: [{ label: 'Dashboard', path: '/', icon: LayoutDashboard }],
   },
   {
     label: 'Miembros',
@@ -49,10 +47,19 @@ const navigationGroups: NavGroupData[] = [
   },
 ];
 
+/**
+ * Admin items — only visible to Coordinador.
+ * Subcoordinador sees none of these.
+ */
 const adminItems: NavItemData[] = [
   { label: 'Usuarios', path: '/users', icon: Users, roles: ['Coordinador'] },
   { label: 'Roles', path: '/roles', icon: Shield, roles: ['Coordinador'] },
-  { label: 'Configuración', path: '/config', icon: Settings, roles: ['Coordinador'] },
+  {
+    label: 'Configuración',
+    path: '/config',
+    icon: Settings,
+    roles: ['Coordinador'],
+  },
 ];
 
 interface SidebarNavigationProps {
@@ -64,6 +71,8 @@ interface SidebarNavigationProps {
  *
  * When expanded: displays groups with expandable subcategories (start collapsed).
  * When collapsed: flattens ALL items into a single evenly-spaced icon-only list.
+ *
+ * Admin section (Users, Roles, Config) is only visible to Coordinador users.
  */
 export function SidebarNavigation({ collapsed }: SidebarNavigationProps) {
   const user = useAppSelector((s) => s.auth.user);

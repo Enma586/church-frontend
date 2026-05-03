@@ -5,37 +5,47 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import { PublicRoute } from "./PublicRoute";
 import { PageLoader } from "@/components/feedback/PageLoader";
 
-// ─── Lazy pages (placeholder hasta que existan en fases posteriores) ──────────
-
-const PlaceholderPage = lazy(() =>
-  import("@/components/feedback/EmptyState").then((m) => ({
-    default: () => (
-      <m.EmptyState
-        title="Próximamente"
-        description="Esta sección estará disponible pronto."
-      />
-    ),
-  })),
-);
+// ─── Lazy pages ──────────────────────────────────────────────────────────────
 
 const LoginPage = lazy(() => import("@/features/user/pages/LoginPage"));
 const RegisterPage = lazy(() => import("@/features/user/pages/RegisterPage"));
+
+// Feature pages
+const DashboardPage = lazy(
+  () => import("@/features/dashboard/pages/DashboardPage"),
+);
 const MembersList = lazy(() => import("@/features/members/pages/MembersPage"));
-const UsersList = lazy(() => import('@/features/users/pages/UsersPage'));
-const SacramentsList = lazy(() => import('@/features/sacraments/pages/SacramentsPage'));
-const PastoralNotesList = lazy(() => import('@/features/pastoral-notes/pages/PastoralNotesPage'));
-const SchedulePage = lazy(() => import('@/features/schedule/pages/AnnualSchedulePage'));
-const ProfilePage = lazy(() => import('@/features/user/pages/ProfilePage'));
-const AppointmentsList = lazy(() => import('@/features/appointments/pages/AppointmentsPage'));
 const MemberProfile = lazy(
   () => import("@/features/members/pages/MemberProfilePage"),
 );
+const AppointmentsList = lazy(
+  () => import("@/features/appointments/pages/AppointmentsPage"),
+);
+const SchedulePage = lazy(
+  () => import("@/features/schedule/pages/AnnualSchedulePage"),
+);
+const SacramentsList = lazy(
+  () => import("@/features/sacraments/pages/SacramentsPage"),
+);
+const PastoralNotesList = lazy(
+  () => import("@/features/pastoral-notes/pages/PastoralNotesPage"),
+);
+const UsersList = lazy(() => import("@/features/users/pages/UsersPage"));
+const RolesPage = lazy(() => import("@/features/roles/pages/RolesPage"));
+const ConfigPage = lazy(() => import("@/features/config/pages/ConfigPage"));
+const ProfilePage = lazy(() => import("@/features/user/pages/ProfilePage"));
+
+// ─── Suspense fallback ───────────────────────────────────────────────────────
 
 function SuspenseFallback() {
   return <PageLoader />;
 }
 
-// ─── Router ───────────────────────────────────────────────────────────────────
+function Lazy({ children }: { children: React.ReactNode }) {
+  return <Suspense fallback={<SuspenseFallback />}>{children}</Suspense>;
+}
+
+// ─── Router ──────────────────────────────────────────────────────────────────
 
 export const router = createBrowserRouter([
   {
@@ -45,9 +55,9 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: (
-          <Suspense fallback={<SuspenseFallback />}>
+          <Lazy>
             <LoginPage />
-          </Suspense>
+          </Lazy>
         ),
       },
     ],
@@ -59,9 +69,9 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: (
-          <Suspense fallback={<SuspenseFallback />}>
+          <Lazy>
             <RegisterPage />
-          </Suspense>
+          </Lazy>
         ),
       },
     ],
@@ -74,91 +84,94 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           {
+            /** Dashboard replaces the old PlaceholderPage */
             index: true,
             element: (
-              <Suspense fallback={<SuspenseFallback />}>
-                <PlaceholderPage />
-              </Suspense>
+              <Lazy>
+                <DashboardPage />
+              </Lazy>
             ),
           },
           {
             path: "members",
             element: (
-              <Suspense fallback={<SuspenseFallback />}>
+              <Lazy>
                 <MembersList />
-              </Suspense>
+              </Lazy>
             ),
           },
           {
             path: "members/:id",
             element: (
-              <Suspense fallback={<SuspenseFallback />}>
+              <Lazy>
                 <MemberProfile />
-              </Suspense>
+              </Lazy>
             ),
           },
           {
             path: "appointments",
             element: (
-              <Suspense fallback={<SuspenseFallback />}>
+              <Lazy>
                 <AppointmentsList />
-              </Suspense>
+              </Lazy>
             ),
           },
           {
-  path: 'schedule',
-  element: (
-    <Suspense fallback={<SuspenseFallback />}>
-      <SchedulePage />
-    </Suspense>
-  ),
-},
+            path: "schedule",
+            element: (
+              <Lazy>
+                <SchedulePage />
+              </Lazy>
+            ),
+          },
           {
             path: "sacraments",
             element: (
-              <Suspense fallback={<SuspenseFallback />}>
+              <Lazy>
                 <SacramentsList />
-              </Suspense>
+              </Lazy>
             ),
           },
           {
             path: "pastoral-notes",
             element: (
-              <Suspense fallback={<SuspenseFallback />}>
+              <Lazy>
                 <PastoralNotesList />
-              </Suspense>
+              </Lazy>
             ),
           },
           {
             path: "users",
             element: (
-              <Suspense fallback={<SuspenseFallback />}>
+              <Lazy>
                 <UsersList />
-              </Suspense>
+              </Lazy>
             ),
           },
           {
+            /** Activate the real RolesPage instead of PlaceholderPage */
             path: "roles",
             element: (
-              <Suspense fallback={<SuspenseFallback />}>
-                <PlaceholderPage />
-              </Suspense>
+              <Lazy>
+                <RolesPage />
+              </Lazy>
             ),
           },
           {
+            /** Activate the real ConfigPage instead of PlaceholderPage */
             path: "config",
             element: (
-              <Suspense fallback={<SuspenseFallback />}>
-                <PlaceholderPage />
-              </Suspense>
+              <Lazy>
+                <ConfigPage />
+              </Lazy>
             ),
           },
           {
             path: "profile",
             element: (
-              <Suspense fallback={<SuspenseFallback />}>
+              <Lazy>
                 <ProfilePage />
-              </Suspense>
+              </Lazy>
             ),
           },
         ],
