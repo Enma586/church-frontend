@@ -324,6 +324,7 @@ export interface Configuration {
   notificationRefreshInterval: number;
   churchName: string;
   lastBackupDate?: string;
+  backupFrequencyDays: number;
   createdAt: string;
   updatedAt: string;
   rolePermissions?: Record<string, PermissionKey[]>;
