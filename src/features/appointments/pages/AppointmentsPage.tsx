@@ -33,17 +33,14 @@ import { CalendarGrid } from '../calendar/CalendarGrid';
 import { useAppointments } from '../hooks/useAppointments';
 import { usePagination } from '@/hooks/usePagination';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { useAppSelector } from '@/store/hooks';
+import { usePermissions } from '@/hooks/usePermissions';
 import type { Appointment } from '../types/appointment.types';
 import type { ColumnDef } from '@tanstack/react-table';
 
 export default function AppointmentsPage() {
   const { page, limit, goToPage, setPerPage } = usePagination();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
-  const user = useAppSelector((s) => s.auth.user);
-  const isEditor =
-    user?.role === 'Coordinador' || user?.role === 'Subcoordinador';
-  const isCoordinador = user?.role === 'Coordinador';
+  const { can } = usePermissions();
 
   const [search, setSearch] = useState('');
   const [dateFrom, setDateFrom] = useState('');
@@ -144,7 +141,7 @@ const columns: ColumnDef<Appointment, unknown>[] = [
           >
             <Eye className="h-4 w-4" />
           </Button>
-          {isEditor && (
+          {can('appointments:write') && (
             <Button
               variant="ghost"
               size="icon"
@@ -154,7 +151,7 @@ const columns: ColumnDef<Appointment, unknown>[] = [
               <Pencil className="h-4 w-4" />
             </Button>
           )}
-          {isCoordinador && (
+          {can('appointments:write') && (
             <Button
               variant="ghost"
               size="icon"
@@ -190,7 +187,7 @@ const columns: ColumnDef<Appointment, unknown>[] = [
               <CalendarDays className="mr-1.5 h-4 w-4" /> Calendario
             </Button>
           </div>
-          {isEditor && (
+          {can('appointments:write') && (
             <Button onClick={() => setCreateOpen(true)}>
               <Plus className="mr-2 h-4 w-4" /> Nuevo evento
             </Button>

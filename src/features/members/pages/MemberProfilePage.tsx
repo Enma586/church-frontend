@@ -6,18 +6,17 @@ import { ErrorState } from '@/components/feedback/ErrorState';
 import { MemberDetails } from '../components/MemberDetails';
 import { EditMemberModal } from '../modals/EditMemberModal';
 import { useMember } from '../hooks/useMember';
-import { useAppSelector } from '@/store/hooks';
+import { usePermissions } from '@/hooks/usePermissions';
 import { useState } from 'react';
 
 /**
  * Single member profile page.
- * Shows full details and allows editing (Coordinador only).
+ * Shows full details and allows editing based on permissions.
  */
 export default function MemberProfilePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const user = useAppSelector((s) => s.auth.user);
-  const isCoordinador = user?.role === 'Coordinador';
+  const { can } = usePermissions();
   const [editOpen, setEditOpen] = useState(false);
 
   const { data: response, isLoading, isError, refetch } = useMember(id ?? '');
@@ -41,7 +40,7 @@ export default function MemberProfilePage() {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Volver
         </Button>
-        {isCoordinador && (
+        {can('members:write') && (
           <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
             <Pencil className="mr-2 h-4 w-4" />
             Editar

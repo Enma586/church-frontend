@@ -15,17 +15,14 @@ import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useScheduleEvents } from '../hooks/useScheduleEvents';
 import { useDeleteScheduleEvent } from '../hooks/useDeleteScheduleEvent';
 import { usePagination } from '@/hooks/usePagination';
-import { useAppSelector } from '@/store/hooks';
+import { usePermissions } from '@/hooks/usePermissions';
 import type { ScheduleEvent } from '../types/schedule.types';
 import type { ColumnDef } from '@tanstack/react-table';
 import { SyncStatusBadge } from '@/features/appointments/components/SyncStatusBadge';
 
 export default function SchedulePage() {
   const { page, limit, goToPage, setPerPage } = usePagination();
-  const user = useAppSelector((s) => s.auth.user);
-  
-  const isEditor = user?.role === 'Coordinador' || user?.role === 'Subcoordinador';
-  const isCoordinador = user?.role === 'Coordinador';
+  const { can } = usePermissions();
 
   const [search, setSearch] = useState('');
   const [dateFrom, setDateFrom] = useState('');
@@ -94,7 +91,7 @@ export default function SchedulePage() {
           >
             <Eye className="h-4 w-4" />
           </Button>
-          {isEditor && (
+          {can('schedule:write') && (
             <Button
               variant="ghost"
               size="icon"
@@ -104,7 +101,7 @@ export default function SchedulePage() {
               <Pencil className="h-4 w-4" />
             </Button>
           )}
-          {isCoordinador && (
+          {can('schedule:write') && (
             <Button
               variant="ghost"
               size="icon"
@@ -126,7 +123,7 @@ export default function SchedulePage() {
           <h1 className="text-2xl font-bold tracking-tight">Cronograma Anual</h1>
           <p className="text-sm text-muted-foreground">Planificación general de actividades y eventos.</p>
         </div>
-        {isEditor && (
+        {can('schedule:write') && (
           <Button onClick={() => setCreateOpen(true)}>
             <Plus className="mr-2 h-4 w-4" /> Nuevo evento
           </Button>

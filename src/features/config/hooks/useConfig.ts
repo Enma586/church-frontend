@@ -1,6 +1,3 @@
-/**
- * @fileoverview React Query hooks for system configuration.
- */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { configService } from '../services/config.service';
 import { showToast } from '@/lib/toast';
@@ -10,7 +7,7 @@ export function useConfig() {
   return useQuery({
     queryKey: ['config'],
     queryFn: () => configService.get(),
-    staleTime: 5 * 60 * 1000, // 5 min cache
+    staleTime: 0,   // ← siempre refetch al invalidar
   });
 }
 

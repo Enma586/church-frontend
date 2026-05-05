@@ -1,20 +1,12 @@
-/**
- * @fileoverview Modal for editing permissions assigned to a specific role.
- * Displays a PermissionMatrix with toggles for each granular permission.
- * Saves changes to the system configuration (rolePermissions field).
- */
 import { useState, useEffect, useCallback } from 'react';
 import { FormModal } from '@/components/modals/FormModal';
 import { Button } from '@/components/ui/button';
 import { PermissionMatrix } from '../components/PermissionMatrix';
-import { useUpdateConfig } from '@/features/config/hooks/useConfig';
-import { useQueryClient } from '@tanstack/react-query';
+import { useUpdateConfig, useConfig } from '@/features/config/hooks/useConfig';
 import { showToast } from '@/lib/toast';
 import type { RoleData } from '../types/role.types';
 import type { PermissionKey } from '../../../constants/permissions';
-import {
-  DEFAULT_ROLE_PERMISSIONS,
-} from '../../../constants/permissions';
+import { DEFAULT_ROLE_PERMISSIONS } from '../../../constants/permissions';
 
 interface EditRoleModalProps {
   open: boolean;
@@ -25,29 +17,22 @@ interface EditRoleModalProps {
 export function EditRoleModal({ open, onOpenChange, role }: EditRoleModalProps) {
   const [permissions, setPermissions] = useState<PermissionKey[]>(role.permissions);
   const updateConfig = useUpdateConfig();
-  const queryClient = useQueryClient();
+  const { data: configData } = useConfig();
+  const existingConfig = configData?.data;
 
-  // Sync local state when role changes (modal opens with a different role)
+  
+
   useEffect(() => {
-    if (open) {
-      setPermissions(role.permissions);
-    }
+    if (open) setPermissions(role.permissions);
   }, [open, role]);
 
-  // Coordinador permissions are immutable (base set)
   const immutable: PermissionKey[] =
     role.role === 'Coordinador'
       ? DEFAULT_ROLE_PERMISSIONS.Coordinador
       : [
-          'dashboard:view',
-          'members:read',
-          'appointments:read',
-          'schedule:read',
-          'sacraments:read',
-          'pastoral_notes:read',
-          'users:read',
-          'roles:read',
-          'config:read',
+          'dashboard:view', 'members:read', 'appointments:read',
+          'schedule:read', 'sacraments:read', 'pastoral_notes:read',
+          'users:read', 'roles:read', 'config:read',
         ];
 
   const handleToggle = useCallback(
@@ -58,17 +43,21 @@ export function EditRoleModal({ open, onOpenChange, role }: EditRoleModalProps) 
           : prev.filter((p) => p !== perm),
       );
     },
-    [],
+    [permissions],
   );
 
   const handleSave = () => {
-    // Persist via Configuration API (rolePermissions field)
+    const currentPermissions = existingConfig?.rolePermissions ?? {};
+    const merged = {
+      ...currentPermissions,
+      [role.role]: permissions,
+    };
+
     updateConfig.mutate(
-      { rolePermissions: { [role.role]: permissions } } as any,
+      { rolePermissions: merged } as Record<string, unknown>,
       {
         onSuccess: () => {
           showToast.success(`Permisos de "${role.role}" actualizados`);
-          queryClient.invalidateQueries({ queryKey: ['roles'] });
           onOpenChange(false);
         },
         onError: (err: Error) => {
@@ -94,16 +83,10 @@ export function EditRoleModal({ open, onOpenChange, role }: EditRoleModalProps) 
         />
 
         <div className="flex justify-end gap-2">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button
-            onClick={handleSave}
-            disabled={updateConfig.isPending}
-          >
+          <Button onClick={handleSave} disabled={updateConfig.isPending}>
             {updateConfig.isPending ? 'Guardando...' : 'Guardar cambios'}
           </Button>
         </div>

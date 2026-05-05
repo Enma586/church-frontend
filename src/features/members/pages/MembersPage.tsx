@@ -15,7 +15,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import type { Member, MemberQueryParams } from '@/types';
 import type { ColumnDef } from '@tanstack/react-table';
 import { useNavigate } from 'react-router-dom';
-import { useAppSelector } from '@/store/hooks';
+import { usePermissions } from '@/hooks/usePermissions';
 
 /**
  * Main members list page.
@@ -23,14 +23,13 @@ import { useAppSelector } from '@/store/hooks';
  * Features:
  * - Server‑side pagination & filters
  * - Table view (desktop) / Card view (mobile)
- * - Create / Edit / Delete modals (guarded by Coordinador role)
+ * - Create / Edit / Delete modals (guarded by permissions)
  */
 export default function MembersPage() {
   const navigate = useNavigate();
   const { page, limit, goToPage, setPerPage } = usePagination();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
-  const user = useAppSelector((s) => s.auth.user);
-  const isCoordinador = user?.role === 'Coordinador';
+  const { can } = usePermissions();
 
   const [filters, setFilters] = useState<MemberQueryParams>({});
   const [createOpen, setCreateOpen] = useState(false);
@@ -94,7 +93,7 @@ export default function MembersPage() {
           >
             <Eye className="h-4 w-4" />
           </Button>
-          {isCoordinador && (
+          {can('members:write') && (
             <>
               <Button
                 variant="ghost"
@@ -125,7 +124,7 @@ export default function MembersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Miembros</h1>
-        {isCoordinador && (
+        {can('members:write') && (
           <Button onClick={() => setCreateOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Nuevo miembro

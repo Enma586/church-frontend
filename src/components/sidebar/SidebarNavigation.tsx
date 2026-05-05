@@ -1,3 +1,4 @@
+import type { LucideIcon } from 'lucide-react';
 import {
   LayoutDashboard,
   Users,
@@ -9,56 +10,55 @@ import {
   Calendar1,
 } from 'lucide-react';
 import { SidebarNavGroup, type NavGroupData } from './SidebarNavGroup';
-import { SidebarNavItem, type NavItemData } from './SidebarNavItem';
-import { useAppSelector } from '@/store/hooks';
+import { SidebarNavItem } from './SidebarNavItem';
+import { usePermissions } from '@/hooks/usePermissions';
 
-const navigationGroups: NavGroupData[] = [
+interface NavItem {
+  label: string;
+  path: string;
+  icon: LucideIcon;
+  permission: string;
+}
+
+const groups: { label: string; icon: LucideIcon; items: NavItem[] }[] = [
   {
     label: 'Principal',
     icon: LayoutDashboard,
-    roles: ['Coordinador', 'Subcoordinador'],
-    items: [{ label: 'Dashboard', path: '/', icon: LayoutDashboard }],
+    items: [
+      { label: 'Dashboard', path: '/', icon: LayoutDashboard, permission: 'dashboard:view' },
+    ],
   },
   {
     label: 'Miembros',
     icon: Users,
-    roles: ['Coordinador', 'Subcoordinador'],
     items: [
-      { label: 'Todos los miembros', path: '/members', icon: Users },
+      { label: 'Todos los miembros', path: '/members', icon: Users, permission: 'members:read' },
     ],
   },
   {
     label: 'Agenda',
     icon: CalendarDays,
-    roles: ['Coordinador', 'Subcoordinador'],
     items: [
-      { label: 'Citas', path: '/appointments', icon: CalendarDays },
-      { label: 'Cronograma', path: '/schedule', icon: Calendar1 },
+      { label: 'Citas', path: '/appointments', icon: CalendarDays, permission: 'appointments:read' },
+      { label: 'Cronograma', path: '/schedule', icon: Calendar1, permission: 'schedule:read' },
     ],
   },
   {
     label: 'Vida Espiritual',
     icon: BookOpen,
-    roles: ['Coordinador', 'Subcoordinador'],
     items: [
-      { label: 'Sacramentos', path: '/sacraments', icon: BookOpen },
-      { label: 'Notas', path: '/pastoral-notes', icon: ScrollText },
+      { label: 'Sacramentos', path: '/sacraments', icon: BookOpen, permission: 'sacraments:read' },
+      { label: 'Notas', path: '/pastoral-notes', icon: ScrollText, permission: 'pastoral_notes:read' },
     ],
   },
-];
-
-/**
- * Admin items — only visible to Coordinador.
- * Subcoordinador sees none of these.
- */
-const adminItems: NavItemData[] = [
-  { label: 'Usuarios', path: '/users', icon: Users, roles: ['Coordinador'] },
-  { label: 'Roles', path: '/roles', icon: Shield, roles: ['Coordinador'] },
   {
-    label: 'Configuración',
-    path: '/config',
-    icon: Settings,
-    roles: ['Coordinador'],
+    label: 'Administración',
+    icon: Shield,
+    items: [
+      { label: 'Usuarios', path: '/users', icon: Users, permission: 'users:read' },
+      { label: 'Roles', path: '/roles', icon: Shield, permission: 'roles:read' },
+      { label: 'Configuración', path: '/config', icon: Settings, permission: 'config:read' },
+    ],
   },
 ];
 
@@ -66,36 +66,21 @@ interface SidebarNavigationProps {
   collapsed: boolean;
 }
 
-/**
- * Renders the sidebar navigation.
- *
- * When expanded: displays groups with expandable subcategories (start collapsed).
- * When collapsed: flattens ALL items into a single evenly-spaced icon-only list.
- *
- * Admin section (Users, Roles, Config) is only visible to Coordinador users.
- */
 export function SidebarNavigation({ collapsed }: SidebarNavigationProps) {
-  const user = useAppSelector((s) => s.auth.user);
-  const role = user?.role;
+  const { can } = usePermissions();
 
-  const filteredGroups = navigationGroups.filter(
-    (g) => !g.roles || (role && g.roles.includes(role)),
-  );
+  const filteredGroups: NavGroupData[] = groups
+    .map((g) => ({
+      ...g,
+      items: g.items.filter((it) => can(it.permission as Parameters<typeof can>[0])),
+    }))
+    .filter((g) => g.items.length > 0);
 
-  const filteredAdmin = adminItems.filter(
-    (item) => !item.roles || (role && item.roles.includes(role)),
-  );
-
-  // When collapsed, flatten every item into one list with uniform spacing
   if (collapsed) {
-    const allItems: NavItemData[] = [
-      ...filteredGroups.flatMap((g) => g.items),
-      ...filteredAdmin,
-    ];
-
+    const all = filteredGroups.flatMap((g) => g.items);
     return (
       <nav className="flex flex-col gap-0.5 p-2">
-        {allItems.map((item) => (
+        {all.map((item) => (
           <SidebarNavItem key={item.path} item={item} collapsed />
         ))}
       </nav>
@@ -107,18 +92,6 @@ export function SidebarNavigation({ collapsed }: SidebarNavigationProps) {
       {filteredGroups.map((group) => (
         <SidebarNavGroup key={group.label} group={group} collapsed={false} />
       ))}
-
-      {filteredAdmin.length > 0 && (
-        <SidebarNavGroup
-          group={{
-            label: 'Administración',
-            icon: Shield,
-            items: filteredAdmin,
-            roles: ['Coordinador'],
-          }}
-          collapsed={false}
-        />
-      )}
     </nav>
   );
 }

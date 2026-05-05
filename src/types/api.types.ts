@@ -318,6 +318,7 @@ export interface PastoralNoteQueryParams extends PaginationParams {
 
 export interface Configuration {
   _id: string;
+  
   googleCalendarId: string;
   googleServiceAccountEmail?: string;
   enableLocalNotifications: boolean;

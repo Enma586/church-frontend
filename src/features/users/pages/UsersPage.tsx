@@ -13,15 +13,14 @@ import { UserDetailsModal } from '../modals/UserDetailsModal';
 import { useUsers } from '../hooks/useUsers';
 import { usePagination } from '@/hooks/usePagination';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { useAppSelector } from '@/store/hooks';
+import { usePermissions } from '@/hooks/usePermissions';
 import type { User, UserQueryParams } from '@/types';
 import type { ColumnDef } from '@tanstack/react-table';
 
 export default function UsersPage() {
   const { page, limit, goToPage, setPerPage } = usePagination();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
-  const user = useAppSelector((s) => s.auth.user);
-  const isCoordinador = user?.role === 'Coordinador';
+  const { can } = usePermissions();
 
   const [filters, setFilters] = useState<UserQueryParams>({});
   const [createOpen, setCreateOpen] = useState(false);
@@ -85,7 +84,7 @@ export default function UsersPage() {
           >
             <Info className="h-4 w-4" />
           </Button>
-          {isCoordinador && (
+          {can('users:write') && (
             <Button
               variant="ghost"
               size="icon"
@@ -104,7 +103,7 @@ export default function UsersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Usuarios</h1>
-        {isCoordinador && (
+        {can('users:write') && (
           <Button onClick={() => setCreateOpen(true)}>
             <Plus className="mr-2 h-4 w-4" /> Nuevo usuario
           </Button>

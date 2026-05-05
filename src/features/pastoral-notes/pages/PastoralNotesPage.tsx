@@ -13,7 +13,7 @@ import { DeletePastoralNoteModal } from '../modals/DeletePastoralNoteModal';
 import { usePastoralNotes } from '../hooks/usePastoralNotes';
 import { usePagination } from '@/hooks/usePagination';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { useAppSelector } from '@/store/hooks';
+import { usePermissions } from '@/hooks/usePermissions';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -24,9 +24,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 export default function PastoralNotesPage() {
   const { page, limit, goToPage, setPerPage } = usePagination();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
-  const user = useAppSelector((s) => s.auth.user);
-  const isCoordinador = user?.role === 'Coordinador';
-  const isEditor = isCoordinador || user?.role === 'Subcoordinador';
+  const { can } = usePermissions();
 
   const [filters, setFilters] = useState<PastoralNoteQueryParams>({});
   const [createOpen, setCreateOpen] = useState(false);
@@ -73,12 +71,12 @@ export default function PastoralNotesPage() {
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setPreview(row.original)}>
             <Eye className="h-4 w-4" />
           </Button>
-          {isEditor && (
+          {can('pastoral_notes:write') && (
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditItem(row.original)}>
               <Pencil className="h-4 w-4" />
             </Button>
           )}
-          {isCoordinador && (
+          {can('pastoral_notes:write') && (
             <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeleteTarget(row.original._id)}>
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -92,7 +90,7 @@ export default function PastoralNotesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Notas</h1>
-        {isEditor && (
+        {can('pastoral_notes:write') && (
           <Button onClick={() => setCreateOpen(true)}>
             <Plus className="mr-2 h-4 w-4" /> Nueva nota
           </Button>

@@ -1,11 +1,3 @@
-/**
- * @fileoverview Roles management page.
- * Displays available roles (Coordinador / Subcoordinador) as cards.
- * Clicking a card opens the EditRoleModal for permission toggling.
- * Since roles are hardcoded in the backend (enum on User model),
- * this page reads role definitions from frontend constants and
- * persisted permission overrides from the Configuration singleton.
- */
 import { useState, useMemo } from 'react';
 import { RoleCard } from '../components/RoleCard';
 import { EditRoleModal } from '../modals/EditRoleModal';
@@ -23,19 +15,18 @@ export default function RolesPage() {
   const config = configData?.data;
 
   const [editingRole, setEditingRole] = useState<RoleData | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);   // ← forzar re-render
 
-  // Merge persisted overrides with defaults
   const roles: RoleData[] = useMemo(() => {
-    const overrides = config?.rolePermissions ?? {};
+    const overrides = (config?.rolePermissions ?? {}) as Record<string, string[]>;
 
     return USER_ROLES.map((roleName) => {
       const defaults = DEFAULT_ROLE_PERMISSIONS[roleName] ?? [];
-      const overridden = (overrides[roleName] as PermissionKey[]) ?? [];
-      // Use overrides if present, otherwise defaults
-      const perms = overridden.length > 0 ? overridden : defaults;
+      const overridden = overrides[roleName] ?? [];
+      const perms = overridden.length > 0 ? (overridden as PermissionKey[]) : defaults;
       return { role: roleName, permissions: perms };
     });
-  }, [config]);
+  }, [config, refreshKey]);   // ← refreshKey como dependencia
 
   if (isLoading) {
     return (
@@ -46,13 +37,12 @@ export default function RolesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" key={refreshKey}>
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Roles</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Gestiona los permisos de cada rol. Los roles se asignan al crear o
-            editar usuarios.
+            Gestiona los permisos de cada rol.
           </p>
         </div>
       </div>
@@ -71,7 +61,10 @@ export default function RolesPage() {
         <EditRoleModal
           open={!!editingRole}
           onOpenChange={(open) => {
-            if (!open) setEditingRole(null);
+            if (!open) {
+              setEditingRole(null);
+              setRefreshKey((k) => k + 1);   // ← forzar refresh al cerrar
+            }
           }}
           role={editingRole}
         />
