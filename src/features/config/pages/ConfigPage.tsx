@@ -3,17 +3,23 @@
  * Shows a read-only card with current settings and a button to edit.
  */
 import { useState } from 'react';
-import {  Pencil } from 'lucide-react';
+import { Pencil, Loader2, Database, Download } from 'lucide-react'; // Añadido Download
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { EditConfigModal } from '../modals/EditConfigModal';
 import { useConfig } from '../hooks/useConfig';
-import { Loader2 } from 'lucide-react';
+import { useTriggerBackup, useDownloadBackup } from '../hooks/createBackup'; // Importamos ambos hooks
 
 export default function ConfigPage() {
   const { data: configData, isLoading, isError } = useConfig();
   const [editOpen, setEditOpen] = useState(false);
+  
+  // Hook para disparar el backup internamente en el servidor
+  const { mutate: triggerBackup, isPending: isCreatingBackup } = useTriggerBackup();
+  
+  // Hook para forzar la descarga del ZIP a la computadora
+  const { mutate: downloadBackup, isPending: isDownloadingBackup } = useDownloadBackup();
 
   const config = configData?.data;
 
@@ -108,15 +114,47 @@ export default function ConfigPage() {
           <CardHeader>
             <CardTitle className="text-base">Respaldo</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm">
+          <CardContent className="space-y-4 text-sm">
             <InfoRow
               label="Último backup"
               value={
                 config.lastBackupDate
-                  ? new Date(config.lastBackupDate).toLocaleString('es-HN')
+                  ? new Date(config.lastBackupDate).toLocaleString('es-SV')
                   : 'No realizado'
               }
             />
+            
+            {/* ── Botones ordenados ── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 mt-2 border-t border-border/50">
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => triggerBackup()}
+                disabled={isCreatingBackup || isDownloadingBackup}
+              >
+                {isCreatingBackup ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Database className="mr-2 h-4 w-4 text-muted-foreground" />
+                )}
+                {isCreatingBackup ? 'Creando...' : 'Guardar en servidor'}
+              </Button>
+
+              <Button
+                variant="default"
+                className="w-full"
+                onClick={() => downloadBackup()}
+                disabled={isCreatingBackup || isDownloadingBackup}
+              >
+                {isDownloadingBackup ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="mr-2 h-4 w-4" />
+                )}
+                {isDownloadingBackup ? 'Descargando...' : 'Descargar a PC'}
+              </Button>
+            </div>
+
           </CardContent>
         </Card>
       </div>

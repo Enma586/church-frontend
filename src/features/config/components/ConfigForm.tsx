@@ -6,12 +6,15 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+
+
 import { Form } from "@/components/ui/form";
 import { FormInput } from "@/components/forms/FormInput";
 import { FormSubmitButton } from "@/components/forms/FormSubmitButton";
+import { Separator } from "@/components/ui/separator";
+
 import { useUpdateConfig } from "../hooks/useConfig";
 import type { Configuration } from "@/types";
-import { Separator } from "@/components/ui/separator";
 
 const configSchema = z.object({
   churchName: z.string().min(1, "El nombre de la iglesia es requerido"),
@@ -36,6 +39,7 @@ interface ConfigFormProps {
 
 export function ConfigForm({ config, onClose }: ConfigFormProps) {
   const updateConfig = useUpdateConfig();
+
 
   const form = useForm<ConfigFormValues>({
     // El "as any" resuelve el conflicto estricto entre Zod coerce y React Hook Form
@@ -113,23 +117,27 @@ export function ConfigForm({ config, onClose }: ConfigFormProps) {
 
         <Separator />
 
-        {/* ── Último backup (readonly) ── */}
-        {config.lastBackupDate && (
-          <div className="rounded-lg border bg-muted/20 p-4 space-y-2">
+        {/* ── Respaldo del Sistema ── */}
+        <div className="rounded-lg border bg-muted/20 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-2">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Respaldo
+              Respaldo del Sistema
             </h3>
-            <p className="text-sm">
+            <p className="text-sm text-foreground">
               Último backup:{" "}
               <span className="font-medium">
-                {/* Cambiado a es-SV para usar el formato de El Salvador */}
-                {new Date(config.lastBackupDate).toLocaleString("es-SV")}
+                {config.lastBackupDate 
+                  ? new Date(config.lastBackupDate).toLocaleString("es-SV")
+                  : "Nunca se ha realizado"}
               </span>
             </p>
           </div>
-        )}
 
-        <div className="flex justify-end">
+
+        </div>
+
+        {/* ── Botones de Acción Finales ── */}
+        <div className="flex justify-end pt-2">
           <FormSubmitButton
             isSubmitting={updateConfig.isPending}
             label="Guardar configuración"

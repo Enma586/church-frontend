@@ -52,14 +52,15 @@ export function useSocket() {
   useEffect(() => {
     mountedRef.current = true;
 
-    const socket = io(getSocketUrl(), {
-      path: '/socket.io',
-      transports: ['websocket'],
-      reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionAttempts: Infinity,
-      timeout: 10000,
-    });
+const socket = io(getSocketUrl(), {
+  path: '/socket.io',
+
+  transports: ['websocket', 'polling'],
+  reconnection: true,
+  reconnectionDelay: 1000,
+  reconnectionAttempts: Infinity,
+  timeout: 10000,
+});
 
     socketRef.current = socket;
 

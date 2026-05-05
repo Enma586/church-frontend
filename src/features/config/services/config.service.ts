@@ -40,4 +40,14 @@ export const configService = {
     });
     return data;
   },
+
+  /**
+   * Dispara la creación del respaldo directamente en el servidor.
+   */
+  triggerBackup: async (): Promise<ApiResponse<{ success: boolean; message: string }>> => {
+    const { data } = await api.post<ApiResponse<{ success: boolean; message: string }>>(
+      '/config/backup/trigger-auto'
+    );
+    return data;
+  },
 };
