@@ -29,4 +29,15 @@ export const configService = {
     );
     return data;
   },
+
+  /**
+   * Triggers a manual backup and downloads the resulting ZIP file.
+   * Returns the blob data to be handled by the UI.
+   */
+  downloadBackup: async (): Promise<Blob> => {
+    const { data } = await api.get<Blob>('/config/backup/download', {
+      responseType: 'blob', // Vital para recibir archivos en lugar de JSON
+    });
+    return data;
+  },
 };
