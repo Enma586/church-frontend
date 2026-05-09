@@ -2,7 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import themeReducer from './slices/themeSlice';
 import sidebarReducer from './slices/sidebarSlice';
 import notificationReducer from './slices/notificationSlice';
-import authReducer from './slices/authSlice';
+import authReducer,{fetchCurrentUser} from './slices/authSlice';
 import { createLocalStoragePersister } from './middleware/localStorage';
 
 export const store = configureStore({
@@ -18,6 +18,7 @@ export const store = configureStore({
 // Escucha cambios en el store y guarda theme + sidebar en localStorage.
 const persister = createLocalStoragePersister(() => store.getState());
 store.subscribe(persister);
+store.dispatch(fetchCurrentUser()); // Carga el usuario actual al iniciar la app
 
 // ─── Tipos inferidos ─────────────────────────────────────────────────────────
 
