@@ -8,10 +8,12 @@ import {
   Settings,
   Shield,
   Calendar1,
+  Calculator
 } from 'lucide-react';
 import { SidebarNavGroup, type NavGroupData } from './SidebarNavGroup';
 import { SidebarNavItem } from './SidebarNavItem';
 import { usePermissions } from '@/hooks/usePermissions';
+
 
 interface NavItem {
   label: string;
@@ -51,6 +53,16 @@ const groups: { label: string; icon: LucideIcon; items: NavItem[] }[] = [
       { label: 'Notas', path: '/pastoral-notes', icon: ScrollText, permission: 'pastoral_notes:read' },
     ],
   },
+      {
+    label: 'Contabilidad',
+    icon: Calculator,
+    items: [
+      { label: 'Cuentas', path: '/accounts', icon: Calculator, permission: 'accounting:read' },
+      { label: 'Asientos', path: '/journal', icon: ScrollText, permission: 'accounting:read' },
+      { label: 'Productos', path: '/products', icon: Calculator, permission: 'accounting:read' },
+      { label: 'Reportes', path: '/reports', icon: Calculator, permission: 'accounting:read' },
+    ],
+  },
   {
     label: 'Administración',
     icon: Shield,
@@ -60,6 +72,7 @@ const groups: { label: string; icon: LucideIcon; items: NavItem[] }[] = [
       { label: 'Configuración', path: '/config', icon: Settings, permission: 'config:read' },
     ],
   },
+
 ];
 
 interface SidebarNavigationProps {

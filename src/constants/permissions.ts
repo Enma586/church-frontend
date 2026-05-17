@@ -96,7 +96,7 @@ export const PERMISSION_GROUPS: { label: string; keys: PermissionKey[] }[] = [
     label: 'Administración',
     keys: ['users:read', 'users:write', 'roles:read', 'roles:write', 'config:read', 'config:write'],
   },
-    {
+  {
     label: 'Contabilidad',
     keys: ['accounting:read', 'accounting:write'],
   },
@@ -123,5 +123,6 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionKey[]> = {
     'users:read',
     'roles:read',
     'config:read',
+    'accounting:read',
   ],
 };

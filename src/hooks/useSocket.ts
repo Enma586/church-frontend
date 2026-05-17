@@ -11,11 +11,14 @@ function getSocketUrl(): string {
 
 /** Cache keys to invalidate per domain */
 const EVENT_CACHE_MAP: Record<string, string[]> = {
-  appointment:    ['appointments', 'schedule', 'dashboard'],
-  sacrament:      ['sacraments', 'dashboard'],
+  appointment: ['appointments', 'schedule', 'dashboard'],
+  sacrament: ['sacraments', 'dashboard'],
   'pastoral-note': ['pastoral-notes', 'dashboard'],
-  user:           ['users', 'dashboard'],
-  member:         ['members', 'dashboard'],
+  user: ['users', 'dashboard'],
+  member: ['members', 'dashboard'],
+  account: ['accounts'],
+  'journal-entry': ['journal-entries'],
+  product: ['products'],
 };
 
 /** Human-readable entity names for notifications */
@@ -25,6 +28,9 @@ const ENTITY_LABELS: Record<string, string> = {
   'pastoral-note': 'Nota pastoral',
   user: 'Usuario',
   member: 'Miembro',
+  account: 'Cuenta contable',
+  'journal-entry': 'Asiento contable',
+  product: 'Producto',
 };
 
 /** Action labels in Spanish */
@@ -52,15 +58,15 @@ export function useSocket() {
   useEffect(() => {
     mountedRef.current = true;
 
-const socket = io(getSocketUrl(), {
-  path: '/socket.io',
+    const socket = io(getSocketUrl(), {
+      path: '/socket.io',
 
-  transports: ['websocket', 'polling'],
-  reconnection: true,
-  reconnectionDelay: 1000,
-  reconnectionAttempts: Infinity,
-  timeout: 10000,
-});
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: Infinity,
+      timeout: 10000,
+    });
 
     socketRef.current = socket;
 
