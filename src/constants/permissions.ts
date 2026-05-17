@@ -32,6 +32,12 @@ export const PERMISSION_KEYS = [
   'roles:write',
   'config:read',
   'config:write',
+
+  // ── Contabilidad ──
+  'accounting:read',
+  'accounting:write',
+
+
 ] as const;
 
 export type PermissionKey = (typeof PERMISSION_KEYS)[number];
@@ -63,6 +69,9 @@ export const PERMISSION_LABELS: Record<PermissionKey, string> = {
 
   'config:read': 'Ver configuración',
   'config:write': 'Editar configuración',
+
+  'accounting:read': 'Ver contabilidad',
+  'accounting:write': 'Gestionar contabilidad',
 };
 
 /** Group permissions by domain for the UI */
@@ -86,6 +95,10 @@ export const PERMISSION_GROUPS: { label: string; keys: PermissionKey[] }[] = [
   {
     label: 'Administración',
     keys: ['users:read', 'users:write', 'roles:read', 'roles:write', 'config:read', 'config:write'],
+  },
+    {
+    label: 'Contabilidad',
+    keys: ['accounting:read', 'accounting:write'],
   },
 ];
 
