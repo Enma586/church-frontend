@@ -3,7 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { AccountTreeSelect } from '@/features/accounts/components/AccountTreeSelect';
-import type { Control, UseFormWatch, UseFormSetValue, FieldPath, FieldValues } from 'react-hook-form';
+import type {
+  Control,
+  UseFormWatch,
+  UseFormSetValue,
+  FieldPath,
+  FieldValues,
+} from 'react-hook-form';
 
 interface JournalLineForm {
   account: string;
@@ -25,37 +31,39 @@ export function JournalLinesTable<T extends FieldValues>({
   setValue,
   name,
 }: Props<T>) {
-  
-  // FIX: Función helper para extraer las líneas saltando el bloqueo de "readonly" de TypeScript
   const getLines = (): JournalLineForm[] => {
     const current = watch(name as FieldPath<T>);
-    return ((current as unknown) as JournalLineForm[]) || [];
+    return (current as unknown as JournalLineForm[]) ?? [];
   };
 
   const lines = getLines();
 
   const totalDebit = lines.reduce((s, l) => s + (Number(l.debit) || 0), 0);
   const totalCredit = lines.reduce((s, l) => s + (Number(l.credit) || 0), 0);
-  const balanced = lines.length >= 2 && totalDebit > 0 && totalDebit === totalCredit;
+  const balanced =
+    lines.length >= 2 && totalDebit > 0 && totalDebit === totalCredit;
 
   const addLine = () => {
     const current = getLines();
-    // FIX: Se usa 'as any' en el payload para evitar conflictos de profundidad con el genérico T
     setValue(name as FieldPath<T>, [
       ...current,
       { account: '', debit: 0, credit: 0, description: '' },
-    ] as any);
+    ] as unknown as T[typeof name]);
   };
 
   const removeLine = (index: number) => {
     const current = getLines();
     setValue(
       name as FieldPath<T>,
-      current.filter((_, i) => i !== index) as any
+      current.filter((_, i) => i !== index) as unknown as T[typeof name],
     );
   };
 
-  const updateLine = (index: number, field: keyof JournalLineForm, value: string | number) => {
+  const updateLine = (
+    index: number,
+    field: keyof JournalLineForm,
+    value: string | number,
+  ) => {
     const current = [...lines];
     const updated = { ...current[index], [field]: value };
 
@@ -67,7 +75,7 @@ export function JournalLinesTable<T extends FieldValues>({
     }
 
     current[index] = updated;
-    setValue(name as FieldPath<T>, current as any);
+    setValue(name as FieldPath<T>, current as unknown as T[typeof name]);
   };
 
   return (
@@ -82,7 +90,7 @@ export function JournalLinesTable<T extends FieldValues>({
 
       {lines.length === 0 && (
         <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-md">
-          Agrega al menos 2 líneas para crear un asiento contable.
+          Agregue al menos 2 líneas: una para el débito y otra para el crédito.
         </p>
       )}
 
@@ -102,10 +110,12 @@ export function JournalLinesTable<T extends FieldValues>({
 
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 pr-8">
                 <div className="sm:col-span-4">
+                  
                   <AccountTreeSelect
                     name={`${name}.${index}.account` as FieldPath<T>}
                     control={control}
                     label="Cuenta"
+                    mode="transaction"
                   />
                 </div>
                 <div className="sm:col-span-2">
@@ -116,7 +126,9 @@ export function JournalLinesTable<T extends FieldValues>({
                     min="0"
                     placeholder="0.00"
                     value={line.debit || ''}
-                    onChange={(e) => updateLine(index, 'debit', e.target.value)}
+                    onChange={(e) =>
+                      updateLine(index, 'debit', e.target.value)
+                    }
                   />
                 </div>
                 <div className="sm:col-span-2">
@@ -127,7 +139,9 @@ export function JournalLinesTable<T extends FieldValues>({
                     min="0"
                     placeholder="0.00"
                     value={line.credit || ''}
-                    onChange={(e) => updateLine(index, 'credit', e.target.value)}
+                    onChange={(e) =>
+                      updateLine(index, 'credit', e.target.value)
+                    }
                   />
                 </div>
                 <div className="sm:col-span-4">
@@ -135,7 +149,9 @@ export function JournalLinesTable<T extends FieldValues>({
                   <Input
                     placeholder="Detalle de la línea"
                     value={line.description || ''}
-                    onChange={(e) => updateLine(index, 'description', e.target.value)}
+                    onChange={(e) =>
+                      updateLine(index, 'description', e.target.value)
+                    }
                   />
                 </div>
               </div>

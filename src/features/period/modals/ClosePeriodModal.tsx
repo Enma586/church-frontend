@@ -7,6 +7,8 @@ import { FormDatePicker } from '@/components/forms/FormDatePicker';
 import { FormSubmitButton } from '@/components/forms/FormSubmitButton';
 import { useClosePeriod } from '../hooks/usePeriodMutations';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { showToast } from '@/lib/toast';
+import { humanizeError } from '@/lib/error-messages';
 import { AlertTriangle } from 'lucide-react';
 
 const schema = z.object({
@@ -33,8 +35,8 @@ export function ClosePeriodModal({ open, onOpenChange }: Props) {
       await closeMutation.mutateAsync(values);
       form.reset();
       onOpenChange(false);
-    } catch {
-      // handled by hook
+    } catch (error) {
+      showToast.error(humanizeError(error));
     }
   };
 
@@ -43,7 +45,7 @@ export function ClosePeriodModal({ open, onOpenChange }: Props) {
       open={open}
       onOpenChange={onOpenChange}
       title="Cerrar Período Contable"
-      description="Bloquea transacciones en fechas anteriores a la fecha de cierre."
+      description="Bloquea la creación y modificación de asientos con fechas anteriores a la fecha de cierre."
       size="md"
     >
       <Form {...form}>
@@ -52,7 +54,8 @@ export function ClosePeriodModal({ open, onOpenChange }: Props) {
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               Al cerrar el período, no se podrán crear ni modificar asientos con
-              fecha anterior a la fecha de cierre. Esta acción es reversible.
+              fecha anterior a la fecha de cierre. Esta acción es reversible
+              mediante la opción "Reabrir Período".
             </AlertDescription>
           </Alert>
 

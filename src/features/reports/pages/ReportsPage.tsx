@@ -13,44 +13,101 @@ import { useIncomeStatement } from '../hooks/useIncomeStatement';
 import { TablePagination } from '@/components/tables/TablePagination';
 import { usePagination } from '@/hooks/usePagination';
 import { usePermissions } from '@/hooks/usePermissions';
-import {  useReopenPeriod } from '@/features/period/hooks/usePeriodMutations';
+import { useReopenPeriod } from '@/features/period/hooks/usePeriodMutations';
 import { ClosePeriodModal } from '@/features/period/modals/ClosePeriodModal';
 import { useForm } from 'react-hook-form';
 import { Loader2, Lock, Unlock } from 'lucide-react';
+import { Form } from '@/components/ui/form';
 
-
-/** ─── Libro Mayor ─────────────────────────────────────────────── */
-function LedgerTab() {
+// ─── Helpers para extraer datos de forma segura sin doble .data ──────────────
+function useLedgerData() {
   const { page, limit, goToPage, setPerPage } = usePagination();
   const form = useForm({ defaultValues: { accountId: '' } });
   const accountId = form.watch('accountId');
 
   const { data, isLoading } = useLedger({ accountId, page, limit });
-  const rows = data?.data?.data ?? [];
-  const pagination = data?.data?.pagination;
+
+  const response = data?.data; // LedgerResponse | undefined
+  const rows = response?.data ?? [];
+  const pagination = response?.pagination;
+  const account = response?.account;
+
+  return { form, accountId, rows, pagination, account, isLoading, page, limit, goToPage, setPerPage };
+}
+
+function useTrialBalanceData() {
+  const { data, isLoading } = useTrialBalance();
+  const response = data?.data; // TrialBalanceResponse | undefined
+  const rows = response?.data ?? [];
+  const totals = response?.totals;
+  return { rows, totals, isLoading };
+}
+
+function useBalanceSheetData() {
+  const { data, isLoading } = useBalanceSheet();
+  const response = data?.data; // BalanceSheetResponse | undefined
+  const sheet = response?.data;
+  const totals = response?.totals;
+  return { sheet, totals, isLoading };
+}
+
+function useIncomeStatementData() {
+  const { data, isLoading } = useIncomeStatement();
+  const response = data?.data; // IncomeStatementResponse | undefined
+  const stmt = response?.data;
+  const totals = response?.totals;
+  return { stmt, totals, isLoading };
+}
+
+// ─── Libro Mayor ──────────────────────────────────────────────────────────────
+function LedgerTab() {
+  const {
+    form,
+    accountId,
+    rows,
+    pagination,
+    account,
+    isLoading,
+    goToPage,
+    setPerPage,
+  } = useLedgerData();
 
   return (
     <div className="space-y-4">
       <div className="max-w-md">
-        <AccountTreeSelect
-          name="accountId"
-          control={form.control}
-          label="Selecciona una cuenta"
-        />
+        <Form {...form}>
+          <AccountTreeSelect
+            name="accountId"
+            control={form.control}
+            label="Seleccione una cuenta"
+            mode="transaction"
+          />
+        </Form>
       </div>
 
-      {isLoading && (
+      {!accountId && (
+        <p className="text-sm text-muted-foreground text-center py-8">
+          Seleccione una cuenta para ver su Libro Mayor.
+        </p>
+      )}
+
+      {accountId && isLoading && (
         <div className="flex justify-center py-8">
           <Loader2 className="h-6 w-6 animate-spin" />
         </div>
+      )}
+
+      {accountId && !isLoading && rows.length === 0 && (
+        <p className="text-sm text-muted-foreground text-center py-8">
+          Sin movimientos para esta cuenta en el período actual.
+        </p>
       )}
 
       {rows.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
-              Libro Mayor — {data?.data?.account.code}{' '}
-              {data?.data?.account.name}
+              Libro Mayor — {account?.code} {account?.name}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -107,11 +164,9 @@ function LedgerTab() {
   );
 }
 
-/** ─── Balanza de Comprobación ─────────────────────────────────── */
+// ─── Balanza de Comprobación ─────────────────────────────────────────────────
 function TrialBalanceTab() {
-  const { data, isLoading } = useTrialBalance();
-  const rows = data?.data?.data ?? [];
-  const totals = data?.data?.totals;
+  const { rows, totals, isLoading } = useTrialBalanceData();
 
   if (isLoading) {
     return (
@@ -176,11 +231,9 @@ function TrialBalanceTab() {
   );
 }
 
-/** ─── Balance General ─────────────────────────────────────────── */
+// ─── Balance General ─────────────────────────────────────────────────────────
 function BalanceSheetTab() {
-  const { data, isLoading } = useBalanceSheet();
-  const sheet = data?.data?.data;
-  const totals = data?.data?.totals;
+  const { sheet, totals, isLoading } = useBalanceSheetData();
 
   if (isLoading) {
     return (
@@ -201,27 +254,16 @@ function BalanceSheetTab() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <ReportSummaryCard
-          title="Activo"
-          value={totals?.activo ?? 0}
-          variant="success"
-        />
-        <ReportSummaryCard
-          title="Pasivo"
-          value={totals?.pasivo ?? 0}
-          variant="danger"
-        />
-        <ReportSummaryCard
-          title="Pasivo + Patrimonio"
-          value={totals?.pasivoPatrimonio ?? 0}
-        />
+        <ReportSummaryCard title="Activo" value={totals?.activo ?? 0} variant="success" />
+        <ReportSummaryCard title="Pasivo" value={totals?.pasivo ?? 0} variant="danger" />
+        <ReportSummaryCard title="Pasivo + Patrimonio" value={totals?.pasivoPatrimonio ?? 0} />
       </div>
 
       {totals && (
-        <p className="text-sm text-center">
+        <p className="text-sm text-center font-medium">
           {totals.balanceado
             ? '✓ Balance General Cuadrado'
-            : '⚠ Desbalance detectado'}
+            : '⚠ Desbalance detectado — revise los asientos contables'}
         </p>
       )}
 
@@ -258,11 +300,9 @@ function BalanceSheetTab() {
   );
 }
 
-/** ─── Estado de Resultados ────────────────────────────────────── */
+// ─── Estado de Resultados ────────────────────────────────────────────────────
 function IncomeStatementTab() {
-  const { data, isLoading } = useIncomeStatement();
-  const stmt = data?.data?.data;
-  const totals = data?.data?.totals;
+  const { stmt, totals, isLoading } = useIncomeStatementData();
 
   if (isLoading) {
     return (
@@ -283,16 +323,8 @@ function IncomeStatementTab() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <ReportSummaryCard
-          title="Ingresos"
-          value={totals?.ingresos ?? 0}
-          variant="success"
-        />
-        <ReportSummaryCard
-          title="Gastos"
-          value={totals?.gastos ?? 0}
-          variant="danger"
-        />
+        <ReportSummaryCard title="Ingresos" value={totals?.ingresos ?? 0} variant="success" />
+        <ReportSummaryCard title="Gastos" value={totals?.gastos ?? 0} variant="danger" />
         <ReportSummaryCard
           title="Resultado Neto"
           value={totals?.resultadoNeto ?? 0}
@@ -333,7 +365,7 @@ function IncomeStatementTab() {
   );
 }
 
-/** ─── Página Principal ────────────────────────────────────────── */
+// ─── Página Principal ────────────────────────────────────────────────────────
 export default function ReportsPage() {
   const { can } = usePermissions();
   const reopenMutation = useReopenPeriod();
@@ -356,7 +388,7 @@ export default function ReportsPage() {
               disabled={reopenMutation.isPending}
             >
               <Unlock className="mr-1 h-4 w-4" />
-              Reabrir Período
+              {reopenMutation.isPending ? 'Reabriendo…' : 'Reabrir Período'}
             </Button>
           </div>
         )}

@@ -1,5 +1,7 @@
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useDeleteProduct } from '../hooks/useProductMutations';
+import { showToast } from '@/lib/toast';
+import { humanizeError } from '@/lib/error-messages';
 
 interface Props {
   open: boolean;
@@ -15,8 +17,8 @@ export function DeleteProductModal({ open, onOpenChange, productId, productName 
     try {
       await deleteMutation.mutateAsync(productId);
       onOpenChange(false);
-    } catch {
-      // handled by hook
+    } catch (error) {
+      showToast.error(humanizeError(error));
     }
   };
 
@@ -25,7 +27,7 @@ export function DeleteProductModal({ open, onOpenChange, productId, productName 
       open={open}
       onOpenChange={onOpenChange}
       title="Eliminar producto"
-      description={`¿Estás seguro de eliminar "${productName}"?`}
+      description={`¿Está seguro de eliminar "${productName}"? Si este producto está referenciado en transacciones, la eliminación será rechazada.`}
       confirmLabel="Eliminar"
       variant="danger"
       loading={deleteMutation.isPending}

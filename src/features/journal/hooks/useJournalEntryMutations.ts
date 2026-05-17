@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { journalEntryService } from '../services/journal-entry.service';
 import { showToast } from '@/lib/toast';
+import { humanizeError } from '@/lib/error-messages';
 import type {
   CreateJournalEntryPayload,
   UpdateJournalEntryPayload,
@@ -15,8 +16,8 @@ export function useCreateJournalEntry() {
       showToast.success('Asiento contable creado exitosamente');
       queryClient.invalidateQueries({ queryKey: ['journal-entries'] });
     },
-    onError: (error: Error) => {
-      showToast.error(error.message);
+    onError: (error: unknown) => {
+      showToast.error(humanizeError(error));
     },
   });
 }
@@ -32,11 +33,11 @@ export function useUpdateJournalEntry() {
       data: UpdateJournalEntryPayload;
     }) => journalEntryService.update(id, data),
     onSuccess: () => {
-      showToast.success('Asiento actualizado');
+      showToast.success('Asiento actualizado exitosamente');
       queryClient.invalidateQueries({ queryKey: ['journal-entries'] });
     },
-    onError: (error: Error) => {
-      showToast.error(error.message);
+    onError: (error: unknown) => {
+      showToast.error(humanizeError(error));
     },
   });
 }
@@ -46,11 +47,11 @@ export function useDeleteJournalEntry() {
   return useMutation({
     mutationFn: (id: string) => journalEntryService.remove(id),
     onSuccess: () => {
-      showToast.success('Asiento eliminado');
+      showToast.success('Asiento eliminado exitosamente');
       queryClient.invalidateQueries({ queryKey: ['journal-entries'] });
     },
-    onError: (error: Error) => {
-      showToast.error(error.message);
+    onError: (error: unknown) => {
+      showToast.error(humanizeError(error));
     },
   });
 }

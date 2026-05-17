@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { accountService } from '../services/account.service';
 import { showToast } from '@/lib/toast';
+import { humanizeError } from '@/lib/error-messages';
 import type { CreateAccountPayload, UpdateAccountPayload } from '@/types';
 
 export function useCreateAccount() {
@@ -11,8 +12,8 @@ export function useCreateAccount() {
       showToast.success('Cuenta creada exitosamente');
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
     },
-    onError: (error: Error) => {
-      showToast.error(error.message);
+    onError: (error: unknown) => {
+      showToast.error(humanizeError(error));
     },
   });
 }
@@ -23,11 +24,11 @@ export function useUpdateAccount() {
     mutationFn: ({ id, data }: { id: string; data: UpdateAccountPayload }) =>
       accountService.update(id, data),
     onSuccess: () => {
-      showToast.success('Cuenta actualizada');
+      showToast.success('Cuenta actualizada exitosamente');
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
     },
-    onError: (error: Error) => {
-      showToast.error(error.message);
+    onError: (error: unknown) => {
+      showToast.error(humanizeError(error));
     },
   });
 }
@@ -37,11 +38,11 @@ export function useDeleteAccount() {
   return useMutation({
     mutationFn: (id: string) => accountService.remove(id),
     onSuccess: () => {
-      showToast.success('Cuenta eliminada');
+      showToast.success('Cuenta eliminada exitosamente');
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
     },
-    onError: (error: Error) => {
-      showToast.error(error.message);
+    onError: (error: unknown) => {
+      showToast.error(humanizeError(error));
     },
   });
 }

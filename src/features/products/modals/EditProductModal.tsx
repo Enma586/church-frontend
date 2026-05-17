@@ -11,12 +11,24 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useUpdateProduct } from '../hooks/useProductMutations';
 import { useAccounts } from '@/features/accounts/hooks/useAccounts';
+import { showToast } from '@/lib/toast';
+import { humanizeError } from '@/lib/error-messages';
 import type { Product, UpdateProductPayload } from '@/types';
 
 const schema = z.object({
   name: z.string().trim().min(1, 'El nombre es requerido'),
-  defaultPrice: z.number().min(0),
-  incomeAccountId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Cuenta de ingreso requerida'),
+  defaultPrice: z.preprocess(
+    (val) => {
+      if (val === '' || val === null || val === undefined) return 0;
+      const n = Number(val);
+      return isNaN(n) ? 0 : n;
+    },
+    z.number().min(0, 'El precio no puede ser negativo'),
+  ),
+  incomeAccountId: z
+    .string()
+    .min(1, 'Debe seleccionar una cuenta de ingreso')
+    .regex(/^[0-9a-fA-F]{24}$/, 'Cuenta de ingreso inválida'),
   isActive: z.boolean(),
 });
 
@@ -28,6 +40,17 @@ interface Props {
   product: Product;
 }
 
+/**
+ * Extrae de forma segura el ID de cuenta de ingreso sin importar
+ * si el backend lo populó (objeto) o no (string), y sin crash si es null.
+ */
+function getIncomeAccountId(product: Product): string {
+  const account = product.incomeAccountId;
+  if (account === null || account === undefined) return '';
+  if (typeof account === 'object') return account._id;
+  return account; // es string
+}
+
 export function EditProductModal({ open, onOpenChange, product }: Props) {
   const updateMutation = useUpdateProduct();
   const { data: accountsData, isLoading: loadingAccounts } = useAccounts({
@@ -36,23 +59,21 @@ export function EditProductModal({ open, onOpenChange, product }: Props) {
     isActive: true,
   });
 
-  const ingresoAccounts = accountsData?.data ?? [];
+  // ⚠️ Filtro manual: solo cuentas que ACEPTAN transacciones (cuentas hoja)
+  const ingresoAccounts = (accountsData?.data ?? []).filter(
+    (a) => a.acceptsTransactions,
+  );
   const accountOptions = ingresoAccounts.map((a) => ({
     value: a._id,
     label: `${a.code} — ${a.name}`,
   }));
 
-  const getIncomeAccountId = () =>
-    typeof product.incomeAccountId === 'object'
-      ? product.incomeAccountId._id
-      : product.incomeAccountId;
-
   const form = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema)as any,
     defaultValues: {
       name: product.name,
       defaultPrice: product.defaultPrice,
-      incomeAccountId: getIncomeAccountId(),
+      incomeAccountId: getIncomeAccountId(product),
       isActive: product.isActive,
     },
   });
@@ -62,7 +83,7 @@ export function EditProductModal({ open, onOpenChange, product }: Props) {
       form.reset({
         name: product.name,
         defaultPrice: product.defaultPrice,
-        incomeAccountId: getIncomeAccountId(),
+        incomeAccountId: getIncomeAccountId(product),
         isActive: product.isActive,
       });
     }
@@ -75,8 +96,8 @@ export function EditProductModal({ open, onOpenChange, product }: Props) {
         data: values as UpdateProductPayload,
       });
       onOpenChange(false);
-    } catch {
-      // handled by hook
+    } catch (error) {
+      showToast.error(humanizeError(error));
     }
   };
 
@@ -89,8 +110,12 @@ export function EditProductModal({ open, onOpenChange, product }: Props) {
       size="lg"
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormInput name="name" control={form.control} label="Nombre" />
+        <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
+          <FormInput
+            name="name"
+            control={form.control as any}
+            label="Nombre"
+          />
 
           <FormInput
             name="defaultPrice"
@@ -106,8 +131,14 @@ export function EditProductModal({ open, onOpenChange, product }: Props) {
             control={form.control}
             label="Cuenta de ingreso"
             options={accountOptions}
-            placeholder={loadingAccounts ? 'Cargando...' : 'Seleccionar cuenta...'}
-            disabled={loadingAccounts}
+            placeholder={
+              loadingAccounts
+                ? 'Cargando…'
+                : accountOptions.length === 0
+                  ? 'No hay cuentas disponibles'
+                  : 'Seleccione una cuenta de ingreso'
+            }
+            disabled={loadingAccounts || accountOptions.length === 0}
           />
 
           <div className="flex items-center gap-2 pt-2">

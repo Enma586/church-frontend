@@ -25,6 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { showToast } from '@/lib/toast';
+import { humanizeError } from '@/lib/error-messages';
 
 export default function JournalEntriesPage() {
   const { page, limit, goToPage, setPerPage } = usePagination();
@@ -41,14 +43,15 @@ export default function JournalEntriesPage() {
   const entries = data?.data ?? [];
   const pagination = data?.pagination;
 
-  const handleAnular = async (id: string) => {
-    try {
-      await anularMutation.mutateAsync({ id, data: { status: "Anulado" } });
-      setDetailEntry(null);
-    } catch {
-      // handled by hook
-    }
-  };
+// En la página JournalEntriesPage, línea 44-51, cambiar:
+const handleAnular = async (id: string) => {
+  try {
+    await anularMutation.mutateAsync({ id, data: { status: "Anulado" } });
+    setDetailEntry(null);
+  } catch (error) {
+    showToast.error(humanizeError(error)); // ← antes era "// handled by hook"
+  }
+};
 
   const columns: ColumnDef<JournalEntry>[] = [
     {

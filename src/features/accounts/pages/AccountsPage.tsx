@@ -66,8 +66,8 @@ export default function AccountsPage() {
     {
       header: 'Cuenta Padre',
       accessorFn: (row) =>
-        typeof row.parentAccount === 'object'
-          ? `${row.parentAccount.code} — ${row.parentAccount.name}`
+        row.parentAccount && typeof row.parentAccount === 'object'
+          ? `${(row.parentAccount as { code: string; name: string }).code} — ${(row.parentAccount as { code: string; name: string }).name}`
           : '—',
     },
     {

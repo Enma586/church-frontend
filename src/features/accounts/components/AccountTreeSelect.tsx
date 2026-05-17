@@ -19,11 +19,20 @@ import { useAccounts } from '../hooks/useAccounts';
 import { Loader2 } from 'lucide-react';
 import type { Account } from '@/types';
 
+export type TreeSelectMode = 'parent' | 'transaction';
+
 interface AccountTreeSelectProps<T extends FieldValues> {
   name: FieldPath<T>;
   control: Control<T>;
   label: string;
   placeholder?: string;
+  /**
+   * - 'parent': solo cuentas de agrupación (acceptsTransactions=false) están habilitadas.
+   *   Se usa al crear/editar cuentas para asignar cuenta padre.
+   * - 'transaction': solo cuentas hoja (acceptsTransactions=true) están habilitadas.
+   *   Se usa en líneas de asientos contables.
+   */
+  mode?: TreeSelectMode;
 }
 
 const TYPE_ORDER: Record<string, number> = {
@@ -34,15 +43,23 @@ const TYPE_ORDER: Record<string, number> = {
   Gasto: 5,
 };
 
+/**
+ * Selector jerárquico de cuentas contables agrupado por tipo.
+ *
+ * Modos:
+ * - `parent` (default): selecciona cuentas de agrupación como padres.
+ * - `transaction`: selecciona cuentas hoja para registrar transacciones.
+ */
 export function AccountTreeSelect<T extends FieldValues>({
   name,
   control,
   label,
-  placeholder = 'Ninguna (cuenta raíz)',
+  placeholder,
+  mode = 'parent',
 }: AccountTreeSelectProps<T>) {
-  const { data, isLoading } = useAccounts({ limit: 1000 });
+  const { data, isLoading } = useAccounts({ limit: 1000, isActive: true });
 
-  const accounts = data?.data ?? [];
+  const accounts = (data?.data ?? []).filter((a) => a.isActive);
 
   const grouped = accounts.reduce(
     (acc, account) => {
@@ -58,18 +75,36 @@ export function AccountTreeSelect<T extends FieldValues>({
     (a, b) => (TYPE_ORDER[a] ?? 99) - (TYPE_ORDER[b] ?? 99),
   );
 
- // function getIndent(account: Account): number {
-    // Buscar nivel jerárquico basado en parentAccount
-   // let depth = 0;
-    //let current = account;
-    //while (current.parentAccount && typeof current.parentAccount === 'object') {
-     // depth++;
-      // No podemos seguir recursivamente sin más datos; max 3 niveles
-      //if (depth > 3) break;
-      //break; // Simplificado: solo mostramos un nivel de indentación
-    //}
-    //return 0; // Por simplicidad, sin indentación real
-  //}
+  /**
+   * Determina si una cuenta debe estar deshabilitada según el modo.
+   */
+  const isAccountDisabled = (account: Account): boolean => {
+    if (!account.isActive) return true;
+    if (mode === 'parent') {
+      // Solo cuentas de agrupación (acceptsTransactions=false) están habilitadas
+      return account.acceptsTransactions;
+    }
+    // mode === 'transaction': solo cuentas hoja (acceptsTransactions=true) están habilitadas
+    return !account.acceptsTransactions;
+  };
+
+  /**
+   * Etiqueta de ayuda que explica por qué la cuenta está inhabilitada.
+   */
+  const getDisabledHint = (account: Account): string => {
+    if (!account.isActive) return '(inactiva)';
+    if (mode === 'parent' && account.acceptsTransactions) return '(cuenta hoja — no agrupa)';
+    if (mode === 'transaction' && !account.acceptsTransactions) return '(cuenta de agrupación)';
+    return '';
+  };
+
+  const finalPlaceholder = placeholder ?? (
+    mode === 'parent'
+      ? 'Ninguna (cuenta raíz)'
+      : 'Seleccione una cuenta'
+  );
+
+  const showNullOption = mode === 'parent';
 
   return (
     <FormField
@@ -80,34 +115,70 @@ export function AccountTreeSelect<T extends FieldValues>({
           <FormLabel>{label}</FormLabel>
           <Select
             onValueChange={(v) => field.onChange(v === 'null' ? null : v)}
-            value={field.value ?? 'null'}
+            value={field.value ?? (showNullOption ? 'null' : '')}
           >
             <FormControl>
               <SelectTrigger>
-                <SelectValue placeholder={placeholder} />
+                <SelectValue placeholder={finalPlaceholder} />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              <SelectItem value="null">Ninguna (cuenta raíz)</SelectItem>
+              {showNullOption && (
+                <SelectItem value="null">Ninguna (cuenta raíz)</SelectItem>
+              )}
+
               {isLoading && (
-                <div className="flex items-center justify-center py-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                 </div>
               )}
-              {sortedTypes.map((type) => (
-                <SelectGroup key={type}>
-                  <SelectLabel className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
-                    {type}
-                  </SelectLabel>
-                  {grouped[type].map((account) => (
-                    <SelectItem key={account._id} value={account._id} disabled={!account.isActive}>
-                      <span className={account.acceptsTransactions ? '' : 'italic text-muted-foreground'}>
-                        {account.code} — {account.name}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              ))}
+
+              {!isLoading && accounts.length === 0 && (
+                <div className="px-2 py-4 text-sm text-muted-foreground text-center">
+                  No hay cuentas activas disponibles.
+                </div>
+              )}
+
+              {sortedTypes.map((type) => {
+                const typeAccounts = grouped[type];
+                const hasEnabledAccounts = typeAccounts.some(
+                  (a) => !isAccountDisabled(a),
+                );
+
+                return (
+                  <SelectGroup key={type}>
+                    <SelectLabel className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
+                      {type}
+                      {!hasEnabledAccounts && (
+                        <span className="ml-1 font-normal lowercase text-muted-foreground/60">
+                          (sin cuentas disponibles)
+                        </span>
+                      )}
+                    </SelectLabel>
+                    {typeAccounts.map((account) => {
+                      const disabled = isAccountDisabled(account);
+                      const hint = getDisabledHint(account);
+
+                      return (
+                        <SelectItem
+                          key={account._id}
+                          value={account._id}
+                          disabled={disabled}
+                        >
+                          <span className={disabled ? 'text-muted-foreground/60' : 'font-medium'}>
+                            {account.code} — {account.name}
+                          </span>
+                          {hint && (
+                            <span className="text-xs text-muted-foreground/70 ml-1.5">
+                              {hint}
+                            </span>
+                          )}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectGroup>
+                );
+              })}
             </SelectContent>
           </Select>
           <FormMessage />

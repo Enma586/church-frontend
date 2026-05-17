@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { productService } from '../services/product.service';
 import { showToast } from '@/lib/toast';
+import { humanizeError } from '@/lib/error-messages';
 import type { CreateProductPayload, UpdateProductPayload } from '@/types';
 
 export function useCreateProduct() {
@@ -11,8 +12,8 @@ export function useCreateProduct() {
       showToast.success('Producto creado exitosamente');
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
-    onError: (error: Error) => {
-      showToast.error(error.message);
+    onError: (error: unknown) => {
+      showToast.error(humanizeError(error));
     },
   });
 }
@@ -23,11 +24,11 @@ export function useUpdateProduct() {
     mutationFn: ({ id, data }: { id: string; data: UpdateProductPayload }) =>
       productService.update(id, data),
     onSuccess: () => {
-      showToast.success('Producto actualizado');
+      showToast.success('Producto actualizado exitosamente');
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
-    onError: (error: Error) => {
-      showToast.error(error.message);
+    onError: (error: unknown) => {
+      showToast.error(humanizeError(error));
     },
   });
 }
@@ -37,11 +38,11 @@ export function useDeleteProduct() {
   return useMutation({
     mutationFn: (id: string) => productService.remove(id),
     onSuccess: () => {
-      showToast.success('Producto eliminado');
+      showToast.success('Producto eliminado exitosamente');
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
-    onError: (error: Error) => {
-      showToast.error(error.message);
+    onError: (error: unknown) => {
+      showToast.error(humanizeError(error));
     },
   });
 }

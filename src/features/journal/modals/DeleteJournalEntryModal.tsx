@@ -1,5 +1,7 @@
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useDeleteJournalEntry } from '../hooks/useJournalEntryMutations';
+import { showToast } from '@/lib/toast';
+import { humanizeError } from '@/lib/error-messages';
 
 interface Props {
   open: boolean;
@@ -15,8 +17,8 @@ export function DeleteJournalEntryModal({ open, onOpenChange, entryId, voucherNu
     try {
       await deleteMutation.mutateAsync(entryId);
       onOpenChange(false);
-    } catch {
-      // handled by hook
+    } catch (error) {
+      showToast.error(humanizeError(error));
     }
   };
 
@@ -25,8 +27,8 @@ export function DeleteJournalEntryModal({ open, onOpenChange, entryId, voucherNu
       open={open}
       onOpenChange={onOpenChange}
       title="Eliminar asiento contable"
-      description={`¿Estás seguro de eliminar el asiento "${voucherNumber}"? Esta acción no se puede deshacer.`}
-      confirmLabel="Eliminar"
+      description={`¿Está seguro de eliminar el asiento "${voucherNumber}"? Esta acción no se puede deshacer y afectará los saldos contables.`}
+      confirmLabel="Eliminar permanentemente"
       variant="danger"
       loading={deleteMutation.isPending}
       onConfirm={handleDelete}

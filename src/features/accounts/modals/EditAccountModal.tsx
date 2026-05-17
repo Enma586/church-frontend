@@ -10,7 +10,10 @@ import { FormSubmitButton } from '@/components/forms/FormSubmitButton';
 import { AccountTreeSelect } from '../components/AccountTreeSelect';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { useUpdateAccount } from '../hooks/useAccountMutations';
+import { showToast } from '@/lib/toast';
+import { humanizeError } from '@/lib/error-messages';
 import type { Account, UpdateAccountPayload } from '@/types';
 
 const CUENTA_TYPE_OPTIONS = [
@@ -24,7 +27,14 @@ const CUENTA_TYPE_OPTIONS = [
 const editSchema = z.object({
   name: z.string().trim().min(1, 'El nombre es requerido'),
   type: z.enum(['Activo', 'Pasivo', 'Patrimonio', 'Ingreso', 'Gasto']),
-  parentAccount: z.string().regex(/^[0-9a-fA-F]{24}$/).nullable().optional(),
+  parentAccount: z
+    .string()
+    .nullable()
+    .optional()
+    .refine((val) => !val || /^[0-9a-fA-F]{24}$/.test(val), {
+      message: 'ID de cuenta inválido',
+    })
+    .transform((val) => (val === '' || val === 'null' ? null : val)),
   acceptsTransactions: z.boolean(),
   isActive: z.boolean(),
 });
@@ -37,7 +47,19 @@ interface EditAccountModalProps {
   account: Account;
 }
 
-export function EditAccountModal({ open, onOpenChange, account }: EditAccountModalProps) {
+const extractParentId = (parent: unknown): string | null => {
+  if (!parent) return null;
+  if (typeof parent === 'object' && parent !== null && '_id' in parent) {
+    return String((parent as { _id: string })._id);
+  }
+  return String(parent);
+};
+
+export function EditAccountModal({
+  open,
+  onOpenChange,
+  account,
+}: EditAccountModalProps) {
   const updateMutation = useUpdateAccount();
 
   const form = useForm<EditFormValues>({
@@ -45,9 +67,7 @@ export function EditAccountModal({ open, onOpenChange, account }: EditAccountMod
     defaultValues: {
       name: account.name,
       type: account.type,
-      parentAccount: typeof account.parentAccount === 'object'
-        ? account.parentAccount._id
-        : account.parentAccount ?? null,
+      parentAccount: extractParentId(account.parentAccount),
       acceptsTransactions: account.acceptsTransactions,
       isActive: account.isActive,
     },
@@ -58,9 +78,7 @@ export function EditAccountModal({ open, onOpenChange, account }: EditAccountMod
       form.reset({
         name: account.name,
         type: account.type,
-        parentAccount: typeof account.parentAccount === 'object'
-          ? account.parentAccount._id
-          : account.parentAccount ?? null,
+        parentAccount: extractParentId(account.parentAccount),
         acceptsTransactions: account.acceptsTransactions,
         isActive: account.isActive,
       });
@@ -71,11 +89,11 @@ export function EditAccountModal({ open, onOpenChange, account }: EditAccountMod
     try {
       await updateMutation.mutateAsync({
         id: account._id,
-        data: values as UpdateAccountPayload,
+        data: values as unknown as UpdateAccountPayload,
       });
       onOpenChange(false);
-    } catch {
-      // error handled by hook
+    } catch (error) {
+      showToast.error(humanizeError(error));
     }
   };
 
@@ -89,14 +107,11 @@ export function EditAccountModal({ open, onOpenChange, account }: EditAccountMod
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormInput
-              name="code"
-              control={form.control as never}
-              label="Código"
-              disabled
-              value={account.code}
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+            <div className="space-y-2">
+              <Label>Código</Label>
+              <Input disabled value={account.code} className="bg-muted" />
+            </div>
             <FormSelect
               name="type"
               control={form.control}
@@ -107,22 +122,41 @@ export function EditAccountModal({ open, onOpenChange, account }: EditAccountMod
 
           <FormInput name="name" control={form.control} label="Nombre" />
 
-          <AccountTreeSelect name="parentAccount" control={form.control} label="Cuenta padre (opcional)" />
+          <AccountTreeSelect
+            name="parentAccount"
+            control={form.control}
+            label="Cuenta padre (opcional)"
+            mode="parent"
+          />
 
           <div className="flex items-center gap-6 pt-2">
             <div className="flex items-center gap-2">
               <Switch
                 id="edit-acceptsTransactions"
                 checked={form.watch('acceptsTransactions')}
-                onCheckedChange={(v) => form.setValue('acceptsTransactions', v)}
+                onCheckedChange={(v) =>
+                  form.setValue('acceptsTransactions', v, {
+                    shouldValidate: true,
+                  })
+                }
               />
-              <Label htmlFor="edit-acceptsTransactions">Acepta transacciones</Label>
+              <div>
+                <Label htmlFor="edit-acceptsTransactions">
+                  Acepta transacciones
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Si desactivas, será una <strong>cuenta de agrupación</strong>{' '}
+                  (solo sirve como padre de otras)
+                </p>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <Switch
                 id="edit-isActive"
                 checked={form.watch('isActive')}
-                onCheckedChange={(v) => form.setValue('isActive', v)}
+                onCheckedChange={(v) =>
+                  form.setValue('isActive', v, { shouldValidate: true })
+                }
               />
               <Label htmlFor="edit-isActive">Activa</Label>
             </div>

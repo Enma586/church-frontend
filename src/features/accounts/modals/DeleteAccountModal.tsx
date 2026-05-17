@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useDeleteAccount } from '../hooks/useAccountMutations';
+import { showToast } from '@/lib/toast';
+import { humanizeError } from '@/lib/error-messages';
 
 interface DeleteAccountModalProps {
   open: boolean;
@@ -19,30 +22,51 @@ export function DeleteAccountModal({
   hasChildren,
 }: DeleteAccountModalProps) {
   const deleteMutation = useDeleteAccount();
+  const [isBlocked, setIsBlocked] = useState(false);
+
+  const handleOpenChange = (isOpen: boolean) => {
+    if (isOpen && hasChildren) {
+      setIsBlocked(true);
+      return;
+    }
+    setIsBlocked(false);
+    onOpenChange(isOpen);
+  };
 
   const handleDelete = async () => {
     try {
       await deleteMutation.mutateAsync(accountId);
       onOpenChange(false);
-    } catch {
-      // error handled by hook
+    } catch (error) {
+      showToast.error(humanizeError(error));
     }
   };
+
+  if (hasChildren) {
+    return (
+      <ConfirmModal
+        open={open}
+        onOpenChange={onOpenChange}
+        title="No se puede eliminar"
+        description={`La cuenta "${accountCode} — ${accountName}" tiene subcuentas asociadas. Debe eliminar o reasignar las subcuentas antes de eliminar esta cuenta.`}
+        confirmLabel="Entendido"
+        variant="default"
+        loading={false}
+        onConfirm={() => onOpenChange(false)}
+      />
+    );
+  }
 
   return (
     <ConfirmModal
       open={open}
       onOpenChange={onOpenChange}
       title="Eliminar cuenta contable"
-      description={
-        hasChildren
-          ? `No se puede eliminar "${accountCode} — ${accountName}" porque tiene subcuentas asociadas. Elimine las subcuentas primero.`
-          : `¿Estás seguro de eliminar "${accountCode} — ${accountName}"? Podría fallar si está referenciada en asientos o productos.`
-      }
+      description={`¿Está seguro de eliminar la cuenta "${accountCode} — ${accountName}"? Si esta cuenta está referenciada en asientos contables, la eliminación será rechazada.`}
       confirmLabel="Eliminar"
       variant="danger"
       loading={deleteMutation.isPending}
-      onConfirm={hasChildren ? () => onOpenChange(false) : handleDelete}
+      onConfirm={handleDelete}
     />
   );
 }
