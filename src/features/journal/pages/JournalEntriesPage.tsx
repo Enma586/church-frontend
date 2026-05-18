@@ -1,32 +1,39 @@
-import { useState } from "react";
-import { Plus, Eye, Trash2, Ban } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/tables/DataTable";
-import { TableToolbar } from "@/components/tables/TableToolbar";
-import { TablePagination } from "@/components/tables/TablePagination";
-import { CreateJournalEntryModal } from "../modals/CreateJournalEntryModal";
-import { JournalEntryDetailModal } from "../modals/JournalEntryDetailModal";
-import { DeleteJournalEntryModal } from "../modals/DeleteJournalEntryModal";
-import { JournalStatusBadge } from "../components/JournalStatusBadge";
-import { useJournalEntries } from "../hooks/useJournalEntries";
-import { useUpdateJournalEntry } from "../hooks/useJournalEntryMutations";
-import { usePagination } from "@/hooks/usePagination";
-import { usePermissions } from "@/hooks/usePermissions";
+import { useState } from 'react';
+import { Plus, Eye, Trash2, Ban } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { DataTable } from '@/components/tables/DataTable';
+import { TableToolbar } from '@/components/tables/TableToolbar';
+import { TablePagination } from '@/components/tables/TablePagination';
+import { CreateJournalEntryModal } from '../modals/CreateJournalEntryModal';
+import { JournalEntryDetailModal } from '../modals/JournalEntryDetailModal';
+import { DeleteJournalEntryModal } from '../modals/DeleteJournalEntryModal';
+import { JournalStatusBadge } from '../components/JournalStatusBadge';
+import { useJournalEntries } from '../hooks/useJournalEntries';
+import { useUpdateJournalEntry } from '../hooks/useJournalEntryMutations';
+import { usePagination } from '@/hooks/usePagination';
+import { usePermissions } from '@/hooks/usePermissions';
 import type {
   JournalEntry,
   JournalEntryQueryParams,
+  JournalType,
   JournalStatus,
-} from "@/types";
-import type { ColumnDef } from "@tanstack/react-table";
+} from '@/types';
+import type { ColumnDef } from '@tanstack/react-table';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import { showToast } from '@/lib/toast';
 import { humanizeError } from '@/lib/error-messages';
+import { Badge } from '@/components/ui/badge';
+
+const TYPE_STYLES: Record<JournalType, string> = {
+  Ingreso: 'bg-green-100 text-green-800',
+  Egreso: 'bg-red-100 text-red-800',
+};
 
 export default function JournalEntriesPage() {
   const { page, limit, goToPage, setPerPage } = usePagination();
@@ -43,52 +50,84 @@ export default function JournalEntriesPage() {
   const entries = data?.data ?? [];
   const pagination = data?.pagination;
 
-// En la página JournalEntriesPage, línea 44-51, cambiar:
-const handleAnular = async (id: string) => {
-  try {
-    await anularMutation.mutateAsync({ id, data: { status: "Anulado" } });
-    setDetailEntry(null);
-  } catch (error) {
-    showToast.error(humanizeError(error)); // ← antes era "// handled by hook"
-  }
-};
+  const handleAnular = async (id: string) => {
+    try {
+      await anularMutation.mutateAsync({ id, data: { status: 'Anulado' } });
+      setDetailEntry(null);
+    } catch (error) {
+      showToast.error(humanizeError(error));
+    }
+  };
 
   const columns: ColumnDef<JournalEntry>[] = [
     {
-      header: "Comprobante",
-      accessorKey: "voucherNumber",
+      header: 'Comprobante',
+      accessorKey: 'voucherNumber',
       cell: ({ getValue }) => (
         <span className="font-mono text-sm">{getValue() as string}</span>
       ),
     },
     {
-      header: "Fecha",
-      accessorKey: "date",
+      header: 'Fecha',
+      accessorKey: 'date',
       cell: ({ getValue }) =>
-        new Date(getValue() as string).toLocaleDateString("es-HN"),
+        new Date(getValue() as string).toLocaleDateString('es-HN'),
     },
     {
-      header: "Concepto",
-      accessorKey: "concept",
+      header: 'Tipo',
+      accessorKey: 'type',
+      cell: ({ getValue }) => {
+        const type = getValue() as JournalType;
+        return (
+          <Badge className={TYPE_STYLES[type]}>
+            {type}
+          </Badge>
+        );
+      },
+    },
+    {
+      header: 'Concepto',
+      accessorKey: 'concept',
       cell: ({ getValue }) => {
         const val = getValue() as string;
         return val.length > 50 ? `${val.slice(0, 50)}…` : val;
       },
     },
     {
-      header: "Estado",
-      accessorKey: "status",
+      header: 'Cuenta',
+      accessorFn: (row) => row.accountData?.name ?? '—',
+    },
+    {
+      header: 'Monto',
+      accessorKey: 'amount',
+      cell: ({ row, getValue }) => {
+        const val = getValue() as number;
+        const type = row.original.type;
+        return (
+          <span
+            className={`font-mono tabular-nums font-bold ${
+              type === 'Ingreso' ? 'text-green-600' : 'text-red-600'
+            }`}
+          >
+            L. {val.toFixed(2)}
+          </span>
+        );
+      },
+    },
+    {
+      header: 'Estado',
+      accessorKey: 'status',
       cell: ({ getValue }) => (
         <JournalStatusBadge status={getValue() as JournalStatus} />
       ),
     },
     {
-      header: "Creado por",
-      accessorFn: (row) => row.createdByData?.username ?? "—",
+      header: 'Creado por',
+      accessorFn: (row) => row.createdByData?.username ?? '—',
     },
     {
-      id: "actions",
-      header: "",
+      id: 'actions',
+      header: '',
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
           <Button
@@ -99,7 +138,7 @@ const handleAnular = async (id: string) => {
           >
             <Eye className="h-4 w-4" />
           </Button>
-          {can("accounting:write") && row.original.status === "Valido" && (
+          {can('accounting:write') && row.original.status === 'Valido' && (
             <Button
               variant="ghost"
               size="icon"
@@ -110,7 +149,7 @@ const handleAnular = async (id: string) => {
               <Ban className="h-4 w-4" />
             </Button>
           )}
-          {can("accounting:write") && (
+          {can('accounting:write') && (
             <Button
               variant="ghost"
               size="icon"
@@ -128,8 +167,8 @@ const handleAnular = async (id: string) => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Asientos Contables</h1>
-        {can("accounting:write") && (
+        <h1 className="text-2xl font-bold">Libro Diario</h1>
+        {can('accounting:write') && (
           <Button onClick={() => setCreateOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Nuevo Asiento
@@ -140,11 +179,29 @@ const handleAnular = async (id: string) => {
       <TableToolbar>
         <div className="flex items-center gap-3">
           <Select
-            value={filters.status ?? "all"}
+            value={filters.type ?? 'all'}
             onValueChange={(v) =>
               setFilters((prev) => ({
                 ...prev,
-                status: v === "all" ? undefined : (v as JournalStatus),
+                type: v === 'all' ? undefined : (v as JournalType),
+              }))
+            }
+          >
+            <SelectTrigger className="w-36">
+              <SelectValue placeholder="Tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              <SelectItem value="Ingreso">Ingresos</SelectItem>
+              <SelectItem value="Egreso">Egresos</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={filters.status ?? 'all'}
+            onValueChange={(v) =>
+              setFilters((prev) => ({
+                ...prev,
+                status: v === 'all' ? undefined : (v as JournalStatus),
               }))
             }
           >
@@ -185,7 +242,7 @@ const handleAnular = async (id: string) => {
             if (!open) setDetailEntry(null);
           }}
           entry={detailEntry}
-          canAnular={can("accounting:write") && detailEntry.status === "Valido"}
+          canAnular={can('accounting:write') && detailEntry.status === 'Valido'}
           onAnular={() => handleAnular(detailEntry._id)}
           isAnulando={anularMutation.isPending}
         />

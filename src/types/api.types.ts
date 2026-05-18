@@ -372,44 +372,7 @@ export interface AccountQueryParams extends PaginationParams {
   search?: string;
 }
 
-// ── Journal Entry / Asiento Contable ──────────────────────────────────────────
-export interface JournalLine {
-  account: string;
-  debit: number;
-  credit: number;
-  description?: string;
-  accountData?: Pick<Account, '_id' | 'code' | 'name' | 'type'>;
-}
 
-export interface JournalEntry {
-  _id: string;
-  voucherNumber: string;
-  date: string;
-  concept: string;
-  status: JournalStatus;
-  lines: JournalLine[];
-  createdBy: string | { _id: string; username: string; role: string };
-  createdByData?: { _id: string; username: string; role: string };
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateJournalEntryPayload {
-  date?: string;
-  concept: string;
-  lines: Omit<JournalLine, 'accountData'>[];
-}
-
-export interface UpdateJournalEntryPayload {
-  status: JournalStatus;
-}
-
-export interface JournalEntryQueryParams extends PaginationParams {
-  dateFrom?: string;
-  dateTo?: string;
-  status?: JournalStatus;
-  search?: string;
-}
 
 // ── Product ────────────────────────────────────────────────────────────────────
 export interface Product {
@@ -484,10 +447,6 @@ export interface TrialBalanceQueryParams {
   dateTo?: string;
 }
 
-export interface TrialBalanceResponse {
-  data: TrialBalanceRow[];
-  totals: { totalDebit: number; totalCredit: number };
-}
 
 export interface BalanceSheetAccount extends TrialBalanceRow {
   parentAccount?: string;
@@ -546,3 +505,127 @@ export interface IncomeStatementResponse {
   };
 }
 
+// ── Journal Entry / Asiento Contable ──────────────────────────────────────────
+export type JournalType = 'Ingreso' | 'Egreso';
+
+export interface JournalEntry {
+  _id: string;
+  voucherNumber: string;
+  date: string;
+  type: JournalType;
+  concept: string;
+  account: string | Pick<Account, '_id' | 'code' | 'name' | 'type'>;
+  product?: string | Pick<Product, '_id' | 'name' | 'defaultPrice'> | null;
+  amount: number;
+  status: JournalStatus;
+  createdBy: string | { _id: string; username: string; role: string };
+  accountData?: Pick<Account, '_id' | 'code' | 'name' | 'type'>;
+  productData?: Pick<Product, '_id' | 'name' | 'defaultPrice'> | null;
+  createdByData?: { _id: string; username: string; role: string };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateJournalEntryPayload {
+  date?: string;
+  type: JournalType;
+  concept: string;
+  account: string;
+  product?: string | null;
+  amount: number;
+}
+
+export interface UpdateJournalEntryPayload {
+  status: JournalStatus;
+}
+
+export interface JournalEntryQueryParams extends PaginationParams {
+  dateFrom?: string;
+  dateTo?: string;
+  type?: JournalType;
+  status?: JournalStatus;
+  search?: string;
+}
+
+// ── ELIMINAR esto viejo ─────────────────────────────────────────────────────
+// export interface JournalLine { ... }  ← BORRAR
+// export type CreateJournalEntryPayload viejo con lines ← BORRAR
+
+// ── Cash Closing ──────────────────────────────────────────────────────
+export interface CashDenomination {
+  denomination: number;
+  quantity: number;
+  subtotal: number;
+}
+
+export interface CashClosing {
+  _id: string;
+  date: string;
+  reference: string;
+  concept: string;
+  denominations: CashDenomination[];
+  totalCalculated: number;
+  expectedBalance: number;
+  difference: number;
+  notes?: string;
+  createdBy: string | Pick<User, '_id' | 'username' | 'role'>;
+  createdByData?: Pick<User, '_id' | 'username' | 'role'>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCashClosingPayload {
+  date?: string;
+  concept?: string;
+  denominations: Omit<CashDenomination, 'subtotal'>[];
+  notes?: string;
+}
+
+export interface CashClosingQueryParams extends PaginationParams {
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+// Actualizar TrialBalanceRow (estaba usando totalDebit/totalCredit, ahora usa totalIngresos/totalEgresos)
+export interface TrialBalanceRow {
+  accountId: string;
+  code: string;
+  name: string;
+  type: CuentaType;
+  totalIngresos: number;
+  totalEgresos: number;
+  balance: number;
+}
+
+export interface TrialBalanceQueryParams {
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export interface TrialBalanceResponse {
+  data: TrialBalanceRow[];
+  totals: { totalIngresos: number; totalEgresos: number; saldoNeto: number };
+}
+
+// Actualizar IncomeStatementRow
+export interface IncomeStatementRow {
+  accountId: string;
+  code: string;
+  name: string;
+  type: 'Ingreso' | 'Gasto';
+  totalIngresos: number;
+  totalEgresos: number;
+  balance: number;
+}
+
+// Actualizar BalanceSheetAccount
+export interface BalanceSheetAccount {
+  accountId: string;
+  code: string;
+  name: string;
+  type: 'Activo' | 'Pasivo' | 'Patrimonio';
+  parentAccount?: string;
+  totalIngresos: number;
+  totalEgresos: number;
+  balance: number;
+}
