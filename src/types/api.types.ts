@@ -318,7 +318,7 @@ export interface PastoralNoteQueryParams extends PaginationParams {
 
 export interface Configuration {
   _id: string;
-  
+
   googleCalendarId: string;
   googleServiceAccountEmail?: string;
   enableLocalNotifications: boolean;
@@ -329,6 +329,220 @@ export interface Configuration {
   createdAt: string;
   updatedAt: string;
   rolePermissions?: Record<string, PermissionKey[]>;
+  accountingClosedDate?: string | null;
+  defaultCashAccountId?: string | null;
 }
 
 export type UpdateConfigurationPayload = Partial<Omit<Configuration, '_id' | 'createdAt' | 'updatedAt'>>;
+
+// ─── Accounting / Contaduría ──────────────────────────────────────────────────
+
+export type CuentaType = 'Activo' | 'Pasivo' | 'Patrimonio' | 'Ingreso' | 'Gasto';
+
+export type JournalStatus = 'Valido' | 'Anulado';
+
+// ── Account ─────────────────────────────────────────────────────────────────────
+export interface Account {
+  _id: string;
+  code: string;
+  name: string;
+  type: CuentaType;
+  parentAccount?: string | Pick<Account, '_id' | 'code' | 'name' | 'type'>;
+  acceptsTransactions: boolean;
+  isActive: boolean;
+  children?: Account[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateAccountPayload {
+  code: string;
+  name: string;
+  type: CuentaType;
+  parentAccount?: string | null;
+  acceptsTransactions?: boolean;
+  isActive?: boolean;
+}
+
+export type UpdateAccountPayload = Partial<Omit<CreateAccountPayload, 'code'>>;
+
+export interface AccountQueryParams extends PaginationParams {
+  type?: CuentaType;
+  isActive?: boolean;
+  search?: string;
+}
+
+// ── Journal Entry / Asiento Contable ──────────────────────────────────────────
+export interface JournalLine {
+  account: string;
+  debit: number;
+  credit: number;
+  description?: string;
+  accountData?: Pick<Account, '_id' | 'code' | 'name' | 'type'>;
+}
+
+export interface JournalEntry {
+  _id: string;
+  voucherNumber: string;
+  date: string;
+  concept: string;
+  status: JournalStatus;
+  lines: JournalLine[];
+  createdBy: string | { _id: string; username: string; role: string };
+  createdByData?: { _id: string; username: string; role: string };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateJournalEntryPayload {
+  date?: string;
+  concept: string;
+  lines: Omit<JournalLine, 'accountData'>[];
+}
+
+export interface UpdateJournalEntryPayload {
+  status: JournalStatus;
+}
+
+export interface JournalEntryQueryParams extends PaginationParams {
+  dateFrom?: string;
+  dateTo?: string;
+  status?: JournalStatus;
+  search?: string;
+}
+
+// ── Product ────────────────────────────────────────────────────────────────────
+export interface Product {
+  _id: string;
+  name: string;
+  defaultPrice: number;
+  incomeAccountId: string | Pick<Account, '_id' | 'code' | 'name' | 'type'>;
+  incomeAccountIdData?: Pick<Account, '_id' | 'code' | 'name' | 'type'>;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateProductPayload {
+  name: string;
+  defaultPrice?: number;
+  incomeAccountId: string;
+  isActive?: boolean;
+}
+
+export type UpdateProductPayload = Partial<CreateProductPayload>;
+
+export interface ProductQueryParams extends PaginationParams {
+  isActive?: boolean;
+  search?: string;
+}
+
+// ── Period ─────────────────────────────────────────────────────────────────────
+export interface ClosePeriodPayload {
+  date: string;
+}
+
+export interface PeriodResult {
+  closedDate: string | null;
+  previousClosedDate: string | null;
+}
+
+// ── Reports ────────────────────────────────────────────────────────────────────
+export interface LedgerRow {
+  date: string;
+  voucherNumber: string;
+  concept: string;
+  debit: number;
+  credit: number;
+  balance: number;
+}
+
+export interface LedgerQueryParams extends PaginationParams {
+  accountId: string;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export interface LedgerResponse {
+  account: Pick<Account, '_id' | 'code' | 'name' | 'type'>;
+  data: LedgerRow[];
+  pagination: PaginationMeta;
+}
+
+export interface TrialBalanceRow {
+  accountId: string;
+  code: string;
+  name: string;
+  type: CuentaType;
+  totalDebit: number;
+  totalCredit: number;
+  balance: number;
+}
+
+export interface TrialBalanceQueryParams {
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export interface TrialBalanceResponse {
+  data: TrialBalanceRow[];
+  totals: { totalDebit: number; totalCredit: number };
+}
+
+export interface BalanceSheetAccount extends TrialBalanceRow {
+  parentAccount?: string;
+}
+
+export interface BalanceSheetData {
+  activo: BalanceSheetAccount[];
+  pasivo: BalanceSheetAccount[];
+  patrimonio: BalanceSheetAccount[];
+}
+
+export interface BalanceSheetQueryParams {
+  asOfDate?: string;
+}
+
+export interface BalanceSheetResponse {
+  asOfDate: string;
+  data: BalanceSheetData;
+  totals: {
+    activo: number;
+    pasivo: number;
+    patrimonio: number;
+    pasivoPatrimonio: number;
+    balanceado: boolean;
+  };
+}
+
+export interface IncomeStatementRow {
+  accountId: string;
+  code: string;
+  name: string;
+  type: 'Ingreso' | 'Gasto';
+  totalDebit: number;
+  totalCredit: number;
+  balance: number;
+}
+
+export interface IncomeStatementData {
+  ingresos: IncomeStatementRow[];
+  gastos: IncomeStatementRow[];
+}
+
+export interface IncomeStatementQueryParams {
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export interface IncomeStatementResponse {
+  dateFrom: string | null;
+  dateTo: string | null;
+  data: IncomeStatementData;
+  totals: {
+    ingresos: number;
+    gastos: number;
+    resultadoNeto: number;
+  };
+}
+

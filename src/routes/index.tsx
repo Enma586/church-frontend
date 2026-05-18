@@ -34,6 +34,16 @@ const UsersList = lazy(() => import("@/features/users/pages/UsersPage"));
 const RolesPage = lazy(() => import("@/features/roles/pages/RolesPage"));
 const ConfigPage = lazy(() => import("@/features/config/pages/ConfigPage"));
 const ProfilePage = lazy(() => import("@/features/user/pages/ProfilePage"));
+const AccountsPage = lazy(
+  () => import("@/features/accounts/pages/AccountsPage"),
+);
+const JournalEntriesPage = lazy(
+  () => import("@/features/journal/pages/JournalEntriesPage"),
+);
+const ProductsPage = lazy(
+  () => import("@/features/products/pages/ProductsPage"),
+);
+const ReportsPage = lazy(() => import("@/features/reports/pages/ReportsPage"));
 
 // ─── Suspense fallback ───────────────────────────────────────────────────────
 
@@ -171,6 +181,38 @@ export const router = createBrowserRouter([
             element: (
               <Lazy>
                 <ProfilePage />
+              </Lazy>
+            ),
+          },
+          {
+            path: "accounts",
+            element: (
+              <Lazy>
+                <AccountsPage />
+              </Lazy>
+            ),
+          },
+          {
+            path: "journal",
+            element: (
+              <Lazy>
+                <JournalEntriesPage />
+              </Lazy>
+            ),
+          },
+          {
+            path: "products",
+            element: (
+              <Lazy>
+                <ProductsPage />
+              </Lazy>
+            ),
+          },
+          {
+            path: "reports",
+            element: (
+              <Lazy>
+                <ReportsPage />
               </Lazy>
             ),
           },
