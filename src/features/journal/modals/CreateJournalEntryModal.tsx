@@ -7,9 +7,9 @@ import { FormTextArea } from '@/components/forms/FormTextArea';
 import { FormInput } from '@/components/forms/FormInput';
 import { FormDatePicker } from '@/components/forms/FormDatePicker';
 import { FormSubmitButton } from '@/components/forms/FormSubmitButton';
-import { FormSelect, FormSelectItem } from '@/components/forms/FormSelect';
+import { FormSelect } from '@/components/forms/FormSelect';
 import { AccountTreeSelect } from '@/features/accounts/components/AccountTreeSelect';
-import { ProductSelect } from '@/features/products/components/ProductSelect';
+import { ProductSelect } from '@/features/products/components/ProductSelect'; 
 import { useCreateJournalEntry } from '../hooks/useJournalEntryMutations';
 import { showToast } from '@/lib/toast';
 import { humanizeError } from '@/lib/error-messages';
@@ -23,11 +23,15 @@ const schema = z.object({
     .string()
     .min(1, 'Debe seleccionar una cuenta')
     .regex(/^[0-9a-fA-F]{24}$/, 'Cuenta inválida'),
+  // FIX: Manejamos el string vacío ("") de la opción "Ninguno" transformándolo a null
   product: z
     .string()
-    .regex(/^[0-9a-fA-F]{24}$/, 'Producto inválido')
+    .nullable()
     .optional()
-    .nullable(),
+    .transform((val) => (val === '' ? null : val))
+    .refine((val) => !val || /^[0-9a-fA-F]{24}$/.test(val), {
+      message: 'Producto inválido',
+    }),
   amount: z.preprocess(
     (val) => {
       if (val === '' || val === null || val === undefined) return undefined;
@@ -44,6 +48,12 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
+// Opciones estáticas para el select de Tipo
+const TYPE_OPTIONS = [
+  { value: 'Ingreso', label: 'Ingreso' },
+  { value: 'Egreso', label: 'Egreso' },
+];
 
 export function CreateJournalEntryModal({ open, onOpenChange }: Props) {
   const createMutation = useCreateJournalEntry();
@@ -64,7 +74,9 @@ export function CreateJournalEntryModal({ open, onOpenChange }: Props) {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      await createMutation.mutateAsync(values as unknown as CreateJournalEntryPayload);
+      await createMutation.mutateAsync(
+        values as unknown as CreateJournalEntryPayload,
+      );
       form.reset();
       onOpenChange(false);
     } catch (error) {
@@ -81,7 +93,10 @@ export function CreateJournalEntryModal({ open, onOpenChange }: Props) {
       size="2xl"
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
+        <form
+          onSubmit={form.handleSubmit(onSubmit as any)}
+          className="space-y-4"
+        >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormDatePicker
               name="date"
@@ -92,10 +107,8 @@ export function CreateJournalEntryModal({ open, onOpenChange }: Props) {
               name="type"
               control={form.control as any}
               label="Tipo de movimiento"
-            >
-              <FormSelectItem value="Ingreso">Ingreso</FormSelectItem>
-              <FormSelectItem value="Egreso">Egreso</FormSelectItem>
-            </FormSelect>
+              options={TYPE_OPTIONS} 
+            />
           </div>
 
           <FormTextArea
@@ -113,6 +126,8 @@ export function CreateJournalEntryModal({ open, onOpenChange }: Props) {
               label="Cuenta contable"
               mode="transaction"
             />
+
+            {/* FIX: Se integra el nuevo ProductSelect totalmente funcional */}
             <ProductSelect
               name="product"
               control={form.control as any}
@@ -123,7 +138,9 @@ export function CreateJournalEntryModal({ open, onOpenChange }: Props) {
           <FormInput
             name="amount"
             control={form.control as any}
-            label={`Monto (${selectedType === 'Ingreso' ? 'Ingreso' : 'Egreso'})`}
+            label={`Monto (${
+              selectedType === 'Ingreso' ? 'Ingreso' : 'Egreso'
+            })`}
             type="number"
             step="0.01"
             min="0.01"
