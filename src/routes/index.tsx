@@ -44,6 +44,10 @@ const ProductsPage = lazy(
   () => import("@/features/products/pages/ProductsPage"),
 );
 const ReportsPage = lazy(() => import("@/features/reports/pages/ReportsPage"));
+const CashClosingPage= lazy(
+  () => import('@/features/cash-closing/pages/CashClosingPage'),
+);
+
 
 // ─── Suspense fallback ───────────────────────────────────────────────────────
 
@@ -216,6 +220,14 @@ export const router = createBrowserRouter([
               </Lazy>
             ),
           },
+          {
+  path: 'cash-closing',
+  element: (
+    <Lazy>
+      <CashClosingPage />
+    </Lazy>
+  ),
+},
         ],
       },
     ],

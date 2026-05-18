@@ -45,4 +45,26 @@ export const reportsService = {
     );
     return data;
   },
+
+  // ── NUEVO: Exportar PDF ──────────────────────────────────────
+  exportJournalPDF: async (params: {
+    dateFrom?: string;
+    dateTo?: string;
+    type?: string;
+    status?: string;
+  }) => {
+    const response = await api.get(`${BASE}/journal-pdf`, {
+      params,
+      responseType: 'blob',
+    });
+    // Crear URL y descargar
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `journal-${Date.now()}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
 };

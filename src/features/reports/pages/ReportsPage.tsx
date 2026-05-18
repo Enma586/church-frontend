@@ -3,6 +3,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ReportSummaryCard } from '../components/ReportSummaryCard';
 import { BalanceDisplay } from '../components/BalanceDisplay';
 import { AccountTreeSelect } from '@/features/accounts/components/AccountTreeSelect';
@@ -15,9 +17,11 @@ import { usePagination } from '@/hooks/usePagination';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useReopenPeriod } from '@/features/period/hooks/usePeriodMutations';
 import { ClosePeriodModal } from '@/features/period/modals/ClosePeriodModal';
+import { reportsService } from '../services/reports.service';
 import { useForm } from 'react-hook-form';
-import { Loader2, Lock, Unlock } from 'lucide-react';
+import { Loader2, Lock, Unlock, FileDown, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { Form } from '@/components/ui/form';
+import { showToast } from '@/lib/toast';
 
 // ─── Helpers para extraer datos de forma segura sin doble .data ──────────────
 function useLedgerData() {
@@ -117,9 +121,9 @@ function LedgerTab() {
                   <tr className="border-b text-left">
                     <th className="py-2 font-medium">Fecha</th>
                     <th className="py-2 font-medium">Comprobante</th>
+                    <th className="py-2 font-medium">Tipo</th>
                     <th className="py-2 font-medium">Concepto</th>
-                    <th className="py-2 text-right font-medium">Débito</th>
-                    <th className="py-2 text-right font-medium">Crédito</th>
+                    <th className="py-2 text-right font-medium">Monto</th>
                     <th className="py-2 text-right font-medium">Saldo</th>
                   </tr>
                 </thead>
@@ -132,14 +136,28 @@ function LedgerTab() {
                       <td className="py-1.5 font-mono text-xs">
                         {row.voucherNumber}
                       </td>
+                      <td className="py-1.5">
+                        {row.type === 'Ingreso' ? (
+                          <span className="inline-flex items-center gap-1 rounded bg-green-100 px-1.5 py-0.5 text-xs font-medium text-green-700">
+                            <ArrowUpRight className="h-3 w-3" />
+                            Ingreso
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-700">
+                            <ArrowDownRight className="h-3 w-3" />
+                            Egreso
+                          </span>
+                        )}
+                      </td>
                       <td className="py-1.5 max-w-48 truncate">
                         {row.concept}
                       </td>
-                      <td className="py-1.5 text-right tabular-nums">
-                        {row.debit > 0 ? row.debit.toFixed(2) : ''}
-                      </td>
-                      <td className="py-1.5 text-right tabular-nums">
-                        {row.credit > 0 ? row.credit.toFixed(2) : ''}
+                      <td
+                        className={`py-1.5 text-right tabular-nums font-medium ${
+                          row.type === 'Ingreso' ? 'text-green-600' : 'text-red-600'
+                        }`}
+                      >
+                        {row.type === 'Ingreso' ? '+' : '−'} L. {row.amount.toFixed(2)}
                       </td>
                       <td className="py-1.5 text-right">
                         <BalanceDisplay value={row.balance} />
@@ -186,9 +204,14 @@ function TrialBalanceTab() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <ReportSummaryCard title="Total Débitos" value={totals?.totalDebit ?? 0} />
-        <ReportSummaryCard title="Total Créditos" value={totals?.totalCredit ?? 0} />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <ReportSummaryCard title="Total Ingresos" value={totals?.totalIngresos ?? 0} variant="success" />
+        <ReportSummaryCard title="Total Egresos" value={totals?.totalEgresos ?? 0} variant="danger" />
+        <ReportSummaryCard
+          title="Saldo Neto"
+          value={totals?.saldoNeto ?? 0}
+          variant={(totals?.saldoNeto ?? 0) >= 0 ? 'success' : 'danger'}
+        />
       </div>
 
       <Card>
@@ -200,8 +223,8 @@ function TrialBalanceTab() {
                   <th className="py-2 font-medium">Código</th>
                   <th className="py-2 font-medium">Cuenta</th>
                   <th className="py-2 font-medium">Tipo</th>
-                  <th className="py-2 text-right font-medium">Débito</th>
-                  <th className="py-2 text-right font-medium">Crédito</th>
+                  <th className="py-2 text-right font-medium">Ingresos</th>
+                  <th className="py-2 text-right font-medium">Egresos</th>
                   <th className="py-2 text-right font-medium">Saldo</th>
                 </tr>
               </thead>
@@ -211,11 +234,11 @@ function TrialBalanceTab() {
                     <td className="py-1.5">{row.code}</td>
                     <td className="py-1.5">{row.name}</td>
                     <td className="py-1.5">{row.type}</td>
-                    <td className="py-1.5 text-right tabular-nums">
-                      {row.totalDebit.toFixed(2)}
+                    <td className="py-1.5 text-right tabular-nums text-green-600">
+                      {row.totalIngresos > 0 ? row.totalIngresos.toFixed(2) : '—'}
                     </td>
-                    <td className="py-1.5 text-right tabular-nums">
-                      {row.totalCredit.toFixed(2)}
+                    <td className="py-1.5 text-right tabular-nums text-red-600">
+                      {row.totalEgresos > 0 ? row.totalEgresos.toFixed(2) : '—'}
                     </td>
                     <td className="py-1.5 text-right">
                       <BalanceDisplay value={row.balance} />
@@ -365,6 +388,79 @@ function IncomeStatementTab() {
   );
 }
 
+// ─── Exportar PDF ────────────────────────────────────────────────────────
+function ExportPDFSection() {
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      await reportsService.exportJournalPDF({
+        dateFrom: dateFrom || undefined,
+        dateTo: dateTo || undefined,
+      });
+      showToast.success('PDF generado exitosamente');
+    } catch {
+      showToast.error('Error al generar el PDF');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base flex items-center gap-2">
+          <FileDown className="h-4 w-4" />
+          Exportar Libro Diario a PDF
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-wrap items-end gap-4">
+          <div>
+            <Label className="text-sm">Fecha desde</Label>
+            <Input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="w-44"
+            />
+          </div>
+          <div>
+            <Label className="text-sm">Fecha hasta</Label>
+            <Input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="w-44"
+            />
+          </div>
+          <Button
+            variant="default"
+            size="sm"
+            onClick={handleExport}
+            disabled={exporting}
+          >
+            {exporting ? (
+              <>
+                <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                Generando…
+              </>
+            ) : (
+              <>
+                <FileDown className="mr-1 h-4 w-4" />
+                Exportar PDF
+              </>
+            )}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 // ─── Página Principal ────────────────────────────────────────────────────────
 export default function ReportsPage() {
   const { can } = usePermissions();
@@ -393,6 +489,9 @@ export default function ReportsPage() {
           </div>
         )}
       </div>
+
+      {/* ── Export PDF ── */}
+      <ExportPDFSection />
 
       <Tabs defaultValue="trial-balance" className="w-full">
         <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full">

@@ -415,11 +415,10 @@ export interface LedgerRow {
   date: string;
   voucherNumber: string;
   concept: string;
-  debit: number;
-  credit: number;
+  type: 'Ingreso' | 'Egreso';
+  amount: number;
   balance: number;
 }
-
 export interface LedgerQueryParams extends PaginationParams {
   accountId: string;
   dateFrom?: string;

@@ -109,7 +109,8 @@ export default function JournalEntriesPage() {
               type === 'Ingreso' ? 'text-green-600' : 'text-red-600'
             }`}
           >
-            L. {val.toFixed(2)}
+            {/* FIX: Le pusimos el salvavidas (val ?? 0) para que no explote */}
+            L. {(val ?? 0).toFixed(2)}
           </span>
         );
       },
