@@ -58,7 +58,7 @@ const groups: { label: string; icon: LucideIcon; items: NavItem[] }[] = [
     icon: Calculator,
     items: [
       { label: 'Cuentas', path: '/accounts', icon: Calculator, permission: 'accounting:read' },
-      { label: 'Asientos', path: '/journal', icon: ScrollText, permission: 'accounting:read' },
+      { label: 'Libro Diario', path: '/journal', icon: ScrollText, permission: 'accounting:read' },
       { label: 'Productos', path: '/products', icon: Calculator, permission: 'accounting:read' },
       { label: 'Reportes', path: '/reports', icon: Calculator, permission: 'accounting:read' },
     ],
