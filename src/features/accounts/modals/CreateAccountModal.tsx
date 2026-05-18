@@ -10,6 +10,7 @@ import { AccountTreeSelect } from '../components/AccountTreeSelect';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useCreateAccount } from '../hooks/useAccountMutations';
+import { useAccounts } from '../hooks/useAccounts';
 import { showToast } from '@/lib/toast';
 import { humanizeError } from '@/lib/error-messages';
 import type { CreateAccountPayload } from '@/types';
@@ -23,7 +24,10 @@ const CUENTA_TYPE_OPTIONS = [
 ];
 
 const createSchema = z.object({
-  code: z.string().trim().min(1, 'El código es requerido'),
+  code: z
+    .string()
+    .trim()
+    .min(1, 'El código es requerido'),
   name: z.string().trim().min(1, 'El nombre es requerido'),
   type: z.enum(['Activo', 'Pasivo', 'Patrimonio', 'Ingreso', 'Gasto']),
   parentAccount: z
@@ -51,6 +55,16 @@ export function CreateAccountModal({
 }: CreateAccountModalProps) {
   const createMutation = useCreateAccount();
 
+  // ═══════════════════════════════════════════════════════════════
+  // Carga las cuentas existentes para validar unicidad del código.
+  // React Query deduplica: si AccountTreeSelect ya pidió estos
+  // datos, esta llamada usa la caché sin red adicional.
+  // ═══════════════════════════════════════════════════════════════
+  const { data: accountsData } = useAccounts({ limit: 1000 });
+  const existingCodes = new Set(
+    (accountsData?.data ?? []).map((a) => a.code.trim().toLowerCase()),
+  );
+
   const form = useForm<CreateFormValues>({
     resolver: zodResolver(createSchema),
     defaultValues: {
@@ -64,6 +78,19 @@ export function CreateAccountModal({
   });
 
   const onSubmit = async (values: CreateFormValues) => {
+    // ═════════════════════════════════════════════════════════════
+    // Validación de unicidad ANTES de tocar el backend.
+    // Si el código ya existe, el error se muestra EN EL CAMPO,
+    // no en un toast. El usuario lo ve junto al input.
+    // ═════════════════════════════════════════════════════════════
+    const normalized = values.code.trim().toLowerCase();
+    if (existingCodes.has(normalized)) {
+      form.setError('code', {
+        message: `El código "${values.code.trim()}" ya está en uso. Por favor use un código diferente.`,
+      });
+      return;
+    }
+
     try {
       await createMutation.mutateAsync(
         values as unknown as CreateAccountPayload,
@@ -80,7 +107,7 @@ export function CreateAccountModal({
       open={open}
       onOpenChange={onOpenChange}
       title="Nueva Cuenta Contable"
-      description="Registra una cuenta en el catálogo contable."
+      description="Registre una cuenta en el catálogo contable. El código debe ser único."
       size="lg"
     >
       <Form {...form}>
@@ -130,7 +157,7 @@ export function CreateAccountModal({
                   Acepta transacciones
                 </Label>
                 <p className="text-xs text-muted-foreground">
-                  Si desactivas, será una <strong>cuenta de agrupación</strong>{' '}
+                  Si desactiva, será una <strong>cuenta de agrupación</strong>{' '}
                   (solo sirve como padre de otras)
                 </p>
               </div>

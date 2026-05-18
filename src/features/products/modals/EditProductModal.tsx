@@ -17,14 +17,7 @@ import type { Product, UpdateProductPayload } from '@/types';
 
 const schema = z.object({
   name: z.string().trim().min(1, 'El nombre es requerido'),
-  defaultPrice: z.preprocess(
-    (val) => {
-      if (val === '' || val === null || val === undefined) return 0;
-      const n = Number(val);
-      return isNaN(n) ? 0 : n;
-    },
-    z.number().min(0, 'El precio no puede ser negativo'),
-  ),
+  defaultPrice: z.coerce.number().min(0, 'El precio no puede ser negativo'),
   incomeAccountId: z
     .string()
     .min(1, 'Debe seleccionar una cuenta de ingreso')
@@ -40,36 +33,37 @@ interface Props {
   product: Product;
 }
 
-/**
- * Extrae de forma segura el ID de cuenta de ingreso sin importar
- * si el backend lo populó (objeto) o no (string), y sin crash si es null.
- */
 function getIncomeAccountId(product: Product): string {
   const account = product.incomeAccountId;
   if (account === null || account === undefined) return '';
   if (typeof account === 'object') return account._id;
-  return account; // es string
+  return account;
 }
 
 export function EditProductModal({ open, onOpenChange, product }: Props) {
   const updateMutation = useUpdateProduct();
+
+  // ═══════════════════════════════════════════════════════════════
+  // Sin filtros API. Todo en cliente.
+  // ═══════════════════════════════════════════════════════════════
   const { data: accountsData, isLoading: loadingAccounts } = useAccounts({
-    type: 'Ingreso',
     limit: 1000,
-    isActive: true,
   });
 
-  // ⚠️ Filtro manual: solo cuentas que ACEPTAN transacciones (cuentas hoja)
   const ingresoAccounts = (accountsData?.data ?? []).filter(
-    (a) => a.acceptsTransactions,
+    (a) =>
+      a.type === 'Ingreso' &&
+      a.isActive &&
+      a.acceptsTransactions,
   );
+
   const accountOptions = ingresoAccounts.map((a) => ({
     value: a._id,
     label: `${a.code} — ${a.name}`,
   }));
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(schema)as any,
+    resolver: zodResolver(schema) as any,
     defaultValues: {
       name: product.name,
       defaultPrice: product.defaultPrice,
@@ -110,12 +104,11 @@ export function EditProductModal({ open, onOpenChange, product }: Props) {
       size="lg"
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
-          <FormInput
-            name="name"
-            control={form.control as any}
-            label="Nombre"
-          />
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4"
+        >
+          <FormInput name="name" control={form.control} label="Nombre" />
 
           <FormInput
             name="defaultPrice"

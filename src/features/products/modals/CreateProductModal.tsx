@@ -16,7 +16,6 @@ import type { CreateProductPayload } from '@/types';
 
 const schema = z.object({
   name: z.string().trim().min(1, 'El nombre es requerido'),
-  // FIX: Regresamos al coerce. Convierte "" a 0 automáticamente sin romper TS.
   defaultPrice: z.coerce.number().min(0, 'El precio no puede ser negativo'),
   incomeAccountId: z
     .string()
@@ -34,15 +33,22 @@ interface Props {
 
 export function CreateProductModal({ open, onOpenChange }: Props) {
   const createMutation = useCreateProduct();
+
+  // ═══════════════════════════════════════════════════════════════
+  // Traemos TODAS las cuentas sin filtrar por type ni isActive.
+  // Filtramos en cliente: tipo Ingreso + activas + aceptan transacciones.
+  // ═══════════════════════════════════════════════════════════════
   const { data: accountsData, isLoading: loadingAccounts } = useAccounts({
-    type: 'Ingreso',
     limit: 1000,
-    isActive: true,
   });
 
   const ingresoAccounts = (accountsData?.data ?? []).filter(
-    (a) => a.acceptsTransactions,
+    (a) =>
+      a.type === 'Ingreso' &&
+      a.isActive &&
+      a.acceptsTransactions,
   );
+
   const accountOptions = ingresoAccounts.map((a) => ({
     value: a._id,
     label: `${a.code} — ${a.name}`,
@@ -75,21 +81,24 @@ export function CreateProductModal({ open, onOpenChange }: Props) {
       open={open}
       onOpenChange={onOpenChange}
       title="Nuevo Producto o Servicio"
-      description="Registra un producto o servicio en el catálogo contable."
+      description="Registre un producto o servicio en el catálogo contable."
       size="lg"
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4"
+        >
           <FormInput
             name="name"
-            control={form.control as any}
+            control={form.control}
             label="Nombre"
             placeholder="Ej: Certificado de Bautismo"
           />
 
           <FormInput
-            name={"defaultPrice" as any} // FIX: Silenciamos TS solo en el nombre
-            control={form.control as any}       // FIX: El control viaja puro y sin errores
+            name="defaultPrice"
+            control={form.control as any}
             label="Precio por defecto (L.)"
             type="number"
             step="0.01"
@@ -113,8 +122,8 @@ export function CreateProductModal({ open, onOpenChange }: Props) {
 
           {!loadingAccounts && accountOptions.length === 0 && (
             <p className="text-xs text-amber-600 dark:text-amber-400">
-              No hay cuentas tipo "Ingreso" que acepten transacciones. Cree una
-              cuenta de ingreso con la opción "Acepta transacciones" activada.
+              No hay cuentas tipo Ingreso que acepten transacciones. Cree una
+              cuenta con Tipo = Ingreso y "Acepta transacciones" activado.
             </p>
           )}
 

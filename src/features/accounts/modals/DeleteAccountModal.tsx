@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useDeleteAccount } from '../hooks/useAccountMutations';
-import { showToast } from '@/lib/toast';
-import { humanizeError } from '@/lib/error-messages';
 
 interface DeleteAccountModalProps {
   open: boolean;
@@ -33,13 +31,14 @@ export function DeleteAccountModal({
     onOpenChange(isOpen);
   };
 
-  const handleDelete = async () => {
-    try {
-      await deleteMutation.mutateAsync(accountId);
-      onOpenChange(false);
-    } catch (error) {
-      showToast.error(humanizeError(error));
-    }
+  const handleDelete = () => {
+    // FIX: Al usar mutate, el hook maneja el catch automáticamente por debajo.
+    // Solo cerramos el modal si la mutación fue exitosa.
+    deleteMutation.mutate(accountId, {
+      onSuccess: () => {
+        onOpenChange(false);
+      },
+    });
   };
 
   if (hasChildren) {
