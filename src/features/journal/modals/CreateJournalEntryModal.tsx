@@ -23,12 +23,12 @@ const schema = z.object({
     .string()
     .min(1, 'Debe seleccionar una cuenta')
     .regex(/^[0-9a-fA-F]{24}$/, 'Cuenta inválida'),
-  // FIX: Manejamos el string vacío ("") de la opción "Ninguno" transformándolo a null
   product: z
     .string()
     .nullable()
     .optional()
-    .transform((val) => (val === '' ? null : val))
+    // FIX: Si el valor es "none", lo transformamos a null para el backend
+    .transform((val) => (val === 'none' || val === '' ? null : val))
     .refine((val) => !val || /^[0-9a-fA-F]{24}$/.test(val), {
       message: 'Producto inválido',
     }),
@@ -49,7 +49,6 @@ interface Props {
   onOpenChange: (open: boolean) => void;
 }
 
-// Opciones estáticas para el select de Tipo
 const TYPE_OPTIONS = [
   { value: 'Ingreso', label: 'Ingreso' },
   { value: 'Egreso', label: 'Egreso' },
@@ -65,7 +64,7 @@ export function CreateJournalEntryModal({ open, onOpenChange }: Props) {
       type: 'Ingreso',
       concept: '',
       account: '',
-      product: null,
+      product: 'none', // FIX: El valor por defecto ahora es "none" para coincidir con el Select
       amount: undefined as any,
     },
   });
@@ -127,7 +126,6 @@ export function CreateJournalEntryModal({ open, onOpenChange }: Props) {
               mode="transaction"
             />
 
-            {/* FIX: Se integra el nuevo ProductSelect totalmente funcional */}
             <ProductSelect
               name="product"
               control={form.control as any}

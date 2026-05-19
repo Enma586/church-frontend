@@ -9,6 +9,8 @@ import type {
   BalanceSheetResponse,
   IncomeStatementQueryParams,
   IncomeStatementResponse,
+  CashBalanceQueryParams,
+  CashBalanceResponse,
 } from '@/types';
 
 const BASE = '/accounting/reports';
@@ -41,6 +43,15 @@ export const reportsService = {
   getIncomeStatement: async (params: IncomeStatementQueryParams = {}) => {
     const { data } = await api.get<ApiResponse<IncomeStatementResponse>>(
       `${BASE}/income-statement`,
+      { params },
+    );
+    return data;
+  },
+
+  // ── NUEVO: Saldo de caja esperado ──────────────────────────────
+  getCashBalance: async (params: CashBalanceQueryParams = {}) => {
+    const { data } = await api.get<ApiResponse<CashBalanceResponse>>(
+      `${BASE}/cash-balance`,
       { params },
     );
     return data;

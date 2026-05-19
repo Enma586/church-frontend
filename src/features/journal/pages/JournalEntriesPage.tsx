@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { Plus, Eye, Trash2, Ban } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Plus, Eye, Trash2, Ban, ArrowUpRight, ArrowDownRight, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/tables/DataTable';
 import { TableToolbar } from '@/components/tables/TableToolbar';
 import { TablePagination } from '@/components/tables/TablePagination';
+import { Card, CardContent } from '@/components/ui/card';
 import { CreateJournalEntryModal } from '../modals/CreateJournalEntryModal';
 import { JournalEntryDetailModal } from '../modals/JournalEntryDetailModal';
 import { DeleteJournalEntryModal } from '../modals/DeleteJournalEntryModal';
@@ -28,7 +29,7 @@ import {
 } from '@/components/ui/select';
 import { showToast } from '@/lib/toast';
 import { humanizeError } from '@/lib/error-messages';
-import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 const TYPE_STYLES: Record<JournalType, string> = {
   Ingreso: 'bg-green-100 text-green-800',
@@ -50,6 +51,36 @@ export default function JournalEntriesPage() {
   const entries = data?.data ?? [];
   const pagination = data?.pagination;
 
+  // ── Calcular resumen (ingresos, egresos, saldo) ──────────────────────────
+  const summary = useMemo(() => {
+    const validEntries = entries.filter((e) => e.status === 'Valido');
+    const ingresos = validEntries
+      .filter((e) => e.type === 'Ingreso')
+      .reduce((s, e) => s + e.amount, 0);
+    const egresos = validEntries
+      .filter((e) => e.type === 'Egreso')
+      .reduce((s, e) => s + e.amount, 0);
+    return { ingresos, egresos, saldo: ingresos - egresos };
+  }, [entries]);
+
+  // ── Calcular saldo acumulado por fila ─────────────────────────────────────
+  const entriesWithBalance = useMemo(() => {
+    // Ordenar por fecha ascendente y comprobante
+    const sorted = [...entries].sort((a, b) => {
+      const dateDiff = new Date(a.date).getTime() - new Date(b.date).getTime();
+      if (dateDiff !== 0) return dateDiff;
+      return a.voucherNumber.localeCompare(b.voucherNumber);
+    });
+
+    let running = 0;
+    return sorted.map((e) => {
+      if (e.status === 'Valido') {
+        running += e.type === 'Ingreso' ? e.amount : -e.amount;
+      }
+      return { ...e, runningBalance: running };
+    });
+  }, [entries]);
+
   const handleAnular = async (id: string) => {
     try {
       await anularMutation.mutateAsync({ id, data: { status: 'Anulado' } });
@@ -59,12 +90,12 @@ export default function JournalEntriesPage() {
     }
   };
 
-  const columns: ColumnDef<JournalEntry>[] = [
+  const columns: ColumnDef<(typeof entriesWithBalance)[number]>[] = [
     {
       header: 'Comprobante',
       accessorKey: 'voucherNumber',
       cell: ({ getValue }) => (
-        <span className="font-mono text-sm">{getValue() as string}</span>
+        <span className="font-mono text-xs">{getValue() as string}</span>
       ),
     },
     {
@@ -79,9 +110,19 @@ export default function JournalEntriesPage() {
       cell: ({ getValue }) => {
         const type = getValue() as JournalType;
         return (
-          <Badge className={TYPE_STYLES[type]}>
+          <span
+            className={cn(
+              'inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-xs font-medium',
+              TYPE_STYLES[type],
+            )}
+          >
+            {type === 'Ingreso' ? (
+              <ArrowUpRight className="h-3 w-3" />
+            ) : (
+              <ArrowDownRight className="h-3 w-3" />
+            )}
             {type}
-          </Badge>
+          </span>
         );
       },
     },
@@ -90,7 +131,11 @@ export default function JournalEntriesPage() {
       accessorKey: 'concept',
       cell: ({ getValue }) => {
         const val = getValue() as string;
-        return val.length > 50 ? `${val.slice(0, 50)}…` : val;
+        return (
+          <span title={val}>
+            {val.length > 40 ? `${val.slice(0, 40)}…` : val}
+          </span>
+        );
       },
     },
     {
@@ -100,17 +145,36 @@ export default function JournalEntriesPage() {
     {
       header: 'Monto',
       accessorKey: 'amount',
-      cell: ({ row, getValue }) => {
-        const val = getValue() as number;
-        const type = row.original.type;
+      cell: ({ row }) => (
+        <span
+          className={cn(
+            'font-mono tabular-nums font-semibold text-sm',
+            row.original.type === 'Ingreso'
+              ? 'text-green-600'
+              : 'text-red-600',
+          )}
+        >
+          {row.original.type === 'Ingreso' ? '+' : '−'} L.{' '}
+          {row.original.amount.toFixed(2)}
+        </span>
+      ),
+    },
+    {
+      header: 'Saldo',
+      id: 'runningBalance',
+      cell: ({ row }) => {
+        if (row.original.status === 'Anulado') {
+          return <span className="text-muted-foreground text-xs">—</span>;
+        }
+        const bal = row.original.runningBalance;
         return (
           <span
-            className={`font-mono tabular-nums font-bold ${
-              type === 'Ingreso' ? 'text-green-600' : 'text-red-600'
-            }`}
+            className={cn(
+              'font-mono tabular-nums font-bold text-sm',
+              bal >= 0 ? 'text-green-700' : 'text-red-700',
+            )}
           >
-            {/* FIX: Le pusimos el salvavidas (val ?? 0) para que no explote */}
-            L. {(val ?? 0).toFixed(2)}
+            L. {bal.toFixed(2)}
           </span>
         );
       },
@@ -167,6 +231,7 @@ export default function JournalEntriesPage() {
 
   return (
     <div className="space-y-6">
+      {/* ── Título y botón ─────────────────────────────── */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Libro Diario</h1>
         {can('accounting:write') && (
@@ -177,6 +242,80 @@ export default function JournalEntriesPage() {
         )}
       </div>
 
+      {/* ── Resumen: tarjetas de ingresos, egresos, saldo ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card className="border-l-4 border-l-green-500">
+          <CardContent className="flex items-center justify-between p-4">
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                Total Ingresos
+              </p>
+              <p className="text-xl font-bold text-green-600 tabular-nums">
+                L. {summary.ingresos.toFixed(2)}
+              </p>
+            </div>
+            <div className="rounded-full bg-green-100 p-2">
+              <ArrowUpRight className="h-5 w-5 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-red-500">
+          <CardContent className="flex items-center justify-between p-4">
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                Total Egresos
+              </p>
+              <p className="text-xl font-bold text-red-600 tabular-nums">
+                L. {summary.egresos.toFixed(2)}
+              </p>
+            </div>
+            <div className="rounded-full bg-red-100 p-2">
+              <ArrowDownRight className="h-5 w-5 text-red-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card
+          className={cn(
+            'border-l-4',
+            summary.saldo >= 0
+              ? 'border-l-green-500'
+              : 'border-l-red-500',
+          )}
+        >
+          <CardContent className="flex items-center justify-between p-4">
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                Saldo
+              </p>
+              <p
+                className={cn(
+                  'text-xl font-bold tabular-nums',
+                  summary.saldo >= 0 ? 'text-green-600' : 'text-red-600',
+                )}
+              >
+                L. {summary.saldo.toFixed(2)}
+              </p>
+            </div>
+            <div
+              className={cn(
+                'rounded-full p-2',
+                summary.saldo >= 0 ? 'bg-green-100' : 'bg-red-100',
+              )}
+            >
+              <Wallet
+                className={cn(
+                  'h-5 w-5',
+                  summary.saldo >= 0 ? 'text-green-600' : 'text-red-600',
+                )}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* ── Filtros ────────────────────────────────────── */}
       <TableToolbar>
         <div className="flex items-center gap-3">
           <Select
@@ -218,9 +357,10 @@ export default function JournalEntriesPage() {
         </div>
       </TableToolbar>
 
+      {/* ── Tabla ──────────────────────────────────────── */}
       <DataTable
         columns={columns}
-        data={entries}
+        data={entriesWithBalance}
         loading={isLoading}
         emptyTitle="Sin asientos"
         emptyDescription="Aún no hay asientos contables registrados."
@@ -234,6 +374,7 @@ export default function JournalEntriesPage() {
         />
       )}
 
+      {/* ── Modales ────────────────────────────────────── */}
       <CreateJournalEntryModal open={createOpen} onOpenChange={setCreateOpen} />
 
       {detailEntry && (

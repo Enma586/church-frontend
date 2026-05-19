@@ -436,8 +436,8 @@ export interface TrialBalanceRow {
   code: string;
   name: string;
   type: CuentaType;
-  totalDebit: number;
-  totalCredit: number;
+  totalIngresos: number;
+  totalEgresos: number;
   balance: number;
 }
 
@@ -446,6 +446,10 @@ export interface TrialBalanceQueryParams {
   dateTo?: string;
 }
 
+export interface TrialBalanceResponse {
+  data: TrialBalanceRow[];
+  totals: { totalIngresos: number; totalEgresos: number; saldoNeto: number };
+}
 
 export interface BalanceSheetAccount extends TrialBalanceRow {
   parentAccount?: string;
@@ -585,25 +589,18 @@ export interface CashClosingQueryParams extends PaginationParams {
   dateTo?: string;
 }
 
-// Actualizar TrialBalanceRow (estaba usando totalDebit/totalCredit, ahora usa totalIngresos/totalEgresos)
-export interface TrialBalanceRow {
-  accountId: string;
-  code: string;
-  name: string;
-  type: CuentaType;
+export interface CashBalanceResponse {
   totalIngresos: number;
   totalEgresos: number;
-  balance: number;
+  saldoNeto: number;
+  count: number;
+  dateFrom: string | null;
+  dateTo: string | null;
 }
 
-export interface TrialBalanceQueryParams {
+export interface CashBalanceQueryParams {
   dateFrom?: string;
   dateTo?: string;
-}
-
-export interface TrialBalanceResponse {
-  data: TrialBalanceRow[];
-  totals: { totalIngresos: number; totalEgresos: number; saldoNeto: number };
 }
 
 // Actualizar IncomeStatementRow

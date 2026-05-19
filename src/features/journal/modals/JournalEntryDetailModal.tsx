@@ -51,7 +51,7 @@ export function JournalEntryDetailModal({
 
   const createdBy =
     entry.createdByData?.username ??
-    (typeof entry.createdBy === 'object' ? entry.createdBy.username : '—');
+    (typeof entry.createdBy === 'object' && entry.createdBy !== null ? entry.createdBy.username : '—');
 
   const formattedDate = new Date(entry.date).toLocaleDateString('es-HN', {
     weekday: 'long',
@@ -71,9 +71,9 @@ export function JournalEntryDetailModal({
     },
   );
 
-  const accountCode = entry.accountData?.code ?? (typeof entry.account === 'object' ? entry.account.code : '—');
-  const accountName = entry.accountData?.name ?? (typeof entry.account === 'object' ? entry.account.name : '—');
-  const productName = entry.productData?.name ?? (typeof entry.product === 'object' ? entry.product.name : null);
+  const accountCode = entry.accountData?.code ?? (typeof entry.account === 'object' && entry.account !== null ? entry.account.code : '—');
+  const accountName = entry.accountData?.name ?? (typeof entry.account === 'object' && entry.account !== null ? entry.account.name : '—');
+  const productName = entry.productData?.name ?? (typeof entry.product === 'object' && entry.product !== null ? entry.product.name : null);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
