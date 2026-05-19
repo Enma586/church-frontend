@@ -652,7 +652,12 @@ function RecentClosingsTable({ }: { onNew: () => void }) {
     },
     {
       header: 'Creado por',
-      accessorFn: (row) => row.createdByData?.username ?? '—',
+      accessorFn: (row) => {
+        const createdBy = row.createdBy;
+        return typeof createdBy === 'object' && createdBy !== null
+          ? createdBy.username
+          : '—';
+      },
       cell: ({ getValue }) => (
         <span className="text-xs text-muted-foreground">
           {getValue() as string}

@@ -9,6 +9,12 @@ import {
   Shield,
   Calendar1,
   Calculator,
+  ChartSpline,
+  NotebookPen,
+  PackageSearch,
+  Coins,
+  ClipboardMinus,
+  Component
 } from "lucide-react";
 import { SidebarNavGroup, type NavGroupData } from "./SidebarNavGroup";
 import { SidebarNavItem } from "./SidebarNavItem";
@@ -24,7 +30,7 @@ interface NavItem {
 const groups: { label: string; icon: LucideIcon; items: NavItem[] }[] = [
   {
     label: "Principal",
-    icon: LayoutDashboard,
+    icon: Component,
     items: [
       {
         label: "Dashboard",
@@ -90,31 +96,31 @@ const groups: { label: string; icon: LucideIcon; items: NavItem[] }[] = [
       {
         label: "Cuentas",
         path: "/accounts",
-        icon: Calculator,
+        icon: ChartSpline,
         permission: "accounting:read",
       },
       {
         label: "Libro Diario",
         path: "/journal",
-        icon: ScrollText,
+        icon: NotebookPen,
         permission: "accounting:read",
       },
       {
         label: "Productos",
         path: "/products",
-        icon: Calculator,
+        icon: PackageSearch,
         permission: "accounting:read",
       },
       {
         label: "Cierre de Caja",
         path: "/cash-closing",
-        icon: Calculator,
+        icon: Coins,
         permission: "accounting:read",
-      }, // ← NUEVO
+      }, 
       {
         label: "Reportes",
         path: "/reports",
-        icon: Calculator,
+        icon: ClipboardMinus,
         permission: "accounting:read",
       },
     ],

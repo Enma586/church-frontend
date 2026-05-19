@@ -3,8 +3,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { ReportSummaryCard } from '../components/ReportSummaryCard';
 import { BalanceDisplay } from '../components/BalanceDisplay';
 import { AccountTreeSelect } from '@/features/accounts/components/AccountTreeSelect';
@@ -19,6 +17,9 @@ import { useReopenPeriod } from '@/features/period/hooks/usePeriodMutations';
 import { ClosePeriodModal } from '@/features/period/modals/ClosePeriodModal';
 import { reportsService } from '../services/reports.service';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { FormDatePicker } from '@/components/forms/FormDatePicker';
 import { Loader2, Lock, Unlock, FileDown, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { Form } from '@/components/ui/form';
 import { showToast } from '@/lib/toast';
@@ -389,17 +390,33 @@ function IncomeStatementTab() {
 }
 
 // ─── Exportar PDF ────────────────────────────────────────────────────────
+const pdfSchema = z
+  .object({
+    dateFrom: z.string().min(1, 'Seleccione una fecha'),
+    dateTo: z.string().min(1, 'Seleccione una fecha'),
+  })
+  .refine((d) => new Date(d.dateTo) >= new Date(d.dateFrom), {
+    message: 'La fecha final no puede ser anterior a la inicial',
+    path: ['dateTo'],
+  });
+
 function ExportPDFSection() {
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
   const [exporting, setExporting] = useState(false);
 
-  const handleExport = async () => {
+  const form = useForm({
+    resolver: zodResolver(pdfSchema),
+    defaultValues: { dateFrom: '', dateTo: '' },
+  });
+
+  const dateFrom = form.watch('dateFrom');
+  const dateTo = form.watch('dateTo');
+
+  const handleExport = form.handleSubmit(async (values) => {
     setExporting(true);
     try {
       await reportsService.exportJournalPDF({
-        dateFrom: dateFrom || undefined,
-        dateTo: dateTo || undefined,
+        dateFrom: values.dateFrom,
+        dateTo: values.dateTo,
       });
       showToast.success('PDF generado exitosamente');
     } catch {
@@ -407,7 +424,9 @@ function ExportPDFSection() {
     } finally {
       setExporting(false);
     }
-  };
+  });
+
+  const canExport = dateFrom && dateTo;
 
   return (
     <Card>
@@ -418,44 +437,46 @@ function ExportPDFSection() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-wrap items-end gap-4">
-          <div>
-            <Label className="text-sm">Fecha desde</Label>
-            <Input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              className="w-44"
-            />
-          </div>
-          <div>
-            <Label className="text-sm">Fecha hasta</Label>
-            <Input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              className="w-44"
-            />
-          </div>
-          <Button
-            variant="default"
-            size="sm"
-            onClick={handleExport}
-            disabled={exporting}
-          >
-            {exporting ? (
-              <>
-                <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-                Generando…
-              </>
-            ) : (
-              <>
-                <FileDown className="mr-1 h-4 w-4" />
-                Exportar PDF
-              </>
+        <Form {...form}>
+          <form onSubmit={handleExport} className="space-y-4">
+            <div className="flex flex-wrap items-end gap-4">
+              <FormDatePicker
+                name="dateFrom"
+                control={form.control}
+                label="Desde"
+              />
+              <FormDatePicker
+                name="dateTo"
+                control={form.control}
+                label="Hasta"
+              />
+              <Button
+                type="submit"
+                variant="default"
+                size="sm"
+                disabled={exporting || !canExport}
+              >
+                {exporting ? (
+                  <>
+                    <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                    Generando…
+                  </>
+                ) : (
+                  <>
+                    <FileDown className="mr-1 h-4 w-4" />
+                    Exportar PDF
+                  </>
+                )}
+              </Button>
+            </div>
+            {!canExport && (
+              <p className="text-xs text-muted-foreground">
+                Seleccione ambas fechas para generar el PDF. Puede usar el
+                mismo día para un reporte diario.
+              </p>
             )}
-          </Button>
-        </div>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   );
