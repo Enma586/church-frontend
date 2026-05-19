@@ -20,8 +20,6 @@ import {
   CalendarDays,
   ScrollText,
   CalendarClock,
-  ArrowUpRight,
-  ArrowDownRight,
   Wallet,
   TrendingUp,
   TrendingDown,
@@ -47,9 +45,7 @@ import {
 
 // ─── Colours ─────────────────────────────────────────────────────────────
 const GREEN = "#16a34a";
-const GREEN_LIGHT = "#86efac";
 const RED = "#dc2626";
-const RED_LIGHT = "#fca5a5";
 const COLORS_10 = [
   "#2563eb", "#7c3aed", "#db2777", "#ea580c", "#16a34a",
   "#0891b2", "#ca8a04", "#4f46e5", "#be123c", "#15803d",
