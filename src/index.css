@@ -8,6 +8,7 @@
 @theme inline {
     --font-heading: var(--font-sans);
     --font-sans: 'Geist Variable', sans-serif;
+    
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -16,11 +17,13 @@
     --color-sidebar-primary: var(--sidebar-primary);
     --color-sidebar-foreground: var(--sidebar-foreground);
     --color-sidebar: var(--sidebar);
+    
     --color-chart-5: var(--chart-5);
     --color-chart-4: var(--chart-4);
     --color-chart-3: var(--chart-3);
     --color-chart-2: var(--chart-2);
     --color-chart-1: var(--chart-1);
+    
     --color-ring: var(--ring);
     --color-input: var(--input);
     --color-border: var(--border);
@@ -39,123 +42,93 @@
     --color-card: var(--card);
     --color-foreground: var(--foreground);
     --color-background: var(--background);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.4);
-    --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 :root {
-      color-scheme: light;
-    --background: oklch(0.99 0.01 250); /* Gris azulado muy claro */
-    --foreground: oklch(0.25 0.04 250); /* Texto oscuro (azul grisáceo) */
+    color-scheme: light;
+    /* 🥐 MODO CLARO: Beige Auténtico (Cálido y acogedor) */
+    --background: oklch(0.96 0.04 80); 
+    --foreground: oklch(0.25 0.03 70); 
     
-    --card: oklch(1 0 0); /* Blanco puro para las tarjetas */
-    --card-foreground: oklch(0.25 0.04 250);
+    --card: oklch(0.99 0.02 85);
+    --card-foreground: oklch(0.25 0.03 70);
     
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.25 0.04 250);
+    --popover: oklch(0.99 0.02 85);
+    --popover-foreground: oklch(0.25 0.03 70);
     
-    /* 🔵 PRIMARIO: Azul Marino Profundo */
-    --primary: oklch(0.45 0.15 250); 
-    --primary-foreground: oklch(0.98 0.01 250); /* Blanco azulado para el texto en botones */
+    /* 💜 PRIMARIO: Morado elegante que combina con el beige */
+    --primary: oklch(0.40 0.15 285);
+    --primary-foreground: oklch(0.98 0.01 285);
     
-    /* 🟠 SECUNDARIO: Naranja Vibrante */
-    --secondary: oklch(0.65 0.20 40);
-    --secondary-foreground: oklch(0.98 0.01 40); /* Texto blanco sobre botones naranjas */
+    /* 🍯 SECUNDARIO: Un tono miel/tierra para detalles */
+    --secondary: oklch(0.85 0.12 70);
+    --secondary-foreground: oklch(0.25 0.05 70);
     
-    /* ⚪ MUTED: Gris claro para fondos secundarios o modales */
-    --muted: oklch(0.96 0.01 250);
-    --muted-foreground: oklch(0.55 0.02 250);
+    --muted: oklch(0.90 0.05 80);
+    --muted-foreground: oklch(0.50 0.04 70);
     
-    /* 🟠 ACCENT: Acentos naranjas suaves (hover) */
-    --accent: oklch(0.95 0.05 40);
-    --accent-foreground: oklch(0.45 0.15 40);
+    --accent: oklch(0.88 0.08 75);
+    --accent-foreground: oklch(0.30 0.10 285);
     
-    /* 🔴 DESTRUCTIVE: Rojo coral para borrar/errores */
-    --destructive: oklch(0.57 0.22 15);
-    --border: oklch(0.90 0.02 250);
-    --input: oklch(0.90 0.02 250);
-    --ring: oklch(0.45 0.15 250); /* El anillo de enfoque es azul marino */
+    --destructive: oklch(0.55 0.20 25);
+    --border: oklch(0.80 0.05 80);
+    --input: oklch(0.80 0.05 80);
+    --ring: oklch(0.40 0.15 285);
     
-    /* Gráficos combinando azules y naranjas */
-    --chart-1: oklch(0.65 0.20 40); /* Naranja */
-    --chart-2: oklch(0.45 0.15 250); /* Azul */
-    --chart-3: oklch(0.75 0.15 80); /* Amarillo cálido */
-    --chart-4: oklch(0.60 0.10 200); /* Azul claro */
-    --chart-5: oklch(0.50 0.18 10); /* Rojo oscuro */
-    
-    --radius: 0.75rem; /* Bordes ligeramente más redondeados y amigables */
+    --radius: 0.75rem;
 
-    /* SIDEBAR: Azul Marino Oscuro */
-    --sidebar: oklch(0.30 0.10 250); 
-    --sidebar-foreground: oklch(0.95 0.02 250); /* Texto blanco */
-    --sidebar-primary: oklch(0.65 0.20 40); /* Acentos naranjas en el sidebar */
-    --sidebar-primary-foreground: oklch(0.98 0 0);
-    --sidebar-accent: oklch(0.40 0.12 250); /* Hover más claro en el sidebar */
-    --sidebar-accent-foreground: oklch(0.98 0 0);
-    --sidebar-border: oklch(0.25 0.08 250);
-    --sidebar-ring: oklch(0.65 0.20 40);
+    /* SIDEBAR: Morado muy profundo */
+    --sidebar: oklch(0.22 0.07 285);
+    --sidebar-foreground: oklch(0.95 0.02 285);
+    --sidebar-primary: oklch(0.75 0.12 75);
+    --sidebar-primary-foreground: oklch(0.20 0.05 285);
+    --sidebar-accent: oklch(0.30 0.06 285);
+    --sidebar-accent-foreground: oklch(0.95 0.02 285);
+    --sidebar-border: oklch(0.30 0.05 285);
+    --sidebar-ring: oklch(0.50 0.10 285);
 }
 
 .dark {
-      color-scheme: dark;
-    /* 🌑 Fondo muy oscuro, casi azul medianoche */
-    --background: oklch(0.18 0.04 250);
-    --foreground: oklch(0.95 0.02 250);
+    color-scheme: dark;
+    /* 🌑 MODO OSCURO: Gris neutro profesional y serio */
+    --background: oklch(0.15 0.02 260);
+    --foreground: oklch(0.92 0.01 260);
     
-    --card: oklch(0.22 0.05 250);
-    --card-foreground: oklch(0.95 0.02 250);
+    --card: oklch(0.19 0.02 260);
+    --card-foreground: oklch(0.92 0.01 260);
     
-    --popover: oklch(0.22 0.05 250);
-    --popover-foreground: oklch(0.95 0.02 250);
+    --popover: oklch(0.19 0.02 260);
+    --popover-foreground: oklch(0.92 0.01 260);
     
-    /* 🔵 PRIMARIO: Azul más brillante para contrastar en fondo oscuro */
-    --primary: oklch(0.60 0.18 250);
-    --primary-foreground: oklch(0.15 0.05 250);
+    /* ⚡ PRIMARIO: Cian eléctrico (mantenemos el contraste) */
+    --primary: oklch(0.70 0.15 200);
+    --primary-foreground: oklch(0.15 0.02 200);
     
-    /* 🟠 SECUNDARIO: Naranja luminoso */
-    --secondary: oklch(0.70 0.20 40);
-    --secondary-foreground: oklch(0.15 0.05 40);
+    --secondary: oklch(0.25 0.03 260);
+    --secondary-foreground: oklch(0.90 0.02 260);
     
-    --muted: oklch(0.28 0.06 250);
-    --muted-foreground: oklch(0.70 0.04 250);
+    --muted: oklch(0.25 0.02 260);
+    --muted-foreground: oklch(0.65 0.02 260);
     
-    --accent: oklch(0.28 0.06 40); /* Gris cálido oscuro */
-    --accent-foreground: oklch(0.85 0.10 40); /* Naranja claro */
+    --accent: oklch(0.25 0.05 260);
+    --accent-foreground: oklch(0.90 0.02 260);
     
-    --destructive: oklch(0.65 0.22 15);
-    --border: oklch(0.35 0.08 250);
-    --input: oklch(0.35 0.08 250);
-    --ring: oklch(0.60 0.18 250);
+    --destructive: oklch(0.60 0.20 25);
+    --border: oklch(0.30 0.03 260);
+    --input: oklch(0.30 0.03 260);
+    --ring: oklch(0.70 0.15 200);
     
-    --chart-1: oklch(0.70 0.20 40);
-    --chart-2: oklch(0.60 0.18 250);
-    --chart-3: oklch(0.80 0.15 80);
-    --chart-4: oklch(0.70 0.10 200);
-    --chart-5: oklch(0.60 0.18 10);
-    
-    --sidebar: oklch(0.15 0.04 250);
-    --sidebar-foreground: oklch(0.95 0.02 250);
-    --sidebar-primary: oklch(0.70 0.20 40);
-    --sidebar-primary-foreground: oklch(0.15 0.05 40);
-    --sidebar-accent: oklch(0.25 0.06 250);
-    --sidebar-accent-foreground: oklch(0.95 0.02 250);
-    --sidebar-border: oklch(0.25 0.08 250);
-    --sidebar-ring: oklch(0.70 0.20 40);
+    --sidebar: oklch(0.10 0.02 260);
+    --sidebar-foreground: oklch(0.85 0.02 260);
+    --sidebar-primary: oklch(0.70 0.15 200);
+    --sidebar-primary-foreground: oklch(0.15 0.02 200);
+    --sidebar-accent: oklch(0.20 0.03 260);
+    --sidebar-accent-foreground: oklch(0.90 0.02 260);
+    --sidebar-border: oklch(0.25 0.03 260);
+    --sidebar-ring: oklch(0.70 0.15 200);
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-    }
-  body {
-    @apply bg-background text-foreground;
-    }
-  html {
-    @apply font-sans;
-    }
+  * { @apply border-border outline-ring/50; }
+  body { @apply bg-background text-foreground; }
 }

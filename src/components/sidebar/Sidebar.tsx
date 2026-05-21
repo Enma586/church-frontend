@@ -24,7 +24,7 @@ export function Sidebar() {
         {!collapsed && <h1 className="text-lg font-bold text-sidebar-foreground">RCC</h1>}
       </SidebarHeader>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <SidebarNavigation collapsed={collapsed} />
       </ScrollArea>
 
