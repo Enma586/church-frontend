@@ -14,9 +14,9 @@ interface MemberDetailsProps {
  */
 export function MemberDetails({ member }: MemberDetailsProps) {
   const departmentName =
-    typeof member.departmentId === 'object' ? member.departmentId.name : '—';
+    member.departmentId && typeof member.departmentId === 'object' ? member.departmentId.name : '—';
   const municipalityName =
-    typeof member.municipalityId === 'object' ? member.municipalityId.name : '—';
+    member.municipalityId && typeof member.municipalityId === 'object' ? member.municipalityId.name : '—';
 
   return (
     <div className="space-y-6">

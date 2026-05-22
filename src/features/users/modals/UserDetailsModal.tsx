@@ -12,7 +12,7 @@ interface Props {
 export function UserDetailsModal({ open, onOpenChange, user }: Props) {
   if (!user) return null;
 
-  const member = typeof user.memberId === 'object' ? user.memberId : null;
+  const member = user.memberId && typeof user.memberId === 'object' ? user.memberId : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

@@ -62,8 +62,8 @@ export function FormDatePicker<T extends FieldValues>({
                 <Button
                   variant="outline"
                   className={cn(
-                    'w-full pl-3 text-left font-normal',
-                    !field.value && 'text-muted-foreground',
+                    'w-full pl-3 text-left font-normal bg-input text-sidebar-foreground hover:bg-input/80 dark:bg-input dark:hover:bg-input/80',
+                    !field.value && 'text-sidebar-foreground/60',
                     disabled && 'opacity-50 cursor-not-allowed',
                   )}
                   disabled={disabled}

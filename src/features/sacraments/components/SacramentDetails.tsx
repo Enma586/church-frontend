@@ -10,7 +10,7 @@ interface SacramentDetailsProps {
 
 export function SacramentDetails({ sacrament }: SacramentDetailsProps) {
   const memberName =
-    typeof sacrament.memberId === 'object' ? sacrament.memberId.fullName : '—';
+    sacrament.memberId && typeof sacrament.memberId === 'object' ? sacrament.memberId.fullName : '—';
 
   return (
     <div className="space-y-4">

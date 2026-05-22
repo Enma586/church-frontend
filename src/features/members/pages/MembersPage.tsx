@@ -58,11 +58,11 @@ export default function MembersPage() {
     { header: 'Género', accessorKey: 'gender' },
     {
       header: 'Departamento',
-      accessorFn: (row) => (typeof row.departmentId === 'object' ? row.departmentId.name : '—'),
+      accessorFn: (row) => (row.departmentId && typeof row.departmentId === 'object' ? row.departmentId.name : '—'),
     },
     {
       header: 'Municipio',
-      accessorFn: (row) => (typeof row.municipalityId === 'object' ? row.municipalityId.name : '—'),
+      accessorFn: (row) => (row.municipalityId && typeof row.municipalityId === 'object' ? row.municipalityId.name : '—'),
     },
     {
       header: 'Estado',

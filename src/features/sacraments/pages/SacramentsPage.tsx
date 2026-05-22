@@ -43,7 +43,7 @@ export default function SacramentsPage() {
     {
       header: 'Miembro',
       accessorFn: (row) =>
-        typeof row.memberId === 'object' ? row.memberId.fullName : '—',
+        row.memberId && typeof row.memberId === 'object' ? row.memberId.fullName : '—',
     },
     { header: 'Tipo', accessorKey: 'type' },
     {

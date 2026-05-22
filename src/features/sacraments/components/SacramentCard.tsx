@@ -12,7 +12,7 @@ interface SacramentCardProps {
 
 export function SacramentCard({ sacrament, onClick }: SacramentCardProps) {
   const memberName =
-    typeof sacrament.memberId === 'object' ? sacrament.memberId.fullName : '—';
+    sacrament.memberId && typeof sacrament.memberId === 'object' ? sacrament.memberId.fullName : '—';
 
   return (
     <Card className="cursor-pointer transition-shadow hover:shadow-md" onClick={onClick}>

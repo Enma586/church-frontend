@@ -13,7 +13,7 @@ interface Props {
 export function AppointmentCard({ appointment, onClick }: Props) {
   // Búsqueda inteligente: Intenta leer 'member', si no existe, intenta leer 'memberId' (si es un objeto poblado)
   const memberData = appointment.member || 
-    (typeof appointment.memberId === 'object' ? appointment.memberId : null);
+    (appointment.memberId && typeof appointment.memberId === 'object' ? appointment.memberId : null);
     
   const memberName = memberData?.fullName ?? '—';
 

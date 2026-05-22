@@ -41,7 +41,7 @@ export default function PastoralNotesPage() {
   const columns: ColumnDef<PastoralNote, unknown>[] = [
     {
       header: 'Miembro',
-      accessorFn: (row) => typeof row.memberId === 'object' ? row.memberId.fullName : '—',
+      accessorFn: (row) => row.memberId && typeof row.memberId === 'object' ? row.memberId.fullName : '—',
     },
     {
       header: 'Contenido',
@@ -53,7 +53,7 @@ export default function PastoralNotesPage() {
     },
     {
       header: 'Autor',
-      accessorFn: (row) => typeof row.authorId === 'object' ? `@${row.authorId.username}` : '—',
+      accessorFn: (row) => row.authorId && typeof row.authorId === 'object' ? `@${row.authorId.username}` : '—',
     },
     {
       header: 'Nivel',
@@ -122,14 +122,14 @@ export default function PastoralNotesPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">
-                  {typeof preview.memberId === 'object' ? preview.memberId.fullName : '—'}
+                  {preview.memberId && typeof preview.memberId === 'object' ? preview.memberId.fullName : '—'}
                 </span>
                 <SensitiveBadge isSensitive={preview.isSensitive} />
               </div>
               <Separator />
               <p className="text-sm whitespace-pre-wrap">{preview.content}</p>
               <p className="text-xs text-muted-foreground">
-                Por @{typeof preview.authorId === 'object' ? preview.authorId.username : '—'}
+                Por @{preview.authorId && typeof preview.authorId === 'object' ? preview.authorId.username : '—'}
                 {' — '}{format(new Date(preview.createdAt), 'PPP p', { locale: es })}
               </p>
             </div>

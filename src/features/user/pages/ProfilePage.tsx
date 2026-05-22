@@ -20,7 +20,7 @@ export default function ProfilePage() {
     );
   }
 
-  const member = typeof user.memberId === 'object' ? user.memberId : null;
+  const member = user.memberId && typeof user.memberId === 'object' ? user.memberId : null;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">

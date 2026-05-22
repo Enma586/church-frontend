@@ -36,7 +36,7 @@ export default function ProductsPage() {
       accessorFn: (row) =>
         row.incomeAccountIdData
           ? `${row.incomeAccountIdData.code} — ${row.incomeAccountIdData.name}`
-          : typeof row.incomeAccountId === 'object'
+          : row.incomeAccountId && typeof row.incomeAccountId === 'object'
             ? `${row.incomeAccountId.code} — ${row.incomeAccountId.name}`
             : '—',
     },

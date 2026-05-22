@@ -62,8 +62,8 @@ function DatePopover({
           variant="outline"
           size="sm"
           className={cn(
-            "h-9 w-35 justify-start text-left font-normal",
-            !date && "text-muted-foreground",
+            "h-9 w-35 justify-start text-left font-normal bg-input text-sidebar-foreground hover:bg-input/80 dark:bg-input dark:hover:bg-input/80",
+            !date && "text-sidebar-foreground/60",
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />

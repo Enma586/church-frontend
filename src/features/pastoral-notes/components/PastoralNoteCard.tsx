@@ -7,8 +7,8 @@ import type { PastoralNote } from '@/types';
 interface Props { note: PastoralNote; onClick?: () => void; }
 
 export function PastoralNoteCard({ note, onClick }: Props) {
-  const memberName = typeof note.memberId === 'object' ? note.memberId.fullName : '—';
-  const authorName = typeof note.authorId === 'object' ? note.authorId.username : '—';
+  const memberName = note.memberId && typeof note.memberId === 'object' ? note.memberId.fullName : '—';
+  const authorName = note.authorId && typeof note.authorId === 'object' ? note.authorId.username : '—';
 
   return (
     <Card className="cursor-pointer transition-shadow hover:shadow-md" onClick={onClick}>
