@@ -21,7 +21,7 @@ export function Sidebar() {
     >
       <SidebarHeader collapsed={collapsed}>
         <SidebarCollapseToggle />
-        {!collapsed && <h1 className="text-lg font-bold text-sidebar-foreground">RCC</h1>}
+        {!collapsed && <h1 className="text-lg font-bold text-sidebar-foreground">NG-RCC</h1>}
       </SidebarHeader>
 
       <ScrollArea className="flex-1 min-h-0">

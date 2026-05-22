@@ -21,7 +21,10 @@ const editSchema = z.object({
   username: z.string().trim().toLowerCase().optional(),
   password: z.string().min(6, 'Mínimo 6 caracteres').optional().or(z.literal('')),
   role: z.enum(USER_ROLES).optional(),
-  isActive: z.coerce.boolean().optional(),
+  isActive: z.preprocess(
+    (v) => (v === 'true' ? true : v === 'false' ? false : v),
+    z.boolean(),
+  ).optional(),
 });
 
 interface EditUserModalProps {
@@ -40,14 +43,14 @@ export function EditUserModal({ open, onOpenChange, user }: EditUserModalProps) 
       username: user.username,
       password: '',
       role: user.role as typeof USER_ROLES[number],
-      isActive: user.isActive,
+      isActive: String(user.isActive),
     },
   });
 
   const onSubmit = (values: z.infer<typeof editSchema>) => {
     const dirty: Record<string, unknown> = {};
 
-    for (const key of ['username', 'password', 'role', 'isActive'] as const) {
+    for (const key of ['username', 'password', 'role'] as const) {
       if (form.formState.dirtyFields[key] || (key === 'password' && values.password)) {
         const val = values[key];
         if (val !== '' && val !== undefined) {
@@ -55,6 +58,9 @@ export function EditUserModal({ open, onOpenChange, user }: EditUserModalProps) 
         }
       }
     }
+
+    // isActive se envía siempre porque el select siempre tiene valor definido
+    dirty.isActive = values.isActive;
 
     if (Object.keys(dirty).length === 0) {
       onOpenChange(false);

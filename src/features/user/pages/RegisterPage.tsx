@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userService } from '../services/user.service';
 import { showToast } from '@/lib/toast';
+import { humanizeError } from '@/lib/error-messages';
 import { UserAuthLayout } from '../components/UserAuthLayout';
 import { RegisterForm } from '../components/RegisterForm';
 
@@ -32,7 +33,7 @@ export default function RegisterPage() {
         showToast.error(response.message || 'Error al registrarse');
       }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Error de conexión';
+      const message = humanizeError(err);
       setError(message);
       showToast.error(message);
     } finally {

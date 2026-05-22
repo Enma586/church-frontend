@@ -58,7 +58,6 @@ export function CreateProductModal({ open, onOpenChange }: Props) {
     resolver: zodResolver(schema) as any,
     defaultValues: {
       name: '',
-      defaultPrice: 0,
       incomeAccountId: '',
       isActive: true,
     },
@@ -101,8 +100,8 @@ export function CreateProductModal({ open, onOpenChange }: Props) {
             control={form.control as any}
             label="Precio por defecto (L.)"
             type="number"
-            step="0.01"
-            min="0"
+
+            placeholder='123'
           />
 
           <FormSelect
