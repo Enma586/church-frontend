@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/forms/FormInput';
@@ -70,10 +69,7 @@ export function LoginForm({ onSubmit, isSubmitting, error }: LoginFormProps) {
         />
 
         <p className="text-center text-sm text-muted-foreground">
-          ¿No tienes cuenta?{' '}
-          <Link to="/register" className="font-medium text-primary hover:underline">
-            Registrarse
-          </Link>
+          Sistema de gestión NG-RCC
         </p>
       </form>
     </Form>

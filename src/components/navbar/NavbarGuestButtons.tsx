@@ -7,9 +7,6 @@ export function NavbarGuestButtons() {
       <Button variant="ghost" size="sm" asChild>
         <Link to="/login">Iniciar sesión</Link>
       </Button>
-      <Button size="sm" asChild>
-        <Link to="/register">Registrarse</Link>
-      </Button>
     </div>
   );
 }

@@ -8,7 +8,6 @@ import { PageLoader } from "@/components/feedback/PageLoader";
 // ─── Lazy pages ──────────────────────────────────────────────────────────────
 
 const LoginPage = lazy(() => import("@/features/user/pages/LoginPage"));
-const RegisterPage = lazy(() => import("@/features/user/pages/RegisterPage"));
 
 // Feature pages
 const DashboardPage = lazy(
@@ -71,20 +70,6 @@ export const router = createBrowserRouter([
         element: (
           <Lazy>
             <LoginPage />
-          </Lazy>
-        ),
-      },
-    ],
-  },
-  {
-    path: "/register",
-    element: <PublicRoute />,
-    children: [
-      {
-        index: true,
-        element: (
-          <Lazy>
-            <RegisterPage />
           </Lazy>
         ),
       },
