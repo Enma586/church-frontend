@@ -229,7 +229,7 @@ export function EditMemberModal({ open, onOpenChange, member }: EditMemberModalP
                             id={`edit-family-${index}-isMember`}
                             checked={form.watch(`family.${index}.isMember`)}
                             onCheckedChange={(checked) =>
-                              form.setValue(`family.${index}.isMember`, checked === true)
+                              form.setValue(`family.${index}.isMember`, checked === true, { shouldDirty: true })
                             }
                           />
                           <Label htmlFor={`edit-family-${index}-isMember`} className="text-sm cursor-pointer whitespace-nowrap">

@@ -24,7 +24,7 @@ export function FormSubmitButton({
       disabled={isSubmitting || disabled}
       // 2. Usamos cn() para agregar el hover y la transición sin romper otros estilos
       className={cn(
-        "transition-colors duration-200 hover:bg-blue-600 hover:text-white", 
+        "transition-colors duration-200 hover:bg-primary/80", 
         className
       )}
       {...buttonProps}

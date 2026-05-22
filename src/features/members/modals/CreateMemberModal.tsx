@@ -206,7 +206,7 @@ export function CreateMemberModal({ open, onOpenChange }: CreateMemberModalProps
                           <Checkbox
                             id={`family-${index}-isMember`}
                             checked={form.watch(`family.${index}.isMember`)}
-                            onCheckedChange={(checked) => form.setValue(`family.${index}.isMember`, checked === true)}
+                            onCheckedChange={(checked) => form.setValue(`family.${index}.isMember`, checked === true, { shouldDirty: true })}
                           />
                           <Label htmlFor={`family-${index}-isMember`} className="text-sm cursor-pointer whitespace-nowrap">
                             Es miembro

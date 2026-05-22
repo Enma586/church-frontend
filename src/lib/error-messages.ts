@@ -5,6 +5,7 @@ import { getErrorMessage } from './axios'; // Usa tu helper existente
  * El primer match gana.
  */
 const HUMAN_MESSAGES: Array<[RegExp, string]> = [
+  [/duplicate key.*username/i, 'El nombre de usuario ya está en uso. Elija otro.'],
   [/duplicate key.*code/i, 'Ya existe una cuenta con ese código.'],
   [/duplicate key.*voucherNumber/i, 'Ya existe un asiento con ese número.'],
   [/duplicate key/i, 'Ya existe un registro con esos datos.'],

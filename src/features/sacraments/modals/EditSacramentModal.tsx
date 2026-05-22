@@ -173,12 +173,10 @@ export function EditSacramentModal({ open, onOpenChange, sacrament }: Props) {
             )}
           </div>
 
-          {/* El botón de Submit sigue siendo válido */}
-          {upgradeOptions.length > 0 && (
-            <div className="flex justify-end">
-              <FormSubmitButton isSubmitting={updateMutation.isPending} label="Guardar cambios" className="w-full sm:w-auto px-8" />
-            </div>
-          )}
+          {/* Botón guardar siempre visible si hay campos editables */}
+          <div className="flex justify-end">
+            <FormSubmitButton isSubmitting={updateMutation.isPending} label="Guardar cambios" className="w-full sm:w-auto px-8" />
+          </div>
         </form>
       </Form>
     </FormModal>

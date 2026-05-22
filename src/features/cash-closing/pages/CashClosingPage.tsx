@@ -86,6 +86,7 @@ function NewClosingModal({
 }) {
   const [step, setStep] = useState(0);
   const [fetchingBalance, setFetchingBalance] = useState(false);
+  const [submissionError, setSubmissionError] = useState(false);
   const [cashBalance, setCashBalance] = useState<{
     totalIngresos: number;
     totalEgresos: number;
@@ -155,6 +156,10 @@ function NewClosingModal({
   // ── Handlers ───────────────────────────────────────────────
   const fetchBalance = async () => {
     const vals = form.getValues();
+    if (vals.balanceDateFrom && vals.balanceDateTo && vals.balanceDateTo < vals.balanceDateFrom) {
+      showToast.error('La fecha "Hasta" no puede ser menor que la fecha "Desde"');
+      return;
+    }
     setFetchingBalance(true);
     try {
       const response = await reportsService.getCashBalance({
@@ -206,12 +211,14 @@ function NewClosingModal({
       onOpenChange(false);
     } catch (error) {
       showToast.error(humanizeError(error));
+      setSubmissionError(true);
     }
   };
 
   const handleClose = () => {
     setStep(0);
     setCashBalance(null);
+    setSubmissionError(false);
     form.reset();
     onOpenChange(false);
   };
@@ -566,15 +573,31 @@ function NewClosingModal({
             />
 
             <div className="flex justify-between pt-2">
-              <Button type="button" variant="outline" onClick={() => setStep(1)}>
-                Atrás
-              </Button>
-              <FormSubmitButton
-                isSubmitting={createMutation.isPending}
-                label="Registrar Cierre de Caja"
-                loadingLabel="Registrando…"
-                disabled={!isMatched}
-              />
+              {isMatched ? (
+                <>
+                  <Button type="button" variant="outline" onClick={() => { setStep(1); setSubmissionError(false); }}>
+                    Atrás
+                  </Button>
+                  <FormSubmitButton
+                    isSubmitting={createMutation.isPending}
+                    label="Registrar Cierre de Caja"
+                    loadingLabel="Registrando…"
+                  />
+                </>
+              ) : submissionError ? (
+                <>
+                  <Button type="button" variant="outline" onClick={() => { setStep(1); setSubmissionError(false); }}>
+                    Atrás
+                  </Button>
+                  <Button type="button" onClick={() => { setSubmissionError(false); form.handleSubmit(onSubmit)(); }}>
+                    Reintentar
+                  </Button>
+                </>
+              ) : (
+                <Button type="button" onClick={() => { setStep(0); setCashBalance(null); }}>
+                  Reintentar
+                </Button>
+              )}
             </div>
           </form>
         </Form>

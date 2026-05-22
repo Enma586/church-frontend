@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { userService } from '../services/user.service';
 import { showToast } from '@/lib/toast';
+import { humanizeError } from '@/lib/error-messages';
 import type { UpdateUserPayload } from '@/types';
 
 export function useUpdateUser() {
@@ -14,7 +15,7 @@ export function useUpdateUser() {
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
     onError: (error: Error) => {
-      showToast.error(error.message);
+      showToast.error(humanizeError(error));
     },
   });
 }
