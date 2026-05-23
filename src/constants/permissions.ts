@@ -111,6 +111,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionKey[]> = {
   Subcoordinador: [
     'dashboard:view',
     'members:read',
+    'members:write',
     'appointments:read',
     'appointments:write',
     'schedule:read',
@@ -119,8 +120,10 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionKey[]> = {
     'sacraments:write',
     'pastoral_notes:read',
     'pastoral_notes:write',
+    'users:read',
     'roles:read',
     'config:read',
     'accounting:read',
+    'accounting:write',
   ],
 };

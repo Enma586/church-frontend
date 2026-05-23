@@ -19,6 +19,7 @@ import { useCreateCashClosing } from '../hooks/useCashClosingMutations';
 import { reportsService } from '@/features/reports/services/reports.service';
 import { showToast } from '@/lib/toast';
 import { humanizeError } from '@/lib/error-messages';
+import { usePermissions } from '@/hooks/usePermissions';
 import { cn } from '@/lib/utils';
 import {
   Calculator,
@@ -722,9 +723,23 @@ function RecentClosingsTable({ }: { onNew: () => void }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function CashClosingPage() {
+  const { can } = usePermissions();
   const { data: denomData, isLoading } = useDenominations();
   const denominations: number[] = denomData?.data ?? [];
   const [modalOpen, setModalOpen] = useState(false);
+
+  if (!can('accounting:read')) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">Cierre de Caja</h1>
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12 gap-2">
+            <p className="text-muted-foreground">No tienes permiso para acceder a esta sección.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -741,10 +756,12 @@ export default function CashClosingPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Cierre de Caja</h1>
-        <Button onClick={() => setModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Nuevo cierre
-        </Button>
+        {can('accounting:write') && (
+          <Button onClick={() => setModalOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nuevo cierre
+          </Button>
+        )}
       </div>
 
       <RecentClosingsTable onNew={() => setModalOpen(true)} />

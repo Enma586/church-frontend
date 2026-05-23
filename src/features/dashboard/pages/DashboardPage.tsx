@@ -15,6 +15,7 @@ import type {
   CashBalanceResponse,
   JournalEntry,
 } from "@/types";
+import type { ScheduleEvent } from "@/features/schedule/types/schedule.types";
 import {
   Users,
   CalendarDays,
@@ -57,15 +58,17 @@ function useStats() {
   return useQuery({
     queryKey: ["dashboard", "stats"],
     queryFn: async () => {
-      const [membersRes, appointmentsRes, notesRes] = await Promise.all([
+      const [membersRes, appointmentsRes, notesRes, scheduleRes] = await Promise.all([
         api.get<ApiResponse<Member[]> & PaginatedResponse<Member>>("/members?limit=1"),
         api.get<ApiResponse<Appointment[]> & PaginatedResponse<Appointment>>("/appointments?status=Programada&limit=5"),
         api.get<ApiResponse<PastoralNote[]> & PaginatedResponse<PastoralNote>>("/pastoral-notes?limit=5"),
+        api.get<ApiResponse<ScheduleEvent[]> & PaginatedResponse<ScheduleEvent>>("/appointments?type=evento_cronograma&limit=1"),
       ]);
       return {
         totalMembers: membersRes.data.pagination?.total ?? 0,
         pendingAppointments: appointmentsRes.data.data ?? [],
         pendingTotal: appointmentsRes.data.pagination?.total ?? 0,
+        upcomingEventsTotal: scheduleRes.data.pagination?.total ?? 0,
         recentNotes: notesRes.data.data ?? [],
       };
     },
@@ -181,7 +184,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Miembros" value={isLoading ? undefined : data?.totalMembers?.toLocaleString()} icon={Users} color="text-blue-600 bg-blue-100 dark:bg-blue-900/30" href="/members" />
         <StatCard title="Citas pendientes" value={isLoading ? undefined : data?.pendingTotal?.toLocaleString()} icon={CalendarDays} color="text-orange-600 bg-orange-100 dark:bg-orange-900/30" href="/appointments" />
-        <StatCard title="Próx. eventos" value={isLoading ? undefined : data ? `${data.pendingTotal ?? 0} pendientes` : "0"} icon={CalendarClock} color="text-purple-600 bg-purple-100 dark:bg-purple-900/30" href="/schedule" />
+        <StatCard title="Próx. eventos" value={isLoading ? undefined : data?.upcomingEventsTotal?.toLocaleString()} icon={CalendarClock} color="text-purple-600 bg-purple-100 dark:bg-purple-900/30" href="/schedule" />
         <StatCard title="Notas recientes" value={isLoading ? undefined : data?.recentNotes?.length?.toLocaleString()} icon={ScrollText} color="text-green-600 bg-green-100 dark:bg-green-900/30" href="/pastoral-notes" />
       </div>
 

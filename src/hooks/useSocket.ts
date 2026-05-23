@@ -16,9 +16,10 @@ const EVENT_CACHE_MAP: Record<string, string[]> = {
   'pastoral-note': ['pastoral-notes', 'dashboard'],
   user: ['users', 'dashboard'],
   member: ['members', 'dashboard'],
-  account: ['accounts'],
-  'journal-entry': ['journal-entries'],
-  product: ['products'],
+  account: ['accounts', 'reports'],
+  'journal-entry': ['journal-entries', 'reports'],
+  product: ['products', 'reports'],
+  'cash-closing': ['cash-closings', 'dashboard'],
 };
 
 /** Human-readable entity names for notifications */
@@ -31,6 +32,7 @@ const ENTITY_LABELS: Record<string, string> = {
   account: 'Cuenta contable',
   'journal-entry': 'Asiento contable',
   product: 'Producto',
+  'cash-closing': 'Cierre de caja',
 };
 
 /** Action labels in Spanish */
@@ -94,10 +96,8 @@ export function useSocket() {
         const actionLabel = ACTION_LABELS[action] ?? action;
 
         const handler = (data: unknown) => {
-          // Invalidate TanStack Query cache
           invalidate(keys);
 
-          // Dispatch Redux notification (bell icon)
           const payload = data as Record<string, unknown> | undefined;
           const name = payload?.title ?? payload?.name ?? payload?.fullName ?? '';
           const message = name
@@ -116,6 +116,16 @@ export function useSocket() {
         cleanups.push(() => socket.off(event, handler));
       }
     }
+
+    // Period events (custom prefix)
+    const periodHandler = () => {
+      invalidate(['config', 'reports']);
+      dispatch(addNotification({ type: 'period', message: 'Período contable actualizado' }));
+    };
+    socket.on('accounting:period-closed', periodHandler);
+    socket.on('accounting:period-reopened', periodHandler);
+    cleanups.push(() => socket.off('accounting:period-closed', periodHandler));
+    cleanups.push(() => socket.off('accounting:period-reopened', periodHandler));
 
     return () => {
       mountedRef.current = false;
