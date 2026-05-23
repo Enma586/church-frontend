@@ -65,11 +65,11 @@ function useStats() {
         api.get<ApiResponse<ScheduleEvent[]> & PaginatedResponse<ScheduleEvent>>("/appointments?type=evento_cronograma&limit=1"),
       ]);
       return {
-        totalMembers: membersRes.data.pagination?.total ?? 0,
-        pendingAppointments: appointmentsRes.data.data ?? [],
-        pendingTotal: appointmentsRes.data.pagination?.total ?? 0,
-        upcomingEventsTotal: scheduleRes.data.pagination?.total ?? 0,
-        recentNotes: notesRes.data.data ?? [],
+        totalMembers: membersRes?.data?.pagination?.total ?? 0,
+        pendingAppointments: Array.isArray(appointmentsRes?.data?.data) ? appointmentsRes.data.data : [],
+        pendingTotal: appointmentsRes?.data?.pagination?.total ?? 0,
+        upcomingEventsTotal: scheduleRes?.data?.pagination?.total ?? 0,
+        recentNotes: Array.isArray(notesRes?.data?.data) ? notesRes.data.data : [],
       };
     },
     staleTime: 60_000,
@@ -86,9 +86,9 @@ function useAccountingSummary() {
         journalEntryService.getAll({ limit: 5 }),
       ]);
       return {
-        balance: (balanceRes.data as CashBalanceResponse) ?? { totalIngresos: 0, totalEgresos: 0, saldoNeto: 0 },
-        trial: (trialRes.data as TrialBalanceResponse) ?? { data: [], totals: { totalIngresos: 0, totalEgresos: 0, saldoNeto: 0 } },
-        recentEntries: (journalRes.data as JournalEntry[]) ?? [],
+        balance: (balanceRes?.data ?? {}) as CashBalanceResponse,
+        trial: (trialRes?.data ?? { data: [], totals: { totalIngresos: 0, totalEgresos: 0, saldoNeto: 0 } }) as TrialBalanceResponse,
+        recentEntries: Array.isArray(journalRes?.data) ? (journalRes.data as JournalEntry[]) : [],
       };
     },
     staleTime: 60_000,
@@ -166,6 +166,7 @@ export default function DashboardPage() {
   // ── Bar chart data (top 8 accounts by movement) ──
   const barData = (trial?.data ?? [])
     .filter((r) => r.totalIngresos > 0 || r.totalEgresos > 0)
+    .filter((r): r is typeof r & { name: string } => !!r.name)
     .map((r, i) => ({
       name: r.name.length > 18 ? r.name.slice(0, 16) + "…" : r.name,
       fullName: r.name,
@@ -348,7 +349,7 @@ export default function DashboardPage() {
           <CardContent>
             {isLoading ? (
               <div className="space-y-2"><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-3/4" /></div>
-            ) : data && data.pendingAppointments.length > 0 ? (
+            ) : data?.pendingAppointments?.length > 0 ? (
               <ul className="space-y-2">
                 {data.pendingAppointments.map((a) => (
                   <li key={a._id} className="flex items-center justify-between text-sm border-b pb-1.5 last:border-0">
@@ -373,7 +374,7 @@ export default function DashboardPage() {
           <CardContent>
             {isLoading ? (
               <div className="space-y-2"><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-2/3" /></div>
-            ) : data && data.recentNotes.length > 0 ? (
+            ) : data?.recentNotes?.length > 0 ? (
               <ul className="space-y-2">
                 {data.recentNotes.map((note) => (
                   <li key={note._id} className="text-sm border-b pb-1.5 last:border-0">
