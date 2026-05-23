@@ -5,8 +5,8 @@ import { useAppDispatch } from '@/store/hooks';
 import { addNotification } from '@/store/slices/notificationSlice';
 
 function getSocketUrl(): string {
-  if (import.meta.env.DEV) return 'http://localhost:3000';
-  return window.location.origin;
+  if (import.meta.env.DEV) return 'http://127.0.0.1:3000';
+  return 'http://127.0.0.1:3000';
 }
 
 /** Cache keys to invalidate per domain */

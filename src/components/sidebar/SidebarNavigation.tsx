@@ -57,7 +57,7 @@ const groups: { label: string; icon: LucideIcon; items: NavItem[] }[] = [
     icon: CalendarDays,
     items: [
       {
-        label: "Citas",
+        label: "Eventos",
         path: "/appointments",
         icon: CalendarDays,
         permission: "appointments:read",

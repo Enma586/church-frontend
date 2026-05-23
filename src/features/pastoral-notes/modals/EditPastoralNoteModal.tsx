@@ -61,7 +61,7 @@ export function EditPastoralNoteModal({ open, onOpenChange, note }: Props) {
       { id: note._id, data: dirty as UpdatePastoralNotePayload },
       {
         onSuccess: () => {
-          notifyUpdated('Nota pastoral');
+          notifyUpdated('Nota');
           onOpenChange(false);
         },
       },
@@ -69,7 +69,7 @@ export function EditPastoralNoteModal({ open, onOpenChange, note }: Props) {
   };
 
   return (
-    <FormModal key={note._id} open={open} onOpenChange={onOpenChange} title="Editar nota pastoral" size="lg">
+    <FormModal key={note._id} open={open} onOpenChange={onOpenChange} title="Editar nota" size="lg">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
           <div className="bg-muted/30 p-4 rounded-lg border space-y-4">

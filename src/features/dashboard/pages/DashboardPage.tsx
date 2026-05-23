@@ -183,7 +183,7 @@ export default function DashboardPage() {
       {/* ── Stat cards row 1 ── */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Miembros" value={isLoading ? undefined : data?.totalMembers?.toLocaleString()} icon={Users} color="text-blue-600 bg-blue-100 dark:bg-blue-900/30" href="/members" />
-        <StatCard title="Citas pendientes" value={isLoading ? undefined : data?.pendingTotal?.toLocaleString()} icon={CalendarDays} color="text-orange-600 bg-orange-100 dark:bg-orange-900/30" href="/appointments" />
+        <StatCard title="Eventos pendientes" value={isLoading ? undefined : data?.pendingTotal?.toLocaleString()} icon={CalendarDays} color="text-orange-600 bg-orange-100 dark:bg-orange-900/30" href="/appointments" />
         <StatCard title="Próx. eventos" value={isLoading ? undefined : data?.upcomingEventsTotal?.toLocaleString()} icon={CalendarClock} color="text-purple-600 bg-purple-100 dark:bg-purple-900/30" href="/schedule" />
         <StatCard title="Notas recientes" value={isLoading ? undefined : data?.recentNotes?.length?.toLocaleString()} icon={ScrollText} color="text-green-600 bg-green-100 dark:bg-green-900/30" href="/pastoral-notes" />
       </div>

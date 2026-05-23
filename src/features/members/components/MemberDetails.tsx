@@ -18,6 +18,17 @@ export function MemberDetails({ member }: MemberDetailsProps) {
   const municipalityName =
     member.municipalityId && typeof member.municipalityId === 'object' ? member.municipalityId.name : '—';
 
+  // Helper para formatear fechas evitando el desfase de zona horaria (UTC issue)
+  const formatDate = (dateValue: string | Date | undefined) => {
+    if (!dateValue) return '—';
+    try {
+      const dateString = typeof dateValue === 'string' ? dateValue : dateValue.toISOString();
+      return dateString.split('T')[0].split('-').reverse().join('/');
+    } catch (error) {
+      return '—';
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* ── Header ─────────────────────────────────────────────────── */}
@@ -25,7 +36,7 @@ export function MemberDetails({ member }: MemberDetailsProps) {
         <div>
           <h2 className="text-xl font-bold">{member.fullName}</h2>
           <p className="text-sm text-muted-foreground">
-            Miembro desde {new Date(member.createdAt).toLocaleDateString('es-HN')}
+            Miembro desde {formatDate(member.createdAt)}
           </p>
         </div>
         <Badge variant={member.status === 'Activo' ? 'default' : 'secondary'} className="text-sm">
@@ -38,7 +49,7 @@ export function MemberDetails({ member }: MemberDetailsProps) {
       {/* ── Personal info ──────────────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <DetailItem icon={Calendar} label="Fecha de nacimiento">
-          {new Date(member.dateOfBirth).toLocaleDateString('es-HN')}
+          {formatDate(member.dateOfBirth)}
         </DetailItem>
         <DetailItem icon={MapPin} label="Género">
           {member.gender}

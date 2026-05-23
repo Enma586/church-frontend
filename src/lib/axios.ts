@@ -2,11 +2,12 @@ import axios from 'axios';
 import type { ApiResponse } from '@/types';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.DEV ? '/api' : 'http://127.0.0.1:3000/api',
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 });
 
+api.interceptors.request.use((config) => { const token = localStorage.getItem("token"); if (token) { config.headers.Authorization = "Bearer " + token; } return config; });
 api.interceptors.response.use(
   (response) => response,
   (error) => {

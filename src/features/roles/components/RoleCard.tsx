@@ -43,7 +43,7 @@ export function RoleCard({ role, onClick }: RoleCardProps) {
         <p className="text-sm text-muted-foreground">
           {isCoordinator
             ? 'Acceso completo al sistema. Puede gestionar usuarios, configuración y todos los módulos.'
-            : 'Acceso operativo. Gestiona miembros, citas, sacramentos y notas.'}
+            : 'Acceso operativo. Gestiona miembros, eventos, sacramentos y notas.'}
         </p>
       </CardContent>
     </Card>

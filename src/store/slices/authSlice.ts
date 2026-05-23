@@ -26,7 +26,7 @@ export const loginUser = createAsyncThunk<User, LoginPayload, { rejectValue: str
       if (!data.success || !data.data) {
         return rejectWithValue(data.message || 'Error al iniciar sesión');
       }
-      return data.data;
+      localStorage.setItem("token", (data as any).token); return data.data;
         } catch (err: unknown) {
       return rejectWithValue(getErrorMessage(err, 'Error de conexión al iniciar sesión'));
     }
@@ -37,7 +37,7 @@ export const logoutUser = createAsyncThunk<void, void, { rejectValue: string }>(
   'auth/logout',
   async (_, { rejectWithValue }) => {
     try {
-      await api.post('/users/logout');
+      localStorage.removeItem("token"); await api.post('/users/logout');
        } catch (err: unknown) {
       return rejectWithValue(getErrorMessage(err, 'Error de conexión al iniciar sesión'));
     }
@@ -119,7 +119,7 @@ const authSlice = createSlice({
     });
     builder.addCase(fetchCurrentUser.rejected, (state, action) => {
       state.status = 'failed';
-      state.error = action.payload ?? 'Sesión expirada';
+      localStorage.removeItem("token"); state.error = action.payload ?? "Sesión expirada.";
       state.isAuthenticated = false;
       state.user = null;
     });

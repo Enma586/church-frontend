@@ -169,7 +169,7 @@ const columns: ColumnDef<Appointment, unknown>[] = [
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Citas</h1>
+        <h1 className="text-2xl font-bold">Eventos</h1>
         <div className="flex items-center gap-2">
           <div className="flex rounded-md border">
             <Button
@@ -290,7 +290,7 @@ const columns: ColumnDef<Appointment, unknown>[] = [
             ))}
             {(!dayList || dayList.appointments.length === 0) && (
               <p className="text-sm text-muted-foreground text-center py-4">
-                Sin citas este día
+                Sin eventos este día
               </p>
             )}
           </div>

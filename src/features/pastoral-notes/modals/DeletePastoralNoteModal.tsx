@@ -11,7 +11,7 @@ export function DeletePastoralNoteModal({ open, onOpenChange, noteId }: Props) {
   const handleDelete = async () => {
     try {
       await deleteMutation.mutateAsync(noteId);
-      notifyDeleted('Nota pastoral');
+      notifyDeleted('Nota');
       onOpenChange(false);
     } catch {}
   };
@@ -19,7 +19,7 @@ export function DeletePastoralNoteModal({ open, onOpenChange, noteId }: Props) {
   return (
     <ConfirmModal
       open={open} onOpenChange={onOpenChange}
-      title="Eliminar nota" description="¿Estás seguro de eliminar esta nota pastoral?"
+      title="Eliminar nota" description="¿Estás seguro de eliminar esta nota?"
       confirmLabel="Eliminar" variant="danger"
       loading={deleteMutation.isPending} onConfirm={handleDelete}
     />

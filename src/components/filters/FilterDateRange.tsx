@@ -74,7 +74,7 @@ function DatePopover({
         <Calendar
           mode="single"
           selected={date ? new Date(date) : undefined}
-          onSelect={(d) => onChange(d?.toISOString() ?? "")}
+          onSelect={(d) => onChange(d ? format(d, "yyyy-MM-dd") : "")}
           initialFocus
           captionLayout="dropdown"
           fromYear={1900}

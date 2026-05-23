@@ -49,8 +49,8 @@ export const PERMISSION_LABELS: Record<PermissionKey, string> = {
   'members:read': 'Ver miembros',
   'members:write': 'Crear / Editar miembros',
 
-  'appointments:read': 'Ver citas',
-  'appointments:write': 'Crear / Editar citas',
+  'appointments:read': 'Ver eventos',
+  'appointments:write': 'Crear / Editar eventtos',
 
   'schedule:read': 'Ver cronograma',
   'schedule:write': 'Crear / Editar cronograma',

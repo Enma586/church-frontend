@@ -102,7 +102,7 @@ export default function PastoralNotesPage() {
       </TableToolbar>
 
       {isDesktop ? (
-        <DataTable columns={columns} data={items} loading={isLoading} emptyTitle="Sin notas" emptyDescription={Object.keys(filters).length > 0 ? 'No hay resultados.' : 'Aún no hay notas pastorales.'} />
+        <DataTable columns={columns} data={items} loading={isLoading} emptyTitle="Sin notas" emptyDescription={Object.keys(filters).length > 0 ? 'No hay resultados.' : 'Aún no hay notas.'} />
       ) : (
         <div className="grid grid-cols-1 gap-3">
           {items.map((n) => <PastoralNoteCard key={n._id} note={n} onClick={() => setPreview(n)} />)}
@@ -115,7 +115,7 @@ export default function PastoralNotesPage() {
       <Dialog open={!!preview} onOpenChange={(o) => { if (!o) setPreview(null); }}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Nota pastoral</DialogTitle>
+            <DialogTitle>Nota</DialogTitle>
             <DialogDescription>{'\u00A0'}</DialogDescription>
           </DialogHeader>
           {preview && (
