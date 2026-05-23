@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Plus, Pencil, Trash2, Eye } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { Plus, Pencil, Trash2, Eye, Search, RotateCcw } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
@@ -27,19 +27,35 @@ export default function SchedulePage() {
   const [search, setSearch] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
-  
+  const [filters, setFilters] = useState<{ search?: string; dateFrom?: string; dateTo?: string }>({});
+
   const [createOpen, setCreateOpen] = useState(false);
   const [detailsItem, setDetailsItem] = useState<ScheduleEvent | null>(null);
   const [editItem, setEditItem] = useState<ScheduleEvent | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
+  const handleApply = useCallback(() => {
+    setFilters({
+      search: search || undefined,
+      dateFrom: dateFrom || undefined,
+      dateTo: dateTo || undefined,
+    });
+    goToPage(1);
+  }, [search, dateFrom, dateTo, goToPage]);
+
+  const handleClear = useCallback(() => {
+    setSearch('');
+    setDateFrom('');
+    setDateTo('');
+    setFilters({});
+    goToPage(1);
+  }, [goToPage]);
+
   const deleteMutation = useDeleteScheduleEvent();
   const { data, isLoading } = useScheduleEvents({
     page,
     limit,
-    search: search || undefined,
-    dateFrom: dateFrom || undefined,
-    dateTo: dateTo || undefined,
+    ...filters,
   });
 
   const events = data?.data ?? [];
@@ -82,34 +98,19 @@ export default function SchedulePage() {
       id: 'actions',
       header: '',
       cell: ({ row }) => (
-        <div className="flex items-center justify-end gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-muted-foreground hover:text-primary"
-            onClick={() => setDetailsItem(row.original)}
-          >
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDetailsItem(row.original)}>
             <Eye className="h-4 w-4" />
           </Button>
           {can('schedule:write') && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-primary"
-              onClick={() => setEditItem(row.original)}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-          )}
-          {can('schedule:write') && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-destructive"
-              onClick={() => setDeleteId(row.original._id)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            <>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditItem(row.original)}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeleteId(row.original._id)}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </>
           )}
         </div>
       ),
@@ -138,6 +139,12 @@ export default function SchedulePage() {
           <div className="shrink-0">
             <FilterDateRange label="Fechas" dateFrom={dateFrom} dateTo={dateTo} onDateFromChange={setDateFrom} onDateToChange={setDateTo} />
           </div>
+          <Button size="sm" onClick={handleApply}>
+            <Search className="mr-1.5 h-4 w-4" /> Buscar
+          </Button>
+          <Button size="sm" variant="ghost" onClick={handleClear}>
+            <RotateCcw className="mr-1.5 h-4 w-4" /> Limpiar
+          </Button>
         </div>
       </TableToolbar>
 

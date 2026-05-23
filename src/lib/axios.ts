@@ -5,9 +5,16 @@ const api = axios.create({
   baseURL: import.meta.env.DEV ? '/api' : 'http://127.0.0.1:3000/api',
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
+  validateStatus: (status) => (status >= 200 && status < 300) || status === 304,
 });
 
-api.interceptors.request.use((config) => { const token = localStorage.getItem("token"); if (token) { config.headers.Authorization = "Bearer " + token; } return config; });
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) config.headers.Authorization = "Bearer " + token;
+  config.headers['Cache-Control'] = 'no-cache';
+  config.params = { ...config.params, _t: Date.now() };
+  return config;
+});
 api.interceptors.response.use(
   (response) => response,
   (error) => {

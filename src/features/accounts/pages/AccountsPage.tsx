@@ -6,6 +6,7 @@ import {
   FolderTree,
   FileDigit,
   ChevronRight,
+  RotateCcw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/tables/DataTable';
@@ -339,6 +340,9 @@ export default function AccountsPage() {
               ))}
             </SelectContent>
           </Select>
+          <Button size="sm" variant="ghost" onClick={() => setFilters({})}>
+            <RotateCcw className="mr-1.5 h-4 w-4" /> Limpiar
+          </Button>
         </div>
       </TableToolbar>
 

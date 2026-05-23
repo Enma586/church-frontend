@@ -97,6 +97,10 @@ export function EditSacramentModal({ open, onOpenChange, sacrament }: Props) {
 
     if (!Object.keys(dirty).length) { onOpenChange(false); return; }
 
+    if (typeof dirty.date === 'string' && dirty.date) {
+      dirty.date = new Date(dirty.date + 'T12:00:00').toISOString();
+    }
+
     updateMutation.mutate(
       { id: sacrament._id, data: dirty as UpdateSacramentPayload },
       { onSuccess: () => { notifyUpdated('Sacramento', values.type ?? sacrament.type); onOpenChange(false); } },

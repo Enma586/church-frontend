@@ -6,7 +6,9 @@ import {
   Trash2,
   LayoutList,
   CalendarDays,
-  Clock
+  Clock,
+  Search,
+  RotateCcw
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -45,6 +47,7 @@ export default function AppointmentsPage() {
   const [search, setSearch] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [filters, setFilters] = useState<{ search?: string; dateFrom?: string; dateTo?: string }>({});
   const [createOpen, setCreateOpen] = useState(false);
   const [editItem, setEditItem] = useState<Appointment | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
@@ -57,13 +60,28 @@ export default function AppointmentsPage() {
     appointments: Appointment[];
   } | null>(null);
 
+  const handleApply = useCallback(() => {
+    setFilters({
+      search: search || undefined,
+      dateFrom: dateFrom || undefined,
+      dateTo: dateTo || undefined,
+    });
+    goToPage(1);
+  }, [search, dateFrom, dateTo, goToPage]);
+
+  const handleClear = useCallback(() => {
+    setSearch('');
+    setDateFrom('');
+    setDateTo('');
+    setFilters({});
+    goToPage(1);
+  }, [goToPage]);
+
   const { data, isLoading } = useAppointments({
     page,
     limit,
     type: 'cita_pastoral',
-    search: search || undefined,
-    dateFrom: dateFrom || undefined,
-    dateTo: dateTo || undefined,
+    ...filters,
   });
 
   const items = data?.data ?? [];
@@ -215,6 +233,12 @@ const columns: ColumnDef<Appointment, unknown>[] = [
                   onDateToChange={setDateTo}
                 />
               </div>
+              <Button size="sm" onClick={handleApply}>
+                <Search className="mr-1.5 h-4 w-4" /> Buscar
+              </Button>
+              <Button size="sm" variant="ghost" onClick={handleClear}>
+                <RotateCcw className="mr-1.5 h-4 w-4" /> Limpiar
+              </Button>
             </div>
           </TableToolbar>
 
