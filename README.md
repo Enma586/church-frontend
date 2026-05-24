@@ -7,30 +7,26 @@ This project demonstrates expertise in building scalable frontend architectures,
 
 ## Application Previews
 
-*(Note to recruiter/reviewer: Below are previews of the system's core interfaces)*
-
 ### Dashboard & Analytics
 <img width="1920" height="1022" alt="image" src="https://github.com/user-attachments/assets/803c8176-6771-4525-94f8-33079109465f" />
-*> Overview of system metrics, recent activities, and financial summaries.*
+
 
 ### Financial Ledger & Accounting
 <img width="1920" height="1022" alt="image" src="https://github.com/user-attachments/assets/697872da-f525-4edb-b4bb-32c4e7c3f7cb" />
 <img width="1920" height="1022" alt="image" src="https://github.com/user-attachments/assets/47c22aea-85cb-479e-a49f-25479bd132bc" />
 <img width="1920" height="1022" alt="image" src="https://github.com/user-attachments/assets/9eb9d50c-65b5-4943-88d7-606519487230" />
-*> Double-entry journal interface and dynamic financial reports.*
+
 
 ### Calendar & Scheduling
 <img width="1920" height="1022" alt="image" src="https://github.com/user-attachments/assets/8c9e7099-f7f0-4964-9035-6e69d060aa86" />
 <img width="1920" height="1022" alt="image" src="https://github.com/user-attachments/assets/078e2f1f-1004-45c9-823f-8d67fa6ab7e0" />
 <img width="1920" height="1022" alt="image" src="https://github.com/user-attachments/assets/6c43cf72-a6ab-4b4d-a7cc-3bbe7cf179df" />
-*> Custom-built scheduling interface with synchronization status.*
+
 
 ### Member Management & Pastoral Notes
 <img width="1920" height="1022" alt="image" src="https://github.com/user-attachments/assets/f373d7f5-195e-48a7-abc3-4452ea7eda16" />
 <img width="1920" height="1022" alt="image" src="https://github.com/user-attachments/assets/2b5de804-4633-461e-9410-8c011b804a62" />
 <img width="1920" height="1022" alt="image" src="https://github.com/user-attachments/assets/c2de2b34-3546-4d60-b3bd-a1653bc50f01" />
-
-*> Detailed member records featuring secure, role-restricted pastoral notes.*
 
 ---
 
