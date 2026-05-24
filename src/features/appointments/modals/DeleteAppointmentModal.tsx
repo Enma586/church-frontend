@@ -14,7 +14,7 @@ export function DeleteAppointmentModal({ open, onOpenChange, id }: Props) {
   const handle = async () => {
     try {
       await mutation.mutateAsync(id);
-      notifyDeleted('Cita');
+      notifyDeleted('Evento');
       onOpenChange(false);
     } catch {}
   };
@@ -22,8 +22,8 @@ export function DeleteAppointmentModal({ open, onOpenChange, id }: Props) {
     <ConfirmModal
       open={open}
       onOpenChange={onOpenChange}
-      title="Eliminar cita"
-      description="¿Eliminar esta cita permanentemente?"
+      title="Eliminar evento"
+      description="¿Eliminar esta evento permanentemente?"
       confirmLabel="Eliminar"
       variant="danger"
       loading={mutation.isPending}

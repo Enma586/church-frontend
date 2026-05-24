@@ -9,7 +9,7 @@ export function useCreateAppointment() {
     mutationFn: (data: CreateAppointmentPayload) =>
       appointmentService.create(data),
     onSuccess: () => {
-      showToast.success('Cita creada exitosamente');
+      showToast.success('Evento creado exitosamente');
       qc.invalidateQueries({ queryKey: ['appointments'] });
     },
     onError: (e: Error) => showToast.error(e.message),

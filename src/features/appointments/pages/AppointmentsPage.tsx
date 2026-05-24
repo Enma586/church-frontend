@@ -221,7 +221,7 @@ const columns: ColumnDef<Appointment, unknown>[] = [
                 <FilterSearch
                   value={search}
                   onChange={setSearch}
-                  placeholder="Buscar cita..."
+                  placeholder="Buscar evento..."
                 />
               </div>
               <div className="shrink-0">

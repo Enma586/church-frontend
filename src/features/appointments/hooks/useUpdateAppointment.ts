@@ -14,7 +14,7 @@ export function useUpdateAppointment() {
       data: UpdateAppointmentPayload;
     }) => appointmentService.update(id, data),
     onSuccess: () => {
-      showToast.success('Cita actualizada');
+      showToast.success('Evento actualizado');
       qc.invalidateQueries({ queryKey: ['appointments'] });
     },
     onError: (e: Error) => showToast.error(e.message),

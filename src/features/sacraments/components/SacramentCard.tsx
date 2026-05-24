@@ -25,7 +25,7 @@ export function SacramentCard({ sacrament, onClick }: SacramentCardProps) {
           <p className="text-sm text-muted-foreground truncate">{memberName}</p>
         </div>
         <span className="text-xs text-muted-foreground shrink-0">
-          {format(new Date(sacrament.date), 'dd/MM/yy', { locale: es })}
+          {(() => { const d = new Date(sacrament.date); return isNaN(d.getTime()) ? '' : format(d, 'dd/MM/yy', { locale: es }); })()}
         </span>
       </CardContent>
     </Card>

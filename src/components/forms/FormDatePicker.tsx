@@ -33,9 +33,12 @@ interface FormDatePickerProps<T extends FieldValues> {
  *
  * @example parseLocal('2026-05-05') → Date representing May 5 at midnight LOCAL time
  */
-function parseLocal(value: string): Date {
-  const datePart = value.split('T')[0];   // ← toma solo YYYY-MM-DD, ignora hora
+function parseLocal(value: unknown): Date | null {
+  if (!value) return null;
+  const str = typeof value === 'string' ? value : String(value);
+  const datePart = str.split('T')[0];
   const [y, m, d] = datePart.split('-').map(Number);
+  if (isNaN(y) || isNaN(m) || isNaN(d)) return null;
   return new Date(y, m - 1, d);
 }
 
@@ -68,11 +71,10 @@ export function FormDatePicker<T extends FieldValues>({
                   )}
                   disabled={disabled}
                 >
-                  {field.value ? (
-                    format(parseLocal(field.value), 'PPP', { locale: es })
-                  ) : (
-                    <span>{placeholder}</span>
-                  )}
+                  {(() => {
+                    const d = parseLocal(field.value);
+                    return d ? format(d, 'PPP', { locale: es }) : <span>{placeholder}</span>;
+                  })()}
                   <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                 </Button>
               </FormControl>
@@ -80,7 +82,7 @@ export function FormDatePicker<T extends FieldValues>({
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
-                selected={field.value ? parseLocal(field.value) : undefined}
+                selected={parseLocal(field.value) ?? undefined}
                 onSelect={(date) =>
                   field.onChange(date ? format(date, 'yyyy-MM-dd') : '')
                 }

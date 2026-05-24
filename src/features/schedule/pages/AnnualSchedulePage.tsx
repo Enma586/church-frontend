@@ -67,7 +67,9 @@ export default function SchedulePage() {
       header: 'Fecha',
       accessorFn: (row) => {
         if (!row.allDayDate) return '—';
-        const dateStr = format(new Date(row.allDayDate), "EEEE, dd/MM/yyyy", { locale: es });
+        const d = new Date(row.allDayDate);
+        if (isNaN(d.getTime())) return '—';
+        const dateStr = format(d, "EEEE, dd/MM/yyyy", { locale: es });
         return dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
       },
     },

@@ -70,7 +70,7 @@ export function CreateAppointmentModal({ open, onOpenChange }: Props) {
         type: 'cita_pastoral',
         ...values,
       } as CreateAppointmentPayload);
-      notifyCreated('Cita', values.title);
+      notifyCreated('Evento', values.title);
       form.reset();
       onOpenChange(false);
     } catch {}
@@ -80,7 +80,7 @@ export function CreateAppointmentModal({ open, onOpenChange }: Props) {
     <FormModal
       open={open}
       onOpenChange={onOpenChange}
-      title="Nueva cita"
+      title="Nueva Evento"
       description="Agenda una reunión con un miembro."
       size="5xl"
     >
@@ -92,7 +92,7 @@ export function CreateAppointmentModal({ open, onOpenChange }: Props) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="space-y-6">
               <div className="bg-muted/30 p-4 rounded-lg border space-y-4">
-                <SectionHeader icon={CalendarDays} title="Cita" />
+                <SectionHeader icon={CalendarDays} title="Evento" />
                 <FormSelect
                   name="memberId"
                   control={form.control}

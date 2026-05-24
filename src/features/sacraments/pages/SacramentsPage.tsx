@@ -50,7 +50,9 @@ export default function SacramentsPage() {
       header: 'Fecha',
       accessorFn: (row) => {
         if (!row.date) return '—';
-        return format(new Date(row.date.toString().slice(0, 10) + 'T12:00:00'), 'PPP', { locale: es });
+        const d = new Date(row.date);
+        if (isNaN(d.getTime())) return '—';
+        return format(d, 'PPP', { locale: es });
       },
     },
     { header: 'Lugar', accessorKey: 'place' },

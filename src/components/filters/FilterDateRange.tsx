@@ -67,8 +67,10 @@ export function FilterDateRange({
   );
 }
 
-function parseLocal(dateStr: string): Date {
-  const [y, m, d] = dateStr.split("-").map(Number);
+function parseLocal(value: unknown): Date | null {
+  if (!value) return null;
+  const [y, m, d] = String(value).split("T")[0].split("-").map(Number);
+  if (isNaN(y) || isNaN(m) || isNaN(d)) return null;
   return new Date(y, m - 1, d);
 }
 
@@ -93,13 +95,13 @@ function DatePopover({
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(parseLocal(date), "PP", { locale: es }) : placeholder}
+          {(() => { const d = date ? parseLocal(date) : null; return d ? format(d, "PP", { locale: es }) : placeholder; })()}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
         <Calendar
           mode="single"
-          selected={date ? parseLocal(date) : undefined}
+          selected={parseLocal(date) ?? undefined}
           onSelect={(d) => onChange(d ? format(d, "yyyy-MM-dd") : "")}
           initialFocus
           captionLayout="dropdown"

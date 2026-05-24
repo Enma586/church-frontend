@@ -36,7 +36,7 @@ export function ScheduleEventDetails({ event }: { event: ScheduleEvent }) {
           <Detail 
             icon={CalendarDays} 
             label="Fecha" 
-            value={format(new Date(event.allDayDate), "EEEE d 'de' MMMM, yyyy", { locale: es })} 
+            value={(() => { const d = new Date(event.allDayDate); return isNaN(d.getTime()) ? '—' : format(d, "EEEE d 'de' MMMM, yyyy", { locale: es }); })()} 
           />
         )}
       </div>

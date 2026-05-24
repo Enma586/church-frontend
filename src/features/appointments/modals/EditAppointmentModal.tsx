@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { format } from 'date-fns';
 import { CalendarDays, FileText } from 'lucide-react';
 import { Form } from '@/components/ui/form';
 import { FormModal } from '@/components/modals/FormModal';
@@ -61,7 +62,7 @@ export function EditAppointmentModal({
       title: appointment.title,
       description: appointment.description ?? '',
       extras: appointment.extras ?? '',
-      startDateTime: appointment.startDateTime?.slice(0, 16) ?? '',
+      startDateTime: appointment.startDateTime ? format(new Date(appointment.startDateTime), "yyyy-MM-dd'T'HH:mm") : '',
       status: appointment.status as typeof APPOINTMENT_STATUSES[number],
     },
   });
@@ -71,7 +72,7 @@ export function EditAppointmentModal({
       title: appointment.title,
       description: appointment.description ?? '',
       extras: appointment.extras ?? '',
-      startDateTime: appointment.startDateTime?.slice(0, 16) ?? '',
+      startDateTime: appointment.startDateTime ? format(new Date(appointment.startDateTime), "yyyy-MM-dd'T'HH:mm") : '',
       status: appointment.status as typeof APPOINTMENT_STATUSES[number],
     });
   }, [appointment._id, form]);
@@ -96,7 +97,7 @@ export function EditAppointmentModal({
       { id: appointment._id, data: dirty as UpdateAppointmentPayload },
       {
         onSuccess: () => {
-          notifyUpdated('Cita', values.title ?? appointment.title);
+          notifyUpdated('Evento', values.title ?? appointment.title);
           onOpenChange(false);
         },
       },
@@ -108,7 +109,7 @@ export function EditAppointmentModal({
       key={appointment._id}
       open={open}
       onOpenChange={onOpenChange}
-      title="Editar cita"
+      title="Editar evento"
       size="5xl"
     >
       <Form {...form}>
@@ -119,7 +120,7 @@ export function EditAppointmentModal({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="space-y-6">
               <div className="bg-muted/30 p-4 rounded-lg border space-y-4">
-                <SectionHeader icon={CalendarDays} title="Cita" />
+                <SectionHeader icon={CalendarDays} title="Evento" />
                 <FormInput
                   name="title"
                   control={form.control}

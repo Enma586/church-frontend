@@ -7,7 +7,7 @@ export function useDeleteAppointment() {
   return useMutation({
     mutationFn: (id: string) => appointmentService.remove(id),
     onSuccess: () => {
-      showToast.success('Cita eliminada');
+      showToast.success('Evento eliminado');
       qc.invalidateQueries({ queryKey: ['appointments'] });
     },
     onError: (e: Error) => showToast.error(e.message),

@@ -26,7 +26,7 @@ export function SacramentDetails({ sacrament }: SacramentDetailsProps) {
   label="Fecha" 
   value={
     sacrament.date 
-      ? format(new Date(sacrament.date.toString().slice(0, 10) + 'T12:00:00'), 'PPP', { locale: es }) 
+      ? (() => { const d = new Date(sacrament.date); return isNaN(d.getTime()) ? '—' : format(d, 'PPP', { locale: es }); })()
       : '—'
   } 
 />

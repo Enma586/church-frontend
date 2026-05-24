@@ -77,9 +77,9 @@ export function EditMemberModal({ open, onOpenChange, member }: EditMemberModalP
       phone: member.phone ?? '',
       email: member.email ?? '',
       departmentId:
-        (member.departmentId && typeof member.departmentId === 'object' ? member.departmentId._id : member.departmentId) as string,
+        (member.departmentId && typeof member.departmentId === 'object' ? member.departmentId._id : member.departmentId) ?? '',
       municipalityId:
-        (member.municipalityId && typeof member.municipalityId === 'object' ? member.municipalityId._id : member.municipalityId) as string,
+        (member.municipalityId && typeof member.municipalityId === 'object' ? member.municipalityId._id : member.municipalityId) ?? '',
       addressDetails: member.addressDetails ?? '',
       family: member.family ?? [],
       status: member.status as typeof MEMBER_STATUSES[number],

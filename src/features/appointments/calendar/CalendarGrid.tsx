@@ -41,11 +41,11 @@ export function CalendarGrid({ onDayClick }: CalendarGridProps) {
     for (const a of allAppointments) {
       // Cita pastoral: usa startDateTime
       const key1 = a.startDateTime
-        ? format(new Date(a.startDateTime), 'yyyy-MM-dd')
+        ? (() => { const d = new Date(a.startDateTime); return isNaN(d.getTime()) ? null : format(d, 'yyyy-MM-dd'); })()
         : null;
       // Evento cronograma: usa allDayDate
       const key2 = a.allDayDate
-        ? format(new Date(a.allDayDate), 'yyyy-MM-dd')
+        ? (() => { const d = new Date(a.allDayDate); return isNaN(d.getTime()) ? null : format(d, 'yyyy-MM-dd'); })()
         : null;
 
       const key = key1 || key2;
