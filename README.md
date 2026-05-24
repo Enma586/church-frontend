@@ -33,45 +33,45 @@ This project demonstrates expertise in building scalable frontend architectures,
 ## Tech Stack
 The frontend ecosystem leverages a modern, performance-oriented stack to ensure maintainability and a seamless user experience:
 
-* **Core Framework:** React, TypeScript, Vite[cite: 3]
-* **Desktop Framework:** Tauri (Rust-based, providing cross-platform native desktop builds with a minimal resource footprint)[cite: 3]
+* **Core Framework:** React, TypeScript, Vite.
+* **Desktop Framework:** Tauri (Rust-based, providing cross-platform native desktop builds with a minimal resource footprint).
 * **State Management:** 
-  * Redux Toolkit (for global UI state: themes, sidebar, auth, notifications)[cite: 3]
-  * TanStack Query / React Query (for asynchronous server state, caching, and data synchronization)[cite: 3]
-* **Routing & Security:** React Router DOM with custom `ProtectedRoute` and `RoleGuard` wrappers for granular access control[cite: 3].
-* **UI & Styling:** Tailwind CSS, Shadcn UI (accessible, unstyled components), Radix UI primitives[cite: 3].
-* **API Communication:** Axios interceptors and WebSocket integration (`useSocket.ts`) for real-time system updates[cite: 3].
+  * Redux Toolkit (for global UI state: themes, sidebar, auth, notifications).
+  * TanStack Query / React Query (for asynchronous server state, caching, and data synchronization).
+* **Routing & Security:** React Router DOM with custom `ProtectedRoute` and `RoleGuard` wrappers for granular access control.
+* **UI & Styling:** Tailwind CSS, Shadcn UI (accessible, unstyled components), Radix UI primitives.
+* **API Communication:** Axios interceptors and WebSocket integration (`useSocket.ts`) for real-time system updates.
 
 ## Architecture and Best Practices
 The codebase strictly adheres to a **Feature-Sliced Architecture**, ensuring high cohesion and low coupling. This makes the system highly scalable as new requirements are introduced:
 
-* **Feature Modules (`src/features/`):** Business logic is isolated into specific domains (e.g., `accounts`, `appointments`, `members`, `sacraments`)[cite: 3]. Each feature encapsulates its own components, hooks, modals, pages, services, and TypeScript definitions[cite: 3].
-* **Custom Hooks (`src/hooks/`):** Reusable logic such as `usePermissions`, `usePagination`, `useSocket`, and `useDebounce`[cite: 3].
-* **Component Library (`src/components/ui/`):** A centralized, highly customizable UI kit built on top of Tailwind CSS, ensuring visual consistency across the entire application[cite: 3].
-* **Centralized Error Handling:** Global toast notifications and standardized API error parsing[cite: 3].
+* **Feature Modules (`src/features/`):** Business logic is isolated into specific domains (e.g., `accounts`, `appointments`, `members`, `sacraments`). Each feature encapsulates its own components, hooks, modals, pages, services, and TypeScript definitions[cite: 3].
+* **Custom Hooks (`src/hooks/`):** Reusable logic such as `usePermissions`, `usePagination`, `useSocket`, and `useDebounce`.
+* **Component Library (`src/components/ui/`):** A centralized, highly customizable UI kit built on top of Tailwind CSS, ensuring visual consistency across the entire application.
+* **Centralized Error Handling:** Global toast notifications and standardized API error parsing.
 
 ## Core Features and Modules
 The user interface handles complex business requirements divided into specific modules:
 
 1. **Accounting & Financial Reports (`features/accounts`, `features/reports`, `features/journal`):**
-   * Hierarchical tree selection for the Chart of Accounts[cite: 3].
-   * Double-entry bookkeeping interface (Journal Entries)[cite: 3].
-   * Real-time generation of financial reports (Balance Sheet, Income Statement, Trial Balance, Ledger)[cite: 3].
-   * Cash closing mechanisms and fiscal period management[cite: 3].
+   * Hierarchical tree selection for the Chart of Accounts.
+   * Double-entry bookkeeping interface (Journal Entries).
+   * Real-time generation of financial reports (Balance Sheet, Income Statement, Trial Balance, Ledger).
+   * Cash closing mechanisms and fiscal period management.
 
 2. **Calendar & Scheduling (`features/appointments`, `features/schedule`):**
-   * Custom-built interactive calendar views (Day, Week, Grid)[cite: 3].
-   * Visual badges reflecting synchronization status with external calendar APIs[cite: 3].
-   * Multi-member selection for complex event scheduling[cite: 3].
+   * Custom-built interactive calendar views (Day, Week, Grid).
+   * Visual badges reflecting synchronization status with external calendar APIs.
+   * Multi-member selection for complex event scheduling.
 
 3. **Member & Sacrament Management (`features/members`, `features/sacraments`):**
-   * Comprehensive member profiles including family relationships and demographic data[cite: 3].
-   * Pastoral notes module (`features/pastoral-notes`) with strict visual indicators for sensitive information (`SensitiveBadge.tsx`)[cite: 3].
-   * Tracking and management of religious sacraments[cite: 3].
+   * Comprehensive member profiles including family relationships and demographic data.
+   * Pastoral notes module (`features/pastoral-notes`) with strict visual indicators for sensitive information (`SensitiveBadge.tsx`).
+   * Tracking and management of religious sacraments.
 
 4. **Security & Administration (`features/users`, `features/roles`, `features/config`):**
-   * Dynamic Permission Matrix UI for assigning granular access rights to user roles[cite: 3].
-   * System configuration panel including manual triggering of secure database backups[cite: 3].
+   * Dynamic Permission Matrix UI for assigning granular access rights to user roles.
+   * System configuration panel including manual triggering of secure database backups.
 
 ## Local Setup and Development
 
@@ -94,7 +94,7 @@ The user interface handles complex business requirements divided into specific m
 ```
 ### Start the development server (Web Browser):
 ```bash
-`npm run dev
+  npm run dev
 ```
 ### Start the development server (Tauri Desktop App):
 ```bash
