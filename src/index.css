@@ -107,56 +107,57 @@
 
 .dark {
     color-scheme: dark;
-    /* Fondo: Gris carbón con un matiz morado profundo */
-    --background: oklch(0.16 0.02 285);
-    --foreground: oklch(0.92 0.02 285);
+    /* BACKGROUND: Ahora es un gris morado un poco más claro para dar profundidad */
+    --background: oklch(0.20 0.04 285);
+    --foreground: oklch(0.95 0.01 285);
     
-    /* Tarjetas y Popovers: Un paso más claro que el fondo para dar relieve */
-    --card: oklch(0.20 0.03 285);
-    --card-foreground: oklch(0.92 0.02 285);
+    /* SIDEBAR: Ahora es la base más oscura y profunda */
+    --sidebar: oklch(0.12 0.03 285);
+    --sidebar-foreground: oklch(0.90 0.02 285);
+    --sidebar-primary: oklch(0.65 0.22 285);
+    --sidebar-primary-foreground: oklch(0.10 0.02 285);
+    --sidebar-accent: oklch(0.18 0.05 285);
+    --sidebar-accent-foreground: oklch(0.95 0.02 285);
+    --sidebar-border: oklch(0.18 0.05 285);
+    --sidebar-ring: oklch(0.65 0.22 285);
     
-    --popover: oklch(0.20 0.03 285);
-    --popover-foreground: oklch(0.92 0.02 285);
+    /* Tarjetas: Ligeramente más claras que el background para resaltar */
+    --card: oklch(0.25 0.05 285);
+    --card-foreground: oklch(0.95 0.01 285);
     
-    /* PRIMARIO: Morado desaturado claro para botones de acción */
-    --primary: oklch(0.75 0.12 285);
-    --primary-foreground: oklch(0.12 0.02 285);
+    --popover: oklch(0.25 0.05 285);
+    --popover-foreground: oklch(0.95 0.01 285);
     
-    /* SECUNDARIO: Gris morado medio */
-    --secondary: oklch(0.28 0.05 285);
+    /* PRIMARIO: El mismo morado vibrante para contraste */
+    --primary: oklch(0.65 0.22 285);
+    --primary-foreground: oklch(0.10 0.02 285);
+    
+    /* SECUNDARIO */
+    --secondary: oklch(0.30 0.08 285);
     --secondary-foreground: oklch(0.95 0.02 285);
     
-    /* Muted e Inputs: Tono base del sidebar oscuro */
-    --muted: oklch(0.24 0.04 285);
-    --muted-foreground: oklch(0.70 0.04 285);
+    /* Muted */
+    --muted: oklch(0.28 0.06 285);
+    --muted-foreground: oklch(0.75 0.04 285);
     
-    --accent: oklch(0.28 0.05 285); 
-    --accent-foreground: oklch(0.95 0.02 285);
+    /* Accent */
+    --accent: oklch(0.35 0.12 285); 
+    --accent-foreground: oklch(0.98 0.01 285);
     
-    /* Destructive: Rojo vibrante para errores (se mantiene) */
-    --destructive: oklch(0.60 0.22 25);
+    /* Destructive */
+    --destructive: oklch(0.55 0.20 25);
     
-    /* Bordes e Inputs: Carbón violáceo sólido */
-    --border: oklch(0.26 0.04 285);
-    --input: oklch(0.26 0.04 285);
-    --ring: oklch(0.60 0.10 285);
+    /* Bordes e Inputs */
+    --border: oklch(0.32 0.06 285);
+    --input: oklch(0.32 0.06 285);
+    --ring: oklch(0.65 0.22 285);
     
-    /* Gráficos: Escala monocromática con matices morados */
-    --chart-1: oklch(0.60 0.10 285);
-    --chart-2: oklch(0.50 0.08 285);
-    --chart-3: oklch(0.70 0.05 285);
-    --chart-4: oklch(0.40 0.08 285);
-    --chart-5: oklch(0.30 0.06 285);
-    
-    /* SIDEBAR: Carbón morado profundo (base visual) */
-    --sidebar: oklch(0.14 0.03 285);
-    --sidebar-foreground: oklch(0.92 0.02 285);
-    --sidebar-primary: oklch(0.75 0.12 285);
-    --sidebar-primary-foreground: oklch(0.12 0.02 285);
-    --sidebar-accent: oklch(0.20 0.04 285);
-    --sidebar-accent-foreground: oklch(0.92 0.02 285);
-    --sidebar-border: oklch(0.20 0.04 285);
-    --sidebar-ring: oklch(0.60 0.10 285);
+    /* Gráficos */
+    --chart-1: oklch(0.65 0.22 285);
+    --chart-2: oklch(0.55 0.18 285);
+    --chart-3: oklch(0.75 0.15 285);
+    --chart-4: oklch(0.45 0.12 285);
+    --chart-5: oklch(0.35 0.10 285);
 }
 
 @layer base {

@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
-import { Plus, Eye, Trash2, Ban, ArrowUpRight, ArrowDownRight, Wallet, RotateCcw } from 'lucide-react';
+import { Plus, Eye, Pencil, Trash2, Ban, ArrowUpRight, ArrowDownRight, Wallet, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/tables/DataTable';
 import { TableToolbar } from '@/components/tables/TableToolbar';
 import { TablePagination } from '@/components/tables/TablePagination';
 import { Card, CardContent } from '@/components/ui/card';
 import { CreateJournalEntryModal } from '../modals/CreateJournalEntryModal';
+import { EditJournalEntryModal } from '../modals/EditJournalEntryModal';
 import { JournalEntryDetailModal } from '../modals/JournalEntryDetailModal';
 import { DeleteJournalEntryModal } from '../modals/DeleteJournalEntryModal';
 import { JournalStatusBadge } from '../components/JournalStatusBadge';
@@ -43,17 +44,20 @@ export default function JournalEntriesPage() {
   const [filters, setFilters] = useState<JournalEntryQueryParams>({});
   const [createOpen, setCreateOpen] = useState(false);
   const [detailEntry, setDetailEntry] = useState<JournalEntry | null>(null);
+  const [editEntry, setEditEntry] = useState<JournalEntry | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<JournalEntry | null>(null);
 
   const { data, isLoading } = useJournalEntries({ ...filters, page, limit });
+  const { data: allData } = useJournalEntries({ ...filters, limit: 1000 });
   const anularMutation = useUpdateJournalEntry();
 
   const entries = data?.data ?? [];
   const pagination = data?.pagination;
+  const allEntries = allData?.data ?? [];
 
-  // ── Calcular resumen (ingresos, egresos, saldo) ──────────────────────────
+  // ── Calcular resumen (ingresos, egresos, saldo) ── usando TODOS los datos
   const summary = useMemo(() => {
-    const validEntries = entries.filter((e) => e.status === 'Valido');
+    const validEntries = allEntries.filter((e) => e.status === 'Valido');
     const ingresos = validEntries
       .filter((e) => e.type === 'Ingreso')
       .reduce((s, e) => s + e.amount, 0);
@@ -61,25 +65,33 @@ export default function JournalEntriesPage() {
       .filter((e) => e.type === 'Egreso')
       .reduce((s, e) => s + e.amount, 0);
     return { ingresos, egresos, saldo: ingresos - egresos };
-  }, [entries]);
+  }, [allEntries]);
 
-  // ── Calcular saldo acumulado por fila ─────────────────────────────────────
+  // ── Calcular saldo acumulado por fila ── usando TODOS los datos
   const entriesWithBalance = useMemo(() => {
-    // Ordenar por fecha ascendente y comprobante
-    const sorted = [...entries].sort((a, b) => {
-      const dateDiff = new Date(a.date).getTime() - new Date(b.date).getTime();
-      if (dateDiff !== 0) return dateDiff;
-      return a.voucherNumber.localeCompare(b.voucherNumber);
-    });
+    if (allEntries.length === 0) return entries;
+
+    const sortedAll = [...allEntries]
+      .sort((a, b) => {
+        const dateDiff = new Date(a.date).getTime() - new Date(b.date).getTime();
+        if (dateDiff !== 0) return dateDiff;
+        return a.voucherNumber.localeCompare(b.voucherNumber);
+      });
 
     let running = 0;
-    return sorted.map((e) => {
+    const balanceMap = new Map<string, number>();
+    for (const e of sortedAll) {
       if (e.status === 'Valido') {
         running += e.type === 'Ingreso' ? e.amount : -e.amount;
       }
-      return { ...e, runningBalance: running };
-    });
-  }, [entries]);
+      balanceMap.set(e._id, running);
+    }
+
+    return entries.map((e) => ({
+      ...e,
+      runningBalance: e.status === 'Anulado' ? undefined : balanceMap.get(e._id),
+    }));
+  }, [entries, allEntries]);
 
   const handleAnular = async (id: string) => {
     try {
@@ -102,7 +114,7 @@ export default function JournalEntriesPage() {
       header: 'Fecha',
       accessorKey: 'date',
       cell: ({ getValue }) =>
-        new Date(getValue() as string).toLocaleDateString('es-HN'),
+        new Date(getValue() as string).toISOString().slice(0, 10).split('-').reverse().join('/'),
     },
     {
       header: 'Tipo',
@@ -167,6 +179,9 @@ export default function JournalEntriesPage() {
           return <span className="text-muted-foreground text-xs">—</span>;
         }
         const bal = row.original.runningBalance;
+        if (bal === undefined || bal === null) {
+          return <span className="text-muted-foreground text-xs">—</span>;
+        }
         return (
           <span
             className={cn(
@@ -203,6 +218,16 @@ export default function JournalEntriesPage() {
           >
             <Eye className="h-4 w-4" />
           </Button>
+          {can('accounting:write') && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setEditEntry(row.original)}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+          )}
           {can('accounting:write') && row.original.status === 'Valido' && (
             <Button
               variant="ghost"
@@ -390,6 +415,16 @@ export default function JournalEntriesPage() {
           canAnular={can('accounting:write') && detailEntry.status === 'Valido'}
           onAnular={() => handleAnular(detailEntry._id)}
           isAnulando={anularMutation.isPending}
+        />
+      )}
+
+      {editEntry && (
+        <EditJournalEntryModal
+          open={!!editEntry}
+          onOpenChange={(open) => {
+            if (!open) setEditEntry(null);
+          }}
+          entry={editEntry}
         />
       )}
 

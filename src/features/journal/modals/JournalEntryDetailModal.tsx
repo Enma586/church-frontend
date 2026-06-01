@@ -53,12 +53,10 @@ export function JournalEntryDetailModal({
     entry.createdByData?.username ??
     (typeof entry.createdBy === 'object' && entry.createdBy !== null ? entry.createdBy.username : '—');
 
-  const formattedDate = new Date(entry.date).toLocaleDateString('es-HN', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+  const DAYS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  const MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const d = new Date(entry.date);
+  const formattedDate = `${DAYS[d.getUTCDay()]}, ${d.getUTCDate()} de ${MONTHS[d.getUTCMonth()]} de ${d.getUTCFullYear()}`;
 
   const formattedCreatedAt = new Date(entry.createdAt).toLocaleDateString(
     'es-HN',

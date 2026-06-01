@@ -130,7 +130,7 @@ function LedgerTab() {
                   {rows.map((row, i) => (
                     <tr key={i} className="border-b last:border-0">
                       <td className="py-1.5">
-                        {new Date(row.date).toLocaleDateString('es-HN')}
+                        {new Date(row.date).toISOString().slice(0, 10).split('-').reverse().join('/')}
                       </td>
                       <td className="py-1.5 font-mono text-xs">
                         {row.voucherNumber}

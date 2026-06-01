@@ -83,9 +83,16 @@ export function FormDatePicker<T extends FieldValues>({
               <Calendar
                 mode="single"
                 selected={parseLocal(field.value) ?? undefined}
-                onSelect={(date) =>
-                  field.onChange(date ? format(date, 'yyyy-MM-dd') : '')
-                }
+                onSelect={(date) => {
+                  if (!date) {
+                    field.onChange('');
+                    return;
+                  }
+                  const y = date.getFullYear();
+                  const m = String(date.getMonth() + 1).padStart(2, '0');
+                  const d = String(date.getDate()).padStart(2, '0');
+                  field.onChange(`${y}-${m}-${d}`);
+                }}
                 disabled={disabledDays}
                 initialFocus
                 locale={es}

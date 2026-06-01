@@ -23,7 +23,6 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { cn } from '@/lib/utils';
 import {
   Calculator,
-  DollarSign,
   Loader2,
   CheckCircle2,
   AlertTriangle,
@@ -152,7 +151,7 @@ function NewClosingModal({
 
   const bills = denominations.filter((d) => d >= 1);
 
-  const fmtDenom = (d: number) => `L. ${d}`;
+  const fmtDenom = (d: number) => `${d}`;
 
   // ── Handlers ───────────────────────────────────────────────
   const fetchBalance = async () => {
@@ -283,7 +282,7 @@ function NewClosingModal({
                       Ingresos
                     </p>
                     <p className="text-lg font-bold text-green-600 tabular-nums">
-                      L. {cashBalance.totalIngresos.toFixed(2)}
+                      {cashBalance.totalIngresos.toFixed(2)}
                     </p>
                   </div>
                   <div>
@@ -291,7 +290,7 @@ function NewClosingModal({
                       Egresos
                     </p>
                     <p className="text-lg font-bold text-red-600 tabular-nums">
-                      L. {cashBalance.totalEgresos.toFixed(2)}
+                      {cashBalance.totalEgresos.toFixed(2)}
                     </p>
                   </div>
                   <div>
@@ -306,7 +305,7 @@ function NewClosingModal({
                           : 'text-red-600',
                       )}
                     >
-                      L. {cashBalance.saldoNeto.toFixed(2)}
+                      {cashBalance.saldoNeto.toFixed(2)}
                     </p>
                   </div>
                   <div>
@@ -322,11 +321,11 @@ function NewClosingModal({
                   <p className="text-xs text-muted-foreground mt-3">
                     Rango:{' '}
                     {cashBalance.dateFrom
-                      ? new Date(cashBalance.dateFrom).toLocaleDateString('es-HN')
+                      ? new Date(cashBalance.dateFrom).toISOString().slice(0, 10).split('-').reverse().join('/')
                       : 'Inicio'}
                     {' — '}
                     {cashBalance.dateTo
-                      ? new Date(cashBalance.dateTo).toLocaleDateString('es-HN')
+                      ? new Date(cashBalance.dateTo).toISOString().slice(0, 10).split('-').reverse().join('/')
                       : 'Hoy'}
                   </p>
                 )}
@@ -383,8 +382,7 @@ function NewClosingModal({
                         )}
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-bold">{fmtDenom(d)}</span>
-                          <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="text-sm font-bold">L. {d}</span>
                         </div>
                         <FormInput
                           name={`den_${d}`}
@@ -397,7 +395,7 @@ function NewClosingModal({
                         />
                         {qty > 0 && (
                           <p className="text-xs text-muted-foreground mt-1 text-right tabular-nums">
-                            = L. {(d * qty).toFixed(2)}
+                            = {(d * qty).toFixed(2)}
                           </p>
                         )}
                       </div>
@@ -417,7 +415,7 @@ function NewClosingModal({
               <div className="flex items-center justify-between">
                 <span className="font-semibold">Total contado:</span>
                 <span className="text-xl font-bold tabular-nums">
-                  L. {grandTotal.toFixed(2)}
+                  {grandTotal.toFixed(2)}
                 </span>
               </div>
             </div>
@@ -437,13 +435,13 @@ function NewClosingModal({
                         : 'text-red-600',
                     )}
                   >
-                    L. {expectedBalance.toFixed(2)}
+                    {expectedBalance.toFixed(2)}
                   </span>
                 </div>
                 {grandTotal > 0 && Math.abs(grandTotal - expectedBalance) >= 0.005 && (
                   <p className="text-xs text-muted-foreground mt-1 text-right">
                     Diferencia: {grandTotal > expectedBalance ? '+' : ''}
-                    L. {(grandTotal - expectedBalance).toFixed(2)}
+                    {(grandTotal - expectedBalance).toFixed(2)}
                   </p>
                 )}
               </div>
@@ -487,7 +485,7 @@ function NewClosingModal({
                         Total contado (físico)
                       </p>
                       <p className="text-2xl font-bold tabular-nums">
-                        L. {grandTotal.toFixed(2)}
+                        {grandTotal.toFixed(2)}
                       </p>
                     </div>
                     <Wallet className="h-10 w-10 text-primary/30" />
@@ -512,7 +510,7 @@ function NewClosingModal({
                           Saldo esperado (sistema)
                         </p>
                         <p className="text-xl font-bold tabular-nums">
-                          L. {expectedBalance.toFixed(2)}
+                          {expectedBalance.toFixed(2)}
                         </p>
                       </div>
                       <Calculator className="h-8 w-8 text-muted-foreground/30" />
@@ -548,7 +546,7 @@ function NewClosingModal({
                       <AlertTriangle className="h-8 w-8 text-red-500 shrink-0" />
                       <div>
                         <p className="text-lg font-bold text-red-700">
-                          Diferencia de L. {Math.abs(difference).toFixed(2)}
+                          Diferencia: {Math.abs(difference).toFixed(2)}
                         </p>
                         <p className="text-sm text-red-600">
                           {grandTotal > expectedBalance
@@ -631,12 +629,7 @@ function RecentClosingsTable({ }: { onNew: () => void }) {
     {
       header: 'Fecha',
       accessorKey: 'date',
-      cell: ({ getValue }) =>
-        new Date(getValue() as string).toLocaleDateString('es-HN', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric',
-        }),
+      cell: ({ getValue }) => new Date(getValue() as string).toISOString().slice(0, 10).split('-').reverse().join('/'),
     },
     {
       header: 'Concepto',
@@ -651,7 +644,7 @@ function RecentClosingsTable({ }: { onNew: () => void }) {
       accessorKey: 'totalCalculated',
       cell: ({ getValue }) => (
         <span className="font-mono tabular-nums font-semibold text-sm">
-          L. {(getValue() as number).toFixed(2)}
+          {(getValue() as number).toFixed(2)}
         </span>
       ),
     },
@@ -668,8 +661,8 @@ function RecentClosingsTable({ }: { onNew: () => void }) {
             )}
           >
             {Math.abs(diff) < 0.005
-              ? 'L. 0.00'
-              : `${diff > 0 ? '+' : ''}L. ${diff.toFixed(2)}`}
+              ? '0.00'
+              : `${diff > 0 ? '+' : ''}${diff.toFixed(2)}`}
           </span>
         );
       },
