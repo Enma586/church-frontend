@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
@@ -29,9 +28,7 @@ interface FormDatePickerProps<T extends FieldValues> {
 }
 
 /**
- * Parses a YYYY-MM-DD string into a local Date (no timezone shift).
- *
- * @example parseLocal('2026-05-05') → Date representing May 5 at midnight LOCAL time
+ * Parses a YYYY-MM-DD string into a UTC-midnight Date (no timezone shift).
  */
 function parseLocal(value: unknown): Date | null {
   if (!value) return null;
@@ -39,7 +36,15 @@ function parseLocal(value: unknown): Date | null {
   const datePart = str.split('T')[0];
   const [y, m, d] = datePart.split('-').map(Number);
   if (isNaN(y) || isNaN(m) || isNaN(d)) return null;
-  return new Date(y, m - 1, d);
+  return new Date(Date.UTC(y, m - 1, d));
+}
+
+/** Formats a UTC Date to YYYY-MM-DD string */
+function toDateString(d: Date): string {
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 }
 
 export function FormDatePicker<T extends FieldValues>({
@@ -73,7 +78,9 @@ export function FormDatePicker<T extends FieldValues>({
                 >
                   {(() => {
                     const d = parseLocal(field.value);
-                    return d ? format(d, 'PPP', { locale: es }) : <span>{placeholder}</span>;
+                    if (!d) return <span>{placeholder}</span>;
+                    const MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+                    return `${d.getUTCDate()} de ${MONTHS[d.getUTCMonth()]} de ${d.getUTCFullYear()}`;
                   })()}
                   <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                 </Button>
@@ -84,15 +91,9 @@ export function FormDatePicker<T extends FieldValues>({
                 mode="single"
                 selected={parseLocal(field.value) ?? undefined}
                 onSelect={(date) => {
-                  if (!date) {
-                    field.onChange('');
-                    return;
-                  }
-                  const y = date.getFullYear();
-                  const m = String(date.getMonth() + 1).padStart(2, '0');
-                  const d = String(date.getDate()).padStart(2, '0');
-                  field.onChange(`${y}-${m}-${d}`);
+                  field.onChange(date ? toDateString(date) : '');
                 }}
+                timeZone="UTC"
                 disabled={disabledDays}
                 initialFocus
                 locale={es}

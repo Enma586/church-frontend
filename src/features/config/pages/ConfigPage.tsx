@@ -3,13 +3,13 @@
  * Shows a read-only card with current settings and a button to edit.
  */
 import { useState } from 'react';
-import { Pencil, Loader2, Database, Download } from 'lucide-react'; // Añadido Download
+import { Pencil, Loader2, Database, Download, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { EditConfigModal } from '../modals/EditConfigModal';
 import { useConfig } from '../hooks/useConfig';
-import { useTriggerBackup, useDownloadBackup } from '../hooks/createBackup'; // Importamos ambos hooks
+import { useTriggerBackup, useDownloadBackup, useTriggerSystemUpdate } from '../hooks/createBackup';
 
 export default function ConfigPage() {
   const { data: configData, isLoading, isError } = useConfig();
@@ -20,6 +20,9 @@ export default function ConfigPage() {
   
   // Hook para forzar la descarga del ZIP a la computadora
   const { mutate: downloadBackup, isPending: isDownloadingBackup } = useDownloadBackup();
+
+  // Hook para actualizar el sistema (pull de DockerHub)
+  const { mutate: triggerSystemUpdate, isPending: isUpdating } = useTriggerSystemUpdate();
 
   const config = configData?.data;
 
@@ -153,6 +156,26 @@ export default function ConfigPage() {
                 )}
                 {isDownloadingBackup ? 'Descargando...' : 'Descargar a PC'}
               </Button>
+            </div>
+
+            {/* ── Actualizar Sistema ── */}
+            <div className="pt-3 mt-2 border-t border-border/50">
+              <Button
+                variant="secondary"
+                className="w-full"
+                onClick={() => triggerSystemUpdate()}
+                disabled={isUpdating}
+              >
+                {isUpdating ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                )}
+                {isUpdating ? 'Actualizando...' : 'Actualizar Sistema'}
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                Descarga la última versión del backend desde DockerHub y reinicia el contenedor.
+              </p>
             </div>
 
           </CardContent>

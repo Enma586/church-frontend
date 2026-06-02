@@ -50,4 +50,15 @@ export const configService = {
     );
     return data;
   },
+
+  /**
+   * Dispara la actualización del sistema (pull de DockerHub + restart).
+   * Watchtower se encarga de descargar la nueva imagen y reiniciar el contenedor.
+   */
+  triggerSystemUpdate: async (): Promise<ApiResponse<{ success: boolean; message: string }>> => {
+    const { data } = await api.post<ApiResponse<{ success: boolean; message: string }>>(
+      '/config/system-update'
+    );
+    return data;
+  },
 };

@@ -61,7 +61,7 @@ export function DataTable<TData>({
       {data.length === 0 ? (
         <TableEmpty title={emptyTitle} description={emptyDescription} />
       ) : (
-        <div className="rounded-md border">
+        <div className="rounded-md border overflow-x-auto">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (

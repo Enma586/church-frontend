@@ -69,7 +69,21 @@ function parseLocal(value: unknown): Date | null {
   if (!value) return null;
   const [y, m, d] = String(value).split("T")[0].split("-").map(Number);
   if (isNaN(y) || isNaN(m) || isNaN(d)) return null;
-  return new Date(y, m - 1, d);
+  return new Date(Date.UTC(y, m - 1, d));
+}
+
+function toDateString(d: Date): string {
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function formatDisplay(d: Date): string {
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const y = d.getUTCFullYear();
+  return `${day}/${m}/${y}`;
 }
 
 function DatePopover({
@@ -97,10 +111,7 @@ function DatePopover({
             if (!date) return placeholder;
             const d = parseLocal(date);
             if (!d) return placeholder;
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, "0");
-            const day = String(d.getDate()).padStart(2, "0");
-            return `${day}/${m}/${y}`;
+            return formatDisplay(d);
           })()}
         </Button>
       </PopoverTrigger>
@@ -108,13 +119,8 @@ function DatePopover({
         <Calendar
           mode="single"
           selected={parseLocal(date) ?? undefined}
-          onSelect={(d) => {
-                  if (!d) { onChange(""); return; }
-                  const y = d.getFullYear();
-                  const m = String(d.getMonth() + 1).padStart(2, "0");
-                  const day = String(d.getDate()).padStart(2, "0");
-                  onChange(`${y}-${m}-${day}`);
-                }}
+          onSelect={(d) => onChange(d ? toDateString(d) : "")}
+          timeZone="UTC"
           initialFocus
           captionLayout="dropdown"
           fromYear={1900}

@@ -52,3 +52,19 @@ export function useTriggerBackup() {
     },
   });
 }
+
+/**
+ * Dispara la actualización de la imagen Docker desde DockerHub.
+ * Watchtower se encarga de hacer pull y reiniciar el contenedor.
+ */
+export function useTriggerSystemUpdate() {
+  return useMutation({
+    mutationFn: () => configService.triggerSystemUpdate(),
+    onSuccess: (data) => {
+      showToast.success(data.message || 'Actualización iniciada. El sistema se reiniciará en unos segundos.');
+    },
+    onError: (error: Error) => {
+      showToast.error(error.message || 'Error al iniciar la actualización');
+    },
+  });
+}
