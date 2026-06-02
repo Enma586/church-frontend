@@ -1,6 +1,4 @@
 import { useCallback } from "react";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -95,14 +93,28 @@ function DatePopover({
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {(() => { const d = date ? parseLocal(date) : null; return d ? format(d, "PP", { locale: es }) : placeholder; })()}
+          {(() => {
+            if (!date) return placeholder;
+            const d = parseLocal(date);
+            if (!d) return placeholder;
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            return `${day}/${m}/${y}`;
+          })()}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
         <Calendar
           mode="single"
           selected={parseLocal(date) ?? undefined}
-          onSelect={(d) => onChange(d ? format(d, "yyyy-MM-dd") : "")}
+          onSelect={(d) => {
+                  if (!d) { onChange(""); return; }
+                  const y = d.getFullYear();
+                  const m = String(d.getMonth() + 1).padStart(2, "0");
+                  const day = String(d.getDate()).padStart(2, "0");
+                  onChange(`${y}-${m}-${day}`);
+                }}
           initialFocus
           captionLayout="dropdown"
           fromYear={1900}
