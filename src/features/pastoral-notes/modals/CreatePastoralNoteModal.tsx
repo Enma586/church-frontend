@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import type { CreatePastoralNotePayload } from '@/types';
 
 const createSchema = z.object({
-  memberId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Selecciona un miembro'),
+  memberId: z.string().uuid( 'Selecciona un miembro'),
   content: z.string().trim().min(1, 'Requerido'),
   isSensitive: z.boolean().default(false),
 });

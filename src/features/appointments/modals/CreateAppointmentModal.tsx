@@ -18,7 +18,7 @@ import type { CreateAppointmentPayload } from '../types/appointment.types';
 const createSchema = z.object({
   memberId: z
     .string()
-    .regex(/^[0-9a-fA-F]{24}$/, 'Selecciona un miembro'),
+    .uuid( 'Selecciona un miembro'),
   title: z.string().trim().min(1, 'Requerido'),
   description: z.string().trim().optional(),
   extras: z.string().trim().optional(),

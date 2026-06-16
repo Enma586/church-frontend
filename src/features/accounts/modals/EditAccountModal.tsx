@@ -31,7 +31,7 @@ const editSchema = z.object({
     .string()
     .nullable()
     .optional()
-    .refine((val) => !val || /^[0-9a-fA-F]{24}$/.test(val), {
+    .refine((val) => !val || z.string().uuid().safeParse(val).success, {
       message: 'ID de cuenta inválido',
     })
     .transform((val) => (val === '' || val === 'null' ? null : val)),

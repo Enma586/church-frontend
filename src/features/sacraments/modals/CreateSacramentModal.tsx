@@ -27,7 +27,7 @@ const godparentSchema = z.object({
 });
 
 const createSchema = z.object({
-  memberId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Selecciona un miembro"),
+  memberId: z.string().uuid( "Selecciona un miembro"),
   type: z.enum(SACRAMENT_TYPES),
   date: z.string().optional(),          // ← antes: z.string().min(1, "Requerida")
   place: z.string().trim().optional(),

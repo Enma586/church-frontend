@@ -22,13 +22,13 @@ const schema = z.object({
   account: z
     .string()
     .min(1, 'Debe seleccionar una cuenta')
-    .regex(/^[0-9a-fA-F]{24}$/, 'Cuenta inválida'),
+    .uuid( 'Cuenta inválida'),
   product: z
     .string()
     .nullable()
     .optional()
     .transform((val) => (val === 'none' || val === '' ? null : val))
-    .refine((val) => !val || /^[0-9a-fA-F]{24}$/.test(val), {
+    .refine((val) => !val || z.string().uuid().safeParse(val).success, {
       message: 'Producto inválido',
     }),
   amount: z.preprocess(
