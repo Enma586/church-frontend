@@ -17,7 +17,7 @@ import type { CreateUserPayload } from '@/types';
 const roleOptions = USER_ROLES.map((r) => ({ value: r, label: r }));
 
 const createSchema = z.object({
-  memberId: z.string().uuid( 'Selecciona un miembro'),
+  memberId: z.string().regex(/^[0-9a-fA-F]{24}$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, 'Selecciona un miembro'),
   username: z.string().trim().toLowerCase().min(1, 'Requerido'),
   password: z.string().min(6, 'Mínimo 6 caracteres'),
   role: z.enum(USER_ROLES).optional(),

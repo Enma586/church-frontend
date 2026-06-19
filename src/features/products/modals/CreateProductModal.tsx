@@ -20,7 +20,7 @@ const schema = z.object({
   incomeAccountId: z
     .string()
     .min(1, 'Debe seleccionar una cuenta de ingreso')
-    .uuid( 'Cuenta de ingreso inválida'),
+    .regex(/^[0-9a-fA-F]{24}$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, 'Cuenta de ingreso inválida'),
   isActive: z.boolean(),
 });
 

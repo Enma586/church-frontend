@@ -34,7 +34,7 @@ const createSchema = z.object({
     .string()
     .nullable()
     .optional()
-    .refine((val) => !val || z.string().uuid().safeParse(val).success, {
+    .refine((val) => !val || /^[0-9a-fA-F]{24}$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(val), {
       message: 'ID de cuenta inválido',
     })
     .transform((val) => (val === '' || val === 'null' ? null : val)),
